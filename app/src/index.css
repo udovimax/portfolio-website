@@ -418,12 +418,43 @@ textarea:focus {
 }
 
 .player-shell-minimized .player-header {
-  margin-bottom: 0.5rem;
+  margin-bottom: 0;
 }
 
 .player-shell-minimized .player-header img {
-  height: 2.5rem;
-  width: 2.5rem;
+  height: 2.25rem;
+  width: 2.25rem;
+}
+
+.player-shell-minimized .player-mini-controls {
+  max-height: 0;
+  margin-top: 0;
+  overflow: hidden;
+  opacity: 0;
+  pointer-events: none;
+  transition: max-height 180ms ease, margin-top 180ms ease, opacity 180ms ease;
+}
+
+.player-shell-minimized:hover .player-mini-controls,
+.player-shell-minimized:focus-within .player-mini-controls,
+.player-shell-minimized.player-controls-revealed .player-mini-controls {
+  max-height: 3rem;
+  margin-top: 0.5rem;
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.player-transport-action {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 180ms ease, transform 180ms ease, background-color 180ms ease;
+}
+
+.player-shell-minimized:hover .player-transport-action,
+.player-shell-minimized:focus-within .player-transport-action,
+.player-shell-minimized.player-controls-revealed .player-transport-action {
+  opacity: 1;
+  pointer-events: auto;
 }
 
 .artist-gallery-item {
@@ -504,7 +535,7 @@ textarea:focus {
   }
 
   .player-shell {
-    width: min(20rem, calc(100% - 1rem));
+    width: min(18rem, calc(100% - 1rem));
     border-radius: 1.25rem;
     padding: 0.75rem;
   }

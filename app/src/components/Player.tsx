@@ -100,7 +100,7 @@ export function Player({
       initial={{ y: 80, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-      className={`player-shell group fixed z-50 w-[min(22rem,calc(100vw-1.5rem))] rounded-3xl border border-white/20 p-3 backdrop-blur-2xl ${minimized ? 'player-shell-minimized' : ''} ${controlsRevealed ? 'player-controls-revealed' : ''}`}
+      className={`player-shell group fixed z-50 w-[min(18rem,calc(100vw-1.5rem))] rounded-3xl border border-white/20 p-3 backdrop-blur-2xl ${minimized ? 'player-shell-minimized' : ''} ${controlsRevealed ? 'player-controls-revealed' : ''}`}
       style={playerStyle}
       aria-label="Music player"
       data-cursor-reactive
@@ -243,7 +243,7 @@ export function Player({
         <div className="player-mini-controls flex items-center gap-2">
           <button
             type="button"
-            className="magnetic-btn rounded-full border border-white/30 p-2 text-white hover:bg-white/10"
+            className="player-transport-action magnetic-btn rounded-full border border-white/30 p-2 text-white hover:bg-white/10"
             onClick={onPrevious}
             aria-label="Previous track"
           >
@@ -251,7 +251,7 @@ export function Player({
           </button>
           <button
             type="button"
-            className="magnetic-btn rounded-full bg-cyan-300 p-2.5 text-black"
+            className="player-transport-action magnetic-btn rounded-full bg-cyan-300 p-2.5 text-black"
             onClick={onTogglePlay}
             aria-label={isPlaying ? 'Pause track' : 'Play track'}
           >
@@ -259,20 +259,12 @@ export function Player({
           </button>
           <button
             type="button"
-            className="magnetic-btn rounded-full border border-white/30 p-2 text-white hover:bg-white/10"
+            className="player-transport-action magnetic-btn rounded-full border border-white/30 p-2 text-white hover:bg-white/10"
             onClick={onNext}
             aria-label="Next track"
           >
             <FaForward />
           </button>
-          <div className="min-w-0 flex-1">
-            <div className="h-1 overflow-hidden rounded-full bg-white/15">
-              <div
-                className="h-full rounded-full bg-cyan-300 transition-[width] duration-200"
-                style={{ width: `${duration ? Math.min(100, (currentTime / duration) * 100) : 0}%` }}
-              />
-            </div>
-          </div>
         </div>
       )}
     </motion.aside>
