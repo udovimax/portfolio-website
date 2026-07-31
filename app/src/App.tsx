@@ -805,7 +805,7 @@ function App() {
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true, amount: 0.4 }}
         transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-        className="border-t border-white/10 px-6 py-10 text-center"
+        className="footer-site border-t border-white/10 px-6 py-10 text-center"
       >
         <p className="text-3xl font-semibold text-white sm:text-5xl">MAX UDOVICHENKO</p>
         <p className="mt-3 text-sm uppercase tracking-[0.18em] text-white/60">
