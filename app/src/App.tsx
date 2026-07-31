@@ -20,23 +20,33 @@ function getPageFromHash(): NavSection {
 }
 
 const artistImages = [
-  { file: 'photo-9.jpg', alt: 'Max in a warm, candid portrait' },
-  { file: 'photo-1.jpg', alt: 'Max playing bass guitar' },
-  { file: 'photo-2.jpg', alt: 'Max reaching toward the camera' },
-  { file: 'photo-5.jpg', alt: 'Portrait of Max against a light background' },
-  { file: 'photo-6.jpg', alt: 'Max holding a phone in a mirror portrait' },
-  { file: 'photo-7.jpg', alt: 'Close portrait of Max' },
-  { file: 'photo-8.jpg', alt: 'Close portrait of Max in warm light' },
-  { file: 'photo-3.jpg', alt: 'Max reaching toward the camera, alternate frame' },
-  { file: 'photo-4.jpg', alt: 'Max playing bass guitar, alternate frame' },
-]
+  'film-1.jpg', 'film-2.jpg', 'film-3.webp', 'film-4.jpg', 'film-5.webp', 'film-6.jpg',
+  'film-7.webp', 'film-8.jpg', 'film-9.webp', 'film-10.webp', 'film-11.jpg', 'film-12.jpg',
+  'film-13.jpg', 'film-14.jpg', 'film-15.jpg', 'film-16.jpg', 'film-17.webp', 'film-18.jpg',
+  'film-19.webp', 'film-20.jpg', 'film-21.webp', 'film-22.jpg', 'film-23.webp', 'film-24.jpg',
+  'film-25.webp', 'film-26.jpg', 'film-27.webp', 'film-28.jpg', 'film-29.jpg', 'film-30.jpg',
+  'film-31.jpg', 'film-32.webp', 'film-33.jpg', 'film-34.jpg', 'film-35.jpg', 'film-36.jpg',
+  'film-37.webp', 'film-38.webp', 'film-39.webp', 'film-40.jpg', 'film-41.jpg', 'film-42.jpg',
+  'film-43.jpg', 'film-44.jpg', 'film-45.jpg', 'film-46.webp', 'film-47.webp', 'film-48.jpg',
+].map((file, index) => ({
+  file,
+  alt: `Film photograph from Max Udovichenko's visual archive ${index + 1}`,
+}))
 
 const pageArtwork: Record<NavSection, string> = {
-  home: 'media/images/site-background.jpg',
-  music: 'media/images/max/photo-1.jpg',
-  projects: 'media/images/max/photo-2.jpg',
-  about: 'media/images/max/photo-9.jpg',
-  contact: 'media/images/max/photo-6.jpg',
+  home: 'media/images/instagram/film-1.jpg',
+  music: 'media/images/instagram/film-4.jpg',
+  projects: 'media/images/instagram/film-3.webp',
+  about: 'media/images/instagram/film-40.jpg',
+  contact: 'media/images/instagram/film-43.jpg',
+}
+
+const pageArtworkSecondary: Record<NavSection, string> = {
+  home: 'media/images/instagram/film-40.jpg',
+  music: 'media/images/instagram/film-8.jpg',
+  projects: 'media/images/instagram/film-12.jpg',
+  about: 'media/images/instagram/film-2.jpg',
+  contact: 'media/images/instagram/film-11.jpg',
 }
 
 interface RevealProps {
@@ -436,7 +446,10 @@ function App() {
             exit={{ opacity: 0, y: -12 }}
             transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
             className={`site-page page-${currentPage}`}
-            style={{ '--page-art': `url("${assetUrl(pageArtwork[currentPage])}")` } as CSSProperties}
+            style={{
+              '--page-art': `url("${assetUrl(pageArtwork[currentPage])}")`,
+              '--page-art-secondary': `url("${assetUrl(pageArtworkSecondary[currentPage])}")`,
+            } as CSSProperties}
           >
         {currentPage === 'home' ? (
           <section id="home" className="hero-section section-shell pt-28">
@@ -472,7 +485,7 @@ function App() {
               className="hero-portrait"
             >
               <img
-                src={assetUrl('media/images/max/photo-9.jpg')}
+                src={assetUrl('media/images/instagram/film-40.jpg')}
                 alt="Max Udovichenko in a warm portrait"
               />
               <figcaption>Max Udovichenko / Artist</figcaption>

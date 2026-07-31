@@ -7,8 +7,8 @@
       "year": 2026,
       "description": "Composed the music and designed sound effects for a game project developed at Kingston University.",
       "technologies": ["Composition", "Sound Design", "Interactive Audio"],
-      "thumbnail": "/media/images/max/photo-2.jpg",
-      "gallery": ["/media/images/max/photo-2.jpg", "/media/images/max/photo-5.jpg"],
+      "thumbnail": "/media/images/instagram/film-8.jpg",
+      "gallery": ["/media/images/instagram/film-8.jpg", "/media/images/instagram/film-17.webp"],
       "videoId": "video-universe",
       "links": [{ "label": "View Video", "url": "#videos" }]
     },
@@ -19,8 +19,8 @@
       "year": 2026,
       "description": "Original chiptune reimagining of music and SFX inspired by the cult NES title Gimmick!.",
       "technologies": ["Synthesis", "Sampling", "Sequencing"],
-      "thumbnail": "/media/images/max/photo-7.jpg",
-      "gallery": ["/media/images/max/photo-7.jpg", "/media/images/max/photo-8.jpg"],
+      "thumbnail": "/media/images/instagram/film-3.webp",
+      "gallery": ["/media/images/instagram/film-3.webp", "/media/images/instagram/film-12.jpg"],
       "videoId": "video-gimmick",
       "links": [{ "label": "View Video", "url": "#videos" }]
     },
@@ -31,8 +31,8 @@
       "year": 2026,
       "description": "Composed an original score for a short narrative film directed by Arikta Verma.",
       "technologies": ["Film Scoring", "Arrangement", "Mixing"],
-      "thumbnail": "/media/images/max/photo-9.jpg",
-      "gallery": ["/media/images/max/photo-9.jpg", "/media/images/max/photo-4.jpg"],
+      "thumbnail": "/media/images/instagram/film-1.jpg",
+      "gallery": ["/media/images/instagram/film-1.jpg", "/media/images/instagram/film-6.jpg"],
       "videoId": "video-third-day",
       "links": [{ "label": "View Video", "url": "#videos" }]
     },
@@ -43,8 +43,8 @@
       "year": 2026,
       "description": "Composed original music for an awareness film on climate change.",
       "technologies": ["Story Scoring", "Atmospheric Design"],
-      "thumbnail": "/media/images/max/photo-8.jpg",
-      "gallery": ["/media/images/max/photo-8.jpg", "/media/images/max/photo-3.jpg"],
+      "thumbnail": "/media/images/instagram/film-34.jpg",
+      "gallery": ["/media/images/instagram/film-34.jpg", "/media/images/instagram/film-45.jpg"],
       "videoId": "video-climate",
       "links": [{ "label": "View Video", "url": "#videos" }]
     }

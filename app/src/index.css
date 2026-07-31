@@ -163,6 +163,19 @@ textarea:focus-visible {
   pointer-events: none;
 }
 
+.site-page::after {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  content: '';
+  background:
+    linear-gradient(90deg, rgba(8, 10, 14, 0.78), transparent 48%),
+    var(--page-art-secondary) right 8% / min(34rem, 42vw) 52vh no-repeat;
+  background-attachment: fixed;
+  opacity: 0.2;
+  pointer-events: none;
+}
+
 .page-home::before {
   opacity: 0.08;
 }
@@ -784,6 +797,12 @@ textarea:focus {
 @media (max-width: 767px) {
   .site-page::before {
     background-attachment: scroll;
+  }
+
+  .site-page::after {
+    background-attachment: scroll;
+    background-size: auto, 76vw 42vh;
+    background-position: center, right 8%;
   }
 
   .section-shell {
