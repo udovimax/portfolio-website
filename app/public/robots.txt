@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://shmaxud.github.io/portfolio-website/sitemap.xml
+Sitemap: https://udovimax.github.io/portfolio-website/sitemap.xml
