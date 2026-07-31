@@ -400,7 +400,8 @@ textarea:focus-visible {
   scroll-behavior: smooth;
   scroll-snap-type: x mandatory;
   scrollbar-width: none;
-  overscroll-behavior: contain;
+  overscroll-behavior: none;
+  scroll-snap-stop: always;
   touch-action: pan-x;
 }
 
@@ -456,6 +457,18 @@ textarea:focus-visible {
   border-color: var(--accent);
   color: #071019;
   background: var(--accent);
+}
+
+.carousel-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.32;
+}
+
+.carousel-button:disabled:hover {
+  border-color: rgba(247, 244, 239, 0.25);
+  color: var(--text-main);
+  background: transparent;
+  transform: none;
 }
 
 .hero-title {
@@ -570,22 +583,22 @@ footer p:first-child {
 
 .glass-card-art {
   position: absolute;
-  inset: 0;
+  inset: -1.25rem;
   z-index: 0;
   background:
-    linear-gradient(180deg, rgba(7, 10, 15, 0.42), rgba(7, 10, 15, 0.9)),
+    linear-gradient(180deg, rgba(7, 10, 15, 0.58), rgba(7, 10, 15, 0.94)),
     var(--card-art) center / cover;
-  filter: saturate(0.86) contrast(1.03);
-  opacity: 0.48;
-  transform: scale(1.02) translateZ(0);
+  filter: blur(18px) saturate(0.82) contrast(1.04);
+  opacity: 0.36;
+  transform: scale(1.04) translateZ(0);
   transition: opacity 650ms ease, transform 800ms cubic-bezier(0.22, 1, 0.36, 1), filter 650ms ease;
 }
 
 .glass-card:hover .glass-card-art,
 .glass-card:focus-within .glass-card-art {
-  filter: saturate(1.02) contrast(1.04);
-  opacity: 0.62;
-  transform: scale(1.06) translateZ(0);
+  filter: blur(16px) saturate(0.94) contrast(1.04);
+  opacity: 0.46;
+  transform: scale(1.07) translateZ(0);
 }
 
 input[type='range'] {

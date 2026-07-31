@@ -794,7 +794,7 @@ function App() {
                     className="artist-gallery-item group relative overflow-hidden rounded-2xl border border-white/15 bg-white/5"
                   >
                     <img
-                      src={assetUrl(`media/images/max/${image.file}`)}
+                      src={assetUrl(`media/images/instagram/${image.file}`)}
                       alt={image.alt}
                       loading={index < 4 ? 'eager' : 'lazy'}
                       decoding="async"
