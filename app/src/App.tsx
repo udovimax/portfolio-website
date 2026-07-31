@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
 import { Howl, Howler } from 'howler'
 import { FaInstagram, FaSoundcloud, FaSpotify, FaYoutube } from 'react-icons/fa'
@@ -12,6 +12,54 @@ import { useSiteContent } from './hooks/useSiteContent'
 import type { NavSection, ProjectItem, Track, VideoItem } from './types/content'
 
 const sectionIds: NavSection[] = ['home', 'music', 'projects', 'about', 'contact']
+
+interface RevealProps {
+  children: ReactNode
+  className?: string
+  delay?: number
+  amount?: number
+  y?: number
+}
+
+function Reveal({ children, className = '', delay = 0, amount = 0.2, y = 24 }: RevealProps) {
+  const shouldReduceMotion = useReducedMotion()
+
+  return (
+    <motion.div
+      initial={shouldReduceMotion ? false : { opacity: 0, y }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, amount }}
+      transition={{ duration: 0.7, delay, ease: [0.22, 1, 0.36, 1] }}
+      className={className}
+    >
+      {children}
+    </motion.div>
+  )
+}
+
+function WordReveal({ text }: { text: string }) {
+  const shouldReduceMotion = useReducedMotion()
+
+  return (
+    <motion.h1
+      className="hero-title text-balance text-6xl font-bold leading-[0.9] sm:text-8xl md:text-9xl"
+      aria-label={text}
+    >
+      {text.split(' ').map((word, index) => (
+        <span key={`${word}-${index}`} className="inline-block overflow-hidden align-bottom pr-[0.2em]">
+          <motion.span
+            className="inline-block"
+            initial={shouldReduceMotion ? false : { opacity: 0, y: '110%' }}
+            animate={{ opacity: 1, y: '0%' }}
+            transition={{ duration: 0.8, delay: 0.28 + index * 0.09, ease: [0.22, 1, 0.36, 1] }}
+          >
+            {word}
+          </motion.span>
+        </span>
+      ))}
+    </motion.h1>
+  )
+}
 
 function App() {
   const shouldReduceMotion = useReducedMotion()
@@ -379,18 +427,16 @@ function App() {
       <FloatingNav hidden={hideNav} activeSection={activeSection} />
 
       <main className="relative pb-72 text-white md:pb-56">
-        <section id="home" className="section-shell min-h-screen pt-28">
+        <section id="home" className="hero-section section-shell min-h-screen pt-28">
           <motion.p
             initial={{ opacity: 0, y: 12 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, amount: 0.5 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.65, delay: 0.12, ease: [0.22, 1, 0.36, 1] }}
             className="mb-8 text-xs uppercase tracking-[0.32em] text-cyan-300"
           >
             Cinematic Portfolio
           </motion.p>
-          <h1 className="text-balance text-6xl font-bold leading-[0.9] sm:text-8xl md:text-9xl">
-            {content?.about.name}
-          </h1>
+          <WordReveal text={content?.about.name ?? ''} />
           <div className="mt-8 space-y-3 text-2xl text-white/75 sm:text-4xl">
             {content?.about.roles.map((role, index) => (
               <motion.p
@@ -406,16 +452,15 @@ function App() {
           </div>
           <motion.p
             initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            viewport={{ once: true, amount: 0.5 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.7, delay: 0.62 }}
             className="mt-10 max-w-3xl text-lg text-white/70"
           >
             {content?.about.intro}
           </motion.p>
           <motion.div
             initial={{ opacity: 0, y: 18 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, amount: 0.5 }}
+            animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.28, duration: 0.7 }}
             className="mt-16 grid max-w-4xl gap-5 border-t border-white/20 pt-4 text-xs uppercase tracking-[0.2em] text-white/55 sm:grid-cols-[1fr_auto]"
           >
@@ -427,11 +472,11 @@ function App() {
         </section>
 
         <section id="music" className="section-shell">
-          <div className="section-heading sticky top-24 z-10 mb-8 inline-flex rounded-full border border-white/20 bg-black/45 px-4 py-2 backdrop-blur-md">
+          <Reveal className="section-heading sticky top-24 z-10 mb-8 inline-flex rounded-full border border-white/20 bg-black/45 px-4 py-2 backdrop-blur-md">
             Music
-          </div>
+          </Reveal>
 
-          <div className="mb-8 flex flex-wrap items-center justify-between gap-4">
+          <Reveal className="mb-8 flex flex-wrap items-center justify-between gap-4" delay={0.08}>
             <div>
               <h2 className="text-4xl font-semibold sm:text-6xl">{content?.music.featuredAlbum}</h2>
               <p className="mt-2 max-w-2xl text-white/70">{content?.music.description}</p>
@@ -456,7 +501,7 @@ function App() {
                 SoundCloud Playlist
               </button>
             </div>
-          </div>
+          </Reveal>
 
           {libraryMode === 'local' ? (
             <div className="grid gap-5 md:grid-cols-2">
@@ -511,9 +556,9 @@ function App() {
         </section>
 
         <section id="projects" className="section-shell">
-          <div className="section-heading mb-8 inline-flex rounded-full border border-white/20 bg-black/45 px-4 py-2 backdrop-blur-md">
+          <Reveal className="section-heading mb-8 inline-flex rounded-full border border-white/20 bg-black/45 px-4 py-2 backdrop-blur-md">
             Projects & Video
-          </div>
+          </Reveal>
           <div className="grid gap-5 md:grid-cols-2">
             {content?.projects.projects.map((project) => {
               const linkedVideo = content.videos.videos.find((video) => video.id === project.videoId)
@@ -553,9 +598,9 @@ function App() {
         </section>
 
         <section id="about" className="section-shell">
-          <div className="section-heading mb-8 inline-flex rounded-full border border-white/20 bg-black/45 px-4 py-2 backdrop-blur-md">
+          <Reveal className="section-heading mb-8 inline-flex rounded-full border border-white/20 bg-black/45 px-4 py-2 backdrop-blur-md">
             About
-          </div>
+          </Reveal>
           <div className="grid gap-10 lg:grid-cols-[1.2fr_1fr]">
             <div>
               <h2 className="text-4xl font-semibold sm:text-6xl">Artistic Philosophy</h2>
@@ -572,21 +617,28 @@ function App() {
               </ul>
             </div>
             <ol className="space-y-4">
-              {content?.about.timeline.map((item) => (
-                <li key={`${item.year}-${item.title}`} className="timeline-item rounded-2xl border border-white/20 p-4">
+              {content?.about.timeline.map((item, index) => (
+                <motion.li
+                  key={`${item.year}-${item.title}`}
+                  initial={shouldReduceMotion ? false : { opacity: 0, x: 24 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  viewport={{ once: true, amount: 0.25 }}
+                  transition={{ duration: 0.6, delay: index * 0.08, ease: [0.22, 1, 0.36, 1] }}
+                  className="timeline-item rounded-2xl border border-white/20 p-4"
+                >
                   <p className="text-xs uppercase tracking-[0.2em] text-cyan-300">{item.year}</p>
                   <h3 className="mt-1 text-xl text-white">{item.title}</h3>
                   <p className="mt-2 text-white/70">{item.description}</p>
-                </li>
+                </motion.li>
               ))}
             </ol>
           </div>
         </section>
 
         <section id="contact" className="section-shell pb-36">
-          <div className="section-heading mb-8 inline-flex rounded-full border border-white/20 bg-black/45 px-4 py-2 backdrop-blur-md">
+          <Reveal className="section-heading mb-8 inline-flex rounded-full border border-white/20 bg-black/45 px-4 py-2 backdrop-blur-md">
             Contact
-          </div>
+          </Reveal>
           <div className="grid gap-8 lg:grid-cols-2">
             <GlassCard>
               <h2 className="text-4xl text-white">Start a Collaboration</h2>
@@ -671,12 +723,18 @@ function App() {
         </section>
       </main>
 
-      <footer className="border-t border-white/10 px-6 py-10 text-center">
+      <motion.footer
+        initial={shouldReduceMotion ? false : { opacity: 0, y: 18 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, amount: 0.4 }}
+        transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+        className="border-t border-white/10 px-6 py-10 text-center"
+      >
         <p className="text-3xl font-semibold text-white sm:text-5xl">MAX UDOVICHENKO</p>
         <p className="mt-3 text-sm uppercase tracking-[0.18em] text-white/60">
           Copyright {new Date().getFullYear()} Max Udovichenko
         </p>
-      </footer>
+      </motion.footer>
 
       <Player
         track={activeTrack}

@@ -82,6 +82,7 @@ body::before {
   content: '';
   background: linear-gradient(180deg, rgba(12, 16, 24, 0.34), rgba(6, 8, 12, 0.72)), url('../media/images/site-background.jpg') center / cover;
   opacity: 0.5;
+  animation: atmosphere-drift 20s ease-in-out infinite alternate;
   pointer-events: none;
 }
 
@@ -147,6 +148,30 @@ textarea:focus-visible {
   text-transform: uppercase;
 }
 
+.hero-title {
+  letter-spacing: 0.018em;
+}
+
+.hero-section {
+  position: relative;
+  isolation: isolate;
+}
+
+.hero-section::after {
+  position: absolute;
+  right: 7%;
+  bottom: 12%;
+  z-index: -1;
+  width: min(36rem, 70vw);
+  height: 12rem;
+  content: '';
+  background: radial-gradient(ellipse, rgba(158, 201, 255, 0.16), transparent 68%);
+  filter: blur(18px);
+  opacity: 0.7;
+  animation: hero-glow 9s ease-in-out infinite alternate;
+  pointer-events: none;
+}
+
 .section-shell h1,
 .section-shell h2,
 .section-shell h3,
@@ -207,6 +232,30 @@ textarea:focus {
 
 .player-visualizer-expanded {
   height: 5rem;
+}
+
+@keyframes atmosphere-drift {
+  from {
+    transform: scale(1) translate3d(0, 0, 0);
+    opacity: 0.42;
+  }
+
+  to {
+    transform: scale(1.06) translate3d(1.2%, -0.8%, 0);
+    opacity: 0.58;
+  }
+}
+
+@keyframes hero-glow {
+  from {
+    transform: translate3d(-3%, 5%, 0) scale(0.92);
+    opacity: 0.42;
+  }
+
+  to {
+    transform: translate3d(4%, -4%, 0) scale(1.08);
+    opacity: 0.78;
+  }
 }
 
 @media (max-width: 639px) {
