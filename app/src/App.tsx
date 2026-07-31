@@ -173,7 +173,9 @@ function App() {
 
     const howl = new Howl({
       src: [activeTrack.src],
-      html5: true,
+      // Keep the track in Web Audio so the analyser receives the same signal
+      // that reaches the speakers. HTML5 audio bypasses Howler's audio graph.
+      html5: false,
       pool: 1,
       volume: initialVolumeRef.current,
       onplay: () => {
@@ -257,8 +259,8 @@ function App() {
     }
 
     const analyser = ctx.createAnalyser()
-    analyser.fftSize = 256
-    analyser.smoothingTimeConstant = 0.82
+    analyser.fftSize = 512
+    analyser.smoothingTimeConstant = 0.78
     const data = new Uint8Array(analyser.frequencyBinCount)
     gainNode.connect(analyser)
 
@@ -268,9 +270,15 @@ function App() {
       analyser.getByteFrequencyData(data)
       if (timestamp - lastUpdate > 45) {
         setVisualizerData((previous) =>
-          previous.map((_, index) => {
-            const bucket = Math.floor((index / previous.length) * data.length)
-            return Math.max(0.04, (data[bucket] ?? 0) / 255)
+          previous.map((value, index) => {
+            const start = Math.floor((index / previous.length) * data.length)
+            const end = Math.max(start + 1, Math.floor(((index + 1) / previous.length) * data.length))
+            let total = 0
+            for (let bucket = start; bucket < end; bucket += 1) {
+              total += data[bucket] ?? 0
+            }
+            const average = total / (end - start) / 255
+            return value * 0.72 + Math.max(0.018, average) * 0.28
           }),
         )
         lastUpdate = timestamp
@@ -426,7 +434,7 @@ function App() {
       <CustomCursor />
       <FloatingNav hidden={hideNav} activeSection={activeSection} />
 
-      <main className="relative pb-72 text-white md:pb-56">
+      <main className="relative pb-40 text-white md:pb-32">
         <section id="home" className="hero-section section-shell min-h-screen pt-28">
           <motion.p
             initial={{ opacity: 0, y: 12 }}

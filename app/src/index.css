@@ -218,7 +218,9 @@ textarea:focus {
 }
 
 .player-shell {
+  right: max(0.75rem, env(safe-area-inset-right));
   bottom: max(0.75rem, env(safe-area-inset-bottom));
+  transition: background 180ms ease, box-shadow 180ms ease, border-color 180ms ease;
 }
 
 .player-reopen {
@@ -226,12 +228,21 @@ textarea:focus {
 }
 
 .player-visualizer {
-  height: 2.5rem;
-  transition: height 240ms ease;
+  height: 1.25rem;
+  transition: height 240ms ease, opacity 240ms ease;
 }
 
 .player-visualizer-expanded {
-  height: 5rem;
+  height: 3rem;
+}
+
+.player-shell-minimized .player-header {
+  margin-bottom: 0.5rem;
+}
+
+.player-shell-minimized .player-header img {
+  height: 2.5rem;
+  width: 2.5rem;
 }
 
 @keyframes atmosphere-drift {
@@ -276,7 +287,7 @@ textarea:focus {
   }
 
   .player-shell {
-    width: calc(100% - 1rem);
+    width: min(20rem, calc(100% - 1rem));
     border-radius: 1.25rem;
     padding: 0.75rem;
   }
@@ -299,27 +310,29 @@ textarea:focus {
   }
 
   .player-visualizer {
-    height: 2rem;
+    height: 1rem;
     gap: 0.125rem;
   }
 
   .player-visualizer-expanded {
-    height: 4rem;
+    height: 2.5rem;
   }
 
   .player-controls {
+    flex-wrap: nowrap;
     gap: 0.5rem;
   }
 
   .player-controls > div:first-child {
-    width: 100%;
-    justify-content: center;
+    width: auto;
+    flex-shrink: 0;
   }
 
   .player-volume {
-    order: 2;
-    width: 100%;
+    order: initial;
+    width: auto;
     min-width: 0;
+    flex: 1;
   }
 
   .player-volume input {
