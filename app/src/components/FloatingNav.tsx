@@ -30,7 +30,7 @@ export function FloatingNav({ hidden, activeSection }: FloatingNavProps) {
               href={`#${link.id}`}
               className={`magnetic-btn block rounded-full px-3 py-2 text-center text-xs uppercase tracking-[0.2em] transition ${
                 activeSection === link.id
-                  ? 'bg-white text-black'
+                  ? 'nav-link-active bg-[var(--accent)] text-[#071019]'
                   : 'text-white/80 hover:bg-white/10 hover:text-white'
               }`}
             >

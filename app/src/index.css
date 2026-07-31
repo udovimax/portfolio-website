@@ -148,6 +148,12 @@ textarea:focus-visible {
   text-transform: uppercase;
 }
 
+.nav-link-active {
+  color: #071019 !important;
+  font-weight: 500;
+  text-shadow: none;
+}
+
 .hero-title {
   letter-spacing: 0.018em;
 }
@@ -232,8 +238,17 @@ textarea:focus {
   transition: height 240ms ease, opacity 240ms ease;
 }
 
-.player-visualizer-expanded {
-  height: 3rem;
+.player-action {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 180ms ease, transform 180ms ease, background-color 180ms ease;
+}
+
+.player-shell:hover .player-action,
+.player-shell:focus-within .player-action,
+.player-shell.player-controls-revealed .player-action {
+  opacity: 1;
+  pointer-events: auto;
 }
 
 .player-shell-minimized .player-header {
@@ -243,6 +258,10 @@ textarea:focus {
 .player-shell-minimized .player-header img {
   height: 2.5rem;
   width: 2.5rem;
+}
+
+.artist-gallery-item {
+  aspect-ratio: 4 / 3;
 }
 
 @keyframes atmosphere-drift {
@@ -312,10 +331,6 @@ textarea:focus {
   .player-visualizer {
     height: 1rem;
     gap: 0.125rem;
-  }
-
-  .player-visualizer-expanded {
-    height: 2.5rem;
   }
 
   .player-controls {

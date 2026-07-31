@@ -8,10 +8,22 @@ import { GlassCard } from './components/GlassCard'
 import { ProjectModal, VideoModal } from './components/MediaModals'
 import { Player } from './components/Player'
 import { useLenis } from './hooks/useLenis'
-import { useSiteContent } from './hooks/useSiteContent'
+import { assetUrl, useSiteContent } from './hooks/useSiteContent'
 import type { NavSection, ProjectItem, Track, VideoItem } from './types/content'
 
 const sectionIds: NavSection[] = ['home', 'music', 'projects', 'about', 'contact']
+
+const artistImages = [
+  { file: 'photo-9.jpg', alt: 'Max in a warm, candid portrait' },
+  { file: 'photo-1.jpg', alt: 'Max playing bass guitar' },
+  { file: 'photo-2.jpg', alt: 'Max reaching toward the camera' },
+  { file: 'photo-5.jpg', alt: 'Portrait of Max against a light background' },
+  { file: 'photo-6.jpg', alt: 'Max holding a phone in a mirror portrait' },
+  { file: 'photo-7.jpg', alt: 'Close portrait of Max' },
+  { file: 'photo-8.jpg', alt: 'Close portrait of Max in warm light' },
+  { file: 'photo-3.jpg', alt: 'Max reaching toward the camera, alternate frame' },
+  { file: 'photo-4.jpg', alt: 'Max playing bass guitar, alternate frame' },
+]
 
 interface RevealProps {
   children: ReactNode
@@ -71,7 +83,6 @@ function App() {
   const [activeSection, setActiveSection] = useState<NavSection>('home')
   const [hideNav, setHideNav] = useState(false)
   const [libraryMode, setLibraryMode] = useState<'local' | 'soundcloud'>('local')
-  const [playerExpanded, setPlayerExpanded] = useState(false)
   const [visualizerData, setVisualizerData] = useState<number[]>(
     Array.from({ length: 32 }, () => 0.2),
   )
@@ -641,6 +652,43 @@ function App() {
               ))}
             </ol>
           </div>
+
+          <Reveal className="mt-16" delay={0.1}>
+            <div className="mb-5 flex flex-wrap items-end justify-between gap-4">
+              <div>
+                <p className="section-heading">Instagram / @udaaaww</p>
+                <h2 className="mt-2 text-3xl font-semibold text-white sm:text-5xl">Behind the sound</h2>
+              </div>
+              <a
+                href={content?.socials.instagram}
+                target="_blank"
+                rel="noreferrer"
+                className="magnetic-btn rounded-full border border-white/25 px-4 py-2 text-xs uppercase tracking-[0.18em] text-white/80 hover:border-white/50 hover:text-white"
+              >
+                View profile + highlights <span aria-hidden="true">↗</span>
+              </a>
+            </div>
+            <div className="artist-gallery grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+              {artistImages.map((image, index) => (
+                <motion.figure
+                  key={image.file}
+                  initial={shouldReduceMotion ? false : { opacity: 0, y: 18 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, amount: 0.12 }}
+                  transition={{ duration: 0.55, delay: Math.min(index * 0.045, 0.3), ease: [0.22, 1, 0.36, 1] }}
+                  className={`artist-gallery-item group relative overflow-hidden rounded-2xl border border-white/15 bg-white/5 ${index === 0 ? 'sm:col-span-2 sm:row-span-2' : ''}`}
+                >
+                  <img
+                    src={assetUrl(`media/images/max/${image.file}`)}
+                    alt={image.alt}
+                    loading={index < 4 ? 'eager' : 'lazy'}
+                    className="h-full min-h-40 w-full object-cover transition duration-700 group-hover:scale-105"
+                  />
+                  <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/35 to-transparent opacity-0 transition duration-500 group-hover:opacity-100" />
+                </motion.figure>
+              ))}
+            </div>
+          </Reveal>
         </section>
 
         <section id="contact" className="section-shell pb-36">
@@ -750,14 +798,12 @@ function App() {
         currentTime={currentTime}
         duration={duration}
         volume={volume}
-        expanded={playerExpanded}
         visualizerData={visualizerData}
         onTogglePlay={togglePlay}
         onPrevious={goPrevious}
         onNext={goNext}
         onSeek={seekTo}
         onVolumeChange={setVolume}
-        onToggleExpanded={() => setPlayerExpanded((value) => !value)}
       />
 
       <VideoModal

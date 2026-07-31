@@ -1,12 +1,9 @@
-import { useMemo, useState, type CSSProperties } from 'react'
+import { useMemo, useState, type CSSProperties, type MouseEvent } from 'react'
 import { motion } from 'framer-motion'
 import {
   FaBackward,
-  FaChevronUp,
-  FaCompress,
   FaExpand,
   FaForward,
-  FaMinus,
   FaPause,
   FaPlay,
   FaTimes,
@@ -20,14 +17,12 @@ interface PlayerProps {
   currentTime: number
   duration: number
   volume: number
-  expanded: boolean
   visualizerData: number[]
   onTogglePlay: () => void
   onPrevious: () => void
   onNext: () => void
   onSeek: (value: number) => void
   onVolumeChange: (value: number) => void
-  onToggleExpanded: () => void
 }
 
 function formatTime(value: number) {
@@ -46,17 +41,16 @@ export function Player({
   currentTime,
   duration,
   volume,
-  expanded,
   visualizerData,
   onTogglePlay,
   onPrevious,
   onNext,
   onSeek,
   onVolumeChange,
-  onToggleExpanded,
 }: PlayerProps) {
   const [visible, setVisible] = useState(true)
   const [minimized, setMinimized] = useState(false)
+  const [controlsRevealed, setControlsRevealed] = useState(false)
 
   const energy = useMemo(() => {
     if (!visualizerData.length) {
@@ -75,6 +69,14 @@ export function Player({
     background: `radial-gradient(circle at 8% 0%, rgba(158, 201, 255, ${0.1 + energy * 0.28}), transparent 58%), radial-gradient(circle at 100% 100%, rgba(228, 173, 149, ${0.04 + energy * 0.16}), transparent 52%), rgba(7, 10, 15, 0.88)`,
     boxShadow: `0 18px 60px rgba(0, 0, 0, 0.52), 0 0 ${14 + energy * 24}px rgba(158, 201, 255, ${0.04 + energy * 0.16})`,
   } as CSSProperties
+
+  const handleCardClick = (event: MouseEvent<HTMLElement>) => {
+    const target = event.target
+    if (target instanceof HTMLElement && target.closest('button, input, a')) {
+      return
+    }
+    setControlsRevealed((value) => !value)
+  }
 
   if (!track) {
     return null
@@ -98,9 +100,12 @@ export function Player({
       initial={{ y: 80, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-      className={`player-shell fixed z-50 w-[min(22rem,calc(100vw-1.5rem))] rounded-3xl border border-white/20 p-3 backdrop-blur-2xl ${minimized ? 'player-shell-minimized' : ''}`}
+      className={`player-shell group fixed z-50 w-[min(22rem,calc(100vw-1.5rem))] rounded-3xl border border-white/20 p-3 backdrop-blur-2xl ${minimized ? 'player-shell-minimized' : ''} ${controlsRevealed ? 'player-controls-revealed' : ''}`}
       style={playerStyle}
       aria-label="Music player"
+      data-cursor-reactive
+      onClick={handleCardClick}
+      onMouseLeave={() => setControlsRevealed(false)}
     >
       <div className="player-header mb-3 flex items-center justify-between gap-4">
         <div className="flex min-w-0 items-center gap-3">
@@ -110,33 +115,42 @@ export function Player({
             className="h-12 w-12 shrink-0 rounded-xl object-cover ring-1 ring-white/20"
           />
           <div className="min-w-0">
-            <p className="truncate text-xs uppercase tracking-[0.25em] text-cyan-300">Now playing</p>
+            {!minimized ? (
+              <p className="truncate text-xs uppercase tracking-[0.25em] text-cyan-300">Now playing</p>
+            ) : null}
             <h3 className="truncate text-lg font-medium text-white">{track.title}</h3>
-            <p className="truncate text-sm text-white/70">{track.artist}</p>
+            {minimized ? (
+              <p className="truncate text-xs text-white/60">
+                {formatTime(currentTime)} / {formatTime(duration)}
+              </p>
+            ) : (
+              <p className="truncate text-sm text-white/70">{track.artist}</p>
+            )}
           </div>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="player-actions flex items-center gap-2">
           {!minimized ? (
             <button
               type="button"
-              className="magnetic-btn rounded-full border border-white/30 p-2 text-white hover:bg-white/10"
-              aria-label={expanded ? 'Collapse visualizer' : 'Expand visualizer'}
-              onClick={onToggleExpanded}
+              className="player-action magnetic-btn rounded-full border border-white/30 p-2 text-white hover:bg-white/10"
+              aria-label="Minimize music player"
+              onClick={() => setMinimized(true)}
             >
-              {expanded ? <FaCompress /> : <FaExpand />}
+              <span aria-hidden="true">−</span>
             </button>
-          ) : null}
+          ) : (
+            <button
+              type="button"
+              className="player-action magnetic-btn rounded-full border border-white/30 p-2 text-white hover:bg-white/10"
+              aria-label="Expand music player"
+              onClick={() => setMinimized(false)}
+            >
+              <FaExpand />
+            </button>
+          )}
           <button
             type="button"
-            className="magnetic-btn rounded-full border border-white/30 p-2 text-white hover:bg-white/10"
-            aria-label={minimized ? 'Expand music player' : 'Minimize music player'}
-            onClick={() => setMinimized((value) => !value)}
-          >
-            {minimized ? <FaChevronUp /> : <FaMinus />}
-          </button>
-          <button
-            type="button"
-            className="magnetic-btn rounded-full border border-white/30 p-2 text-white hover:bg-white/10"
+            className="player-action magnetic-btn rounded-full border border-white/30 p-2 text-white hover:bg-white/10"
             aria-label="Hide music player"
             onClick={() => setVisible(false)}
           >
@@ -147,13 +161,13 @@ export function Player({
 
       {!minimized ? (
         <>
-          <div className={`player-visualizer ${expanded ? 'player-visualizer-expanded' : ''} mb-3 flex items-end gap-1`}>
+          <div className="player-visualizer mb-3 flex items-end gap-1" aria-hidden="true">
             {visualizerData.map((bar, index) => (
               <span
                 key={`bar-${index}`}
                 className="w-full rounded-full bg-cyan-300/80"
                 style={{
-                  height: `${Math.max(3, bar * (expanded ? 36 : 14))}px`,
+                  height: `${Math.max(3, bar * 14)}px`,
                   opacity: 0.25 + bar * 0.75,
                 }}
               />
@@ -226,7 +240,15 @@ export function Player({
           </div>
         </>
       ) : (
-        <div className="player-mini-controls flex items-center gap-3">
+        <div className="player-mini-controls flex items-center gap-2">
+          <button
+            type="button"
+            className="magnetic-btn rounded-full border border-white/30 p-2 text-white hover:bg-white/10"
+            onClick={onPrevious}
+            aria-label="Previous track"
+          >
+            <FaBackward />
+          </button>
           <button
             type="button"
             className="magnetic-btn rounded-full bg-cyan-300 p-2.5 text-black"
@@ -235,6 +257,14 @@ export function Player({
           >
             {isPlaying ? <FaPause /> : <FaPlay />}
           </button>
+          <button
+            type="button"
+            className="magnetic-btn rounded-full border border-white/30 p-2 text-white hover:bg-white/10"
+            onClick={onNext}
+            aria-label="Next track"
+          >
+            <FaForward />
+          </button>
           <div className="min-w-0 flex-1">
             <div className="h-1 overflow-hidden rounded-full bg-white/15">
               <div
@@ -242,7 +272,6 @@ export function Player({
                 style={{ width: `${duration ? Math.min(100, (currentTime / duration) * 100) : 0}%` }}
               />
             </div>
-            <p className="mt-1 text-[0.65rem] uppercase tracking-[0.16em] text-white/50">{formatTime(currentTime)}</p>
           </div>
         </div>
       )}
