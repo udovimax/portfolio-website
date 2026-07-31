@@ -265,14 +265,28 @@ textarea:focus-visible {
 .site-menu-link {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  border-radius: 1rem;
+  justify-content: flex-start;
+  border-radius: 0.8rem;
   padding: 0.85rem 1rem;
   color: rgba(247, 244, 239, 0.72);
   font-size: 0.72rem;
   letter-spacing: 0.18em;
   text-transform: uppercase;
   transition: color 180ms ease, background-color 180ms ease;
+}
+
+.site-menu-backdrop {
+  border: 0;
+  background: rgba(3, 5, 8, 0.64);
+  backdrop-filter: blur(3px);
+}
+
+.site-menu {
+  overflow-y: auto;
+}
+
+.site-menu-content {
+  padding-top: 4.5rem;
 }
 
 .site-menu-link:hover,
@@ -609,10 +623,6 @@ textarea:focus {
     padding: 0.45rem 0.25rem;
     font-size: 0.52rem;
     letter-spacing: 0.11em;
-  }
-
-  .site-menu {
-    top: 3.8rem;
   }
 
   .site-menu-link {

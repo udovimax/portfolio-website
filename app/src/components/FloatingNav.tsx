@@ -51,30 +51,44 @@ export function FloatingNav({ activePage }: FloatingNavProps) {
 
       <AnimatePresence>
         {menuOpen ? (
-          <motion.div
-            id="site-menu"
-            initial={{ opacity: 0, y: -12, scale: 0.98 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: -12, scale: 0.98 }}
-            transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
-            className="site-menu fixed left-1/2 top-[4.5rem] z-40 w-[min(90vw,28rem)] -translate-x-1/2 rounded-3xl border border-white/20 bg-black/80 p-3 shadow-2xl backdrop-blur-2xl sm:top-[5.75rem]"
-          >
-            <p className="px-4 pb-2 pt-2 text-xs uppercase tracking-[0.25em] text-white/45">Explore</p>
-            <ul className="grid gap-1 sm:grid-cols-2">
-              {links.map((link) => (
-                <li key={link.id}>
-                  <a
-                    href={`#${link.id}`}
-                    onClick={() => setMenuOpen(false)}
-                    className={`site-menu-link magnetic-btn ${activePage === link.id ? 'site-menu-link-active' : ''}`}
-                  >
-                    <span>{link.label}</span>
-                    <span aria-hidden="true">↗</span>
-                  </a>
-                </li>
-              ))}
-            </ul>
-          </motion.div>
+          <>
+            <motion.button
+              type="button"
+              aria-label="Close menu"
+              className="site-menu-backdrop fixed inset-0 z-30"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.25 }}
+              onClick={() => setMenuOpen(false)}
+            />
+            <motion.aside
+              id="site-menu"
+              aria-label="Explore menu"
+              initial={{ x: '-100%' }}
+              animate={{ x: 0 }}
+              exit={{ x: '-100%' }}
+              transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
+              className="site-menu fixed left-0 top-0 z-40 h-dvh w-[min(50vw,36rem)] border-r border-white/20 bg-black/85 p-3 shadow-2xl backdrop-blur-2xl"
+            >
+              <div className="site-menu-content">
+                <p className="px-3 pb-4 pt-3 text-xs uppercase tracking-[0.25em] text-white/45">Explore</p>
+                <ul className="grid gap-1">
+                  {links.map((link) => (
+                    <li key={link.id}>
+                      <a
+                        href={`#${link.id}`}
+                        onClick={() => setMenuOpen(false)}
+                        className={`site-menu-link magnetic-btn ${activePage === link.id ? 'site-menu-link-active' : ''}`}
+                      >
+                        <span>{link.label}</span>
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </motion.aside>
+          </>
         ) : null}
       </AnimatePresence>
     </>

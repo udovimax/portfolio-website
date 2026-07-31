@@ -190,7 +190,7 @@ export function Player({
                 aria-label="Minimize music player"
                 onClick={() => setMinimized(true)}
               >
-                <span aria-hidden="true">−</span>
+                <span aria-hidden="true">-</span>
               </button>
               <button
                 type="button"

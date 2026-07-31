@@ -481,7 +481,7 @@ function App() {
             </p>
             <div className="mt-6 flex justify-center">
               <a href="#music" className="home-work-cta magnetic-btn">
-                Enter the work <span aria-hidden="true">↘</span>
+                Enter the work
               </a>
             </div>
           </motion.div>
@@ -672,7 +672,7 @@ function App() {
                 rel="noreferrer"
                 className="magnetic-btn rounded-full border border-white/25 px-4 py-2 text-xs uppercase tracking-[0.18em] text-white/80 hover:border-white/50 hover:text-white"
               >
-                View profile + highlights <span aria-hidden="true">↗</span>
+                View profile + highlights
               </a>
             </div>
             <Carousel label="Visual archive" count={artistImages.length}>
