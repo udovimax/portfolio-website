@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from 'react'
+import { lazy, Suspense, useEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from 'react'
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
 import { Howl, Howler } from 'howler'
 import { FaInstagram, FaSoundcloud, FaSpotify, FaYoutube } from 'react-icons/fa'
@@ -6,13 +6,19 @@ import { CustomCursor } from './components/CustomCursor'
 import { Carousel } from './components/Carousel'
 import { FloatingNav } from './components/FloatingNav'
 import { GlassCard } from './components/GlassCard'
-import { ProjectModal, VideoModal } from './components/MediaModals'
 import { Player } from './components/Player'
 import { useLenis } from './hooks/useLenis'
 import { assetUrl, useSiteContent } from './hooks/useSiteContent'
 import type { NavSection, ProjectItem, Track, VideoItem } from './types/content'
 
 const pageIds: NavSection[] = ['home', 'music', 'projects', 'about', 'contact']
+
+const VideoModal = lazy(() =>
+  import('./components/MediaModals').then((module) => ({ default: module.VideoModal })),
+)
+const ProjectModal = lazy(() =>
+  import('./components/MediaModals').then((module) => ({ default: module.ProjectModal })),
+)
 
 function getPageFromHash(): NavSection {
   const hash = window.location.hash.replace(/^#\/?/, '') as NavSection
@@ -97,6 +103,82 @@ function WordReveal({ text }: { text: string }) {
   )
 }
 
+const nextPage: Record<NavSection, NavSection> = {
+  home: 'music',
+  music: 'projects',
+  projects: 'about',
+  about: 'contact',
+  contact: 'home',
+}
+
+function ScrollGuide({ currentPage }: { currentPage: NavSection }) {
+  const shouldReduceMotion = useReducedMotion()
+  const [scrollProgress, setScrollProgress] = useState(0)
+  const [atPageEnd, setAtPageEnd] = useState(false)
+
+  useEffect(() => {
+    let frame = 0
+
+    const update = () => {
+      frame = 0
+      const maxScroll = Math.max(document.documentElement.scrollHeight - window.innerHeight, 0)
+      const currentScroll = window.scrollY
+      setScrollProgress(maxScroll ? Math.min(currentScroll / maxScroll, 1) : 0)
+      setAtPageEnd(maxScroll > 0 && currentScroll >= maxScroll - 24)
+    }
+
+    const onScroll = () => {
+      if (!frame) {
+        frame = window.requestAnimationFrame(update)
+      }
+    }
+
+    update()
+    window.addEventListener('scroll', onScroll, { passive: true })
+    window.addEventListener('resize', onScroll)
+
+    return () => {
+      if (frame) {
+        window.cancelAnimationFrame(frame)
+      }
+      window.removeEventListener('scroll', onScroll)
+      window.removeEventListener('resize', onScroll)
+    }
+  }, [currentPage])
+
+  const handleAdvance = () => {
+    if (atPageEnd) {
+      window.location.hash = nextPage[currentPage]
+      return
+    }
+
+    window.scrollTo({
+      top: Math.min(window.scrollY + window.innerHeight * 0.78, document.documentElement.scrollHeight),
+      behavior: shouldReduceMotion ? 'auto' : 'smooth',
+    })
+  }
+
+  const destinationLabel = atPageEnd
+    ? `Open ${nextPage[currentPage]} page`
+    : 'Scroll down to explore'
+
+  return (
+    <aside className="scroll-guide" aria-label="Page scroll guide">
+      <span className="scroll-guide-label" aria-live="polite">
+        {atPageEnd ? `Next / ${nextPage[currentPage]}` : 'Scroll to explore'}
+      </span>
+      <button type="button" className="scroll-guide-button" onClick={handleAdvance} aria-label={destinationLabel}>
+        <span className="scroll-guide-track" aria-hidden="true">
+          <span className="scroll-guide-progress" style={{ transform: `scaleY(${Math.max(scrollProgress, 0.08)})` }} />
+        </span>
+        <span className="scroll-guide-arrow" aria-hidden="true">
+          <span />
+        </span>
+      </button>
+    </aside>
+  )
+}
+
 function App() {
   const shouldReduceMotion = useReducedMotion()
   useLenis(!shouldReduceMotion)
@@ -172,7 +254,8 @@ function App() {
 
     howlRef.current?.unload()
     setCurrentTime(0)
-    setDuration(0)
+    const [minutes, seconds] = activeTrack.duration.split(':').map(Number)
+    setDuration((minutes || 0) * 60 + (seconds || 0))
 
     const howl = new Howl({
       src: [activeTrack.src],
@@ -181,6 +264,7 @@ function App() {
       html5: false,
       pool: 1,
       volume: initialVolumeRef.current,
+      preload: false,
       onplay: () => {
         setIsPlaying(true)
       },
@@ -436,6 +520,7 @@ function App() {
 
       <CustomCursor />
       <FloatingNav activePage={currentPage} />
+      <ScrollGuide currentPage={currentPage} />
 
       <main className={`relative text-white ${currentPage === 'home' ? 'home-page-main' : 'pb-24 md:pb-16'}`}>
         <AnimatePresence mode="wait" initial={false}>
@@ -546,13 +631,14 @@ function App() {
             <Carousel label="Music" count={tracks.length}>
               {tracks.map((track, index) => (
                 <div className="carousel-item" key={track.id}>
-                  <GlassCard className="h-full cursor-pointer">
+                  <GlassCard image={track.artwork} className="h-full cursor-pointer">
                     <div data-cursor-reactive className="space-y-4">
                       <img
                         src={track.artwork}
                         alt={`${track.title} artwork`}
                         loading="lazy"
-                        className="h-52 w-full rounded-2xl object-cover"
+                        decoding="async"
+                        className="content-image h-52 w-full rounded-2xl object-cover"
                       />
                       <div className="flex items-start justify-between gap-3">
                         <div>
@@ -579,7 +665,7 @@ function App() {
               ))}
             </Carousel>
           ) : (
-            <GlassCard>
+            <GlassCard image={assetUrl(pageArtwork.music)}>
               <h3 className="mb-3 text-xl text-white">{content?.music.soundcloud.title}</h3>
               <div className="rounded-2xl border border-white/15 bg-black/40 p-2">
                 <iframe
@@ -607,7 +693,7 @@ function App() {
               const linkedVideo = content.videos.videos.find((video) => video.id === project.videoId)
               return (
                 <div className="carousel-item" key={project.id}>
-                  <GlassCard className="card-tilt h-full">
+                  <GlassCard image={project.thumbnail} className="card-tilt h-full">
                     <button
                       type="button"
                       className="block w-full text-left"
@@ -618,7 +704,8 @@ function App() {
                         src={project.thumbnail}
                         alt={`${project.title} thumbnail`}
                         loading="lazy"
-                        className="mb-4 h-56 w-full rounded-2xl object-cover"
+                        decoding="async"
+                        className="content-image mb-4 h-56 w-full rounded-2xl object-cover"
                       />
                       <p className="text-xs uppercase tracking-[0.2em] text-cyan-300">
                         {project.type} / {project.year}
@@ -710,7 +797,8 @@ function App() {
                       src={assetUrl(`media/images/max/${image.file}`)}
                       alt={image.alt}
                       loading={index < 4 ? 'eager' : 'lazy'}
-                      className="h-full min-h-40 w-full object-cover transition duration-700 group-hover:scale-105"
+                      decoding="async"
+                      className="content-image h-full min-h-40 w-full object-cover transition duration-700 group-hover:scale-105"
                     />
                     <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/35 to-transparent opacity-0 transition duration-500 group-hover:opacity-100" />
                   </motion.figure>
@@ -727,7 +815,7 @@ function App() {
             Contact
           </Reveal>
           <div className="grid gap-8 lg:grid-cols-2">
-            <GlassCard>
+            <GlassCard image={assetUrl(pageArtwork.contact)}>
               <h2 className="text-4xl text-white">Start a Collaboration</h2>
               <p className="mt-2 text-white/70">
                 Reach out for games, films, artist partnerships, and live performance concepts.
@@ -787,7 +875,7 @@ function App() {
               </form>
             </GlassCard>
 
-            <GlassCard>
+            <GlassCard image={assetUrl(pageArtworkSecondary.contact)}>
               <h3 className="text-2xl text-white">Connect</h3>
               <p className="mt-2 text-white/70">{content?.socials.email}</p>
               <ul className="mt-5 grid grid-cols-2 gap-3">
@@ -840,21 +928,29 @@ function App() {
         onVolumeChange={setVolume}
       />
 
-      <VideoModal
-        video={activeVideo}
-        isOpen={Boolean(activeVideo)}
-        onClose={() => setActiveVideo(null)}
-        onTimeUpdate={(id, value) => {
-          setVideoResumePoints((previous) => ({ ...previous, [id]: value }))
-        }}
-        resumeTime={activeVideo ? videoResumePoints[activeVideo.id] : undefined}
-      />
+      {activeVideo ? (
+        <Suspense fallback={null}>
+          <VideoModal
+            video={activeVideo}
+            isOpen
+            onClose={() => setActiveVideo(null)}
+            onTimeUpdate={(id, value) => {
+              setVideoResumePoints((previous) => ({ ...previous, [id]: value }))
+            }}
+            resumeTime={videoResumePoints[activeVideo.id]}
+          />
+        </Suspense>
+      ) : null}
 
-      <ProjectModal
-        project={activeProject}
-        isOpen={Boolean(activeProject)}
-        onClose={() => setActiveProject(null)}
-      />
+      {activeProject ? (
+        <Suspense fallback={null}>
+          <ProjectModal
+            project={activeProject}
+            isOpen
+            onClose={() => setActiveProject(null)}
+          />
+        </Suspense>
+      ) : null}
     </>
   )
 }

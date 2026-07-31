@@ -1,4 +1,4 @@
-import type { PropsWithChildren } from 'react'
+import { useRef, type KeyboardEvent, type PropsWithChildren } from 'react'
 import { FaArrowLeft, FaArrowRight } from 'react-icons/fa'
 
 interface CarouselProps extends PropsWithChildren {
@@ -7,8 +7,10 @@ interface CarouselProps extends PropsWithChildren {
 }
 
 export function Carousel({ label, count, children }: CarouselProps) {
+  const trackRef = useRef<HTMLDivElement>(null)
+
   const scrollByCard = (direction: number) => {
-    const track = document.querySelector<HTMLElement>(`[data-carousel="${label}"]`)
+    const track = trackRef.current
     if (!track) {
       return
     }
@@ -19,12 +21,26 @@ export function Carousel({ label, count, children }: CarouselProps) {
     })
   }
 
+  const handleTrackKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
+    if (event.key === 'ArrowLeft' || event.key === 'ArrowRight') {
+      event.preventDefault()
+      scrollByCard(event.key === 'ArrowLeft' ? -1 : 1)
+    }
+  }
+
   return (
-    <div className="carousel-shell" aria-label={`${label} carousel`}>
-      <div className="carousel-track" data-carousel={label} tabIndex={0}>
+    <div className="carousel-shell" role="region" aria-roledescription="carousel" aria-label={`${label} carousel`}>
+      <div
+        ref={trackRef}
+        className="carousel-track"
+        data-carousel={label}
+        tabIndex={0}
+        aria-label={`${label} items. Use horizontal scrolling or the arrow keys to browse.`}
+        onKeyDown={handleTrackKeyDown}
+      >
         {children}
       </div>
-      <div className="carousel-controls" aria-label={`${label} controls`}>
+      <div className="carousel-controls" role="group" aria-label={`${label} controls`}>
         <span className="carousel-count">{count} works</span>
         <div className="flex items-center gap-2">
           <button
