@@ -27,7 +27,7 @@ export function VideoModal({
     <AnimatePresence>
       {isOpen && video && (
         <motion.div
-          className="fixed inset-0 z-[70] grid place-items-center bg-black/80 p-4 backdrop-blur-md"
+          className="fixed inset-0 z-[70] grid place-items-center bg-black/80 p-2 backdrop-blur-md sm:p-4"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
@@ -38,7 +38,7 @@ export function VideoModal({
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 12, scale: 0.98 }}
             transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
-            className="relative w-full max-w-5xl rounded-3xl border border-white/20 bg-neutral-950 p-4"
+            className="relative max-h-[calc(100dvh-1rem)] w-full max-w-5xl overflow-y-auto rounded-3xl border border-white/20 bg-neutral-950 p-3 sm:max-h-[calc(100vh-2rem)] sm:p-4"
             onClick={(event) => event.stopPropagation()}
           >
             <button
@@ -53,7 +53,7 @@ export function VideoModal({
             <p className="mb-3 text-sm text-white/70">{video.description}</p>
             <video
               key={video.id}
-              className="max-h-[75vh] w-full rounded-2xl"
+              className="max-h-[58dvh] w-full rounded-2xl sm:max-h-[75vh]"
               controls
               autoPlay
               playsInline
@@ -86,7 +86,7 @@ export function ProjectModal({ project, isOpen, onClose }: ProjectModalProps) {
     <AnimatePresence>
       {isOpen && project && (
         <motion.div
-          className="fixed inset-0 z-[65] grid place-items-center bg-black/70 p-4 backdrop-blur-md"
+          className="fixed inset-0 z-[65] grid place-items-center bg-black/70 p-2 backdrop-blur-md sm:p-4"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
@@ -97,7 +97,7 @@ export function ProjectModal({ project, isOpen, onClose }: ProjectModalProps) {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 12, scale: 0.98 }}
             transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
-            className="relative w-full max-w-4xl rounded-3xl border border-white/20 bg-neutral-950 p-6"
+            className="relative max-h-[calc(100dvh-1rem)] w-full max-w-4xl overflow-y-auto rounded-3xl border border-white/20 bg-neutral-950 p-4 sm:max-h-[calc(100vh-2rem)] sm:p-6"
             onClick={(event) => event.stopPropagation()}
           >
             <button

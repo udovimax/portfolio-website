@@ -54,7 +54,7 @@ export function Player({
     return (
       <button
         type="button"
-        className="fixed bottom-4 right-4 z-50 rounded-full border border-white/25 bg-black/75 px-4 py-3 text-xs uppercase tracking-[0.18em] text-white shadow-2xl backdrop-blur-xl transition hover:border-white/50 hover:bg-black"
+        className="player-reopen fixed right-4 z-50 rounded-full border border-white/25 bg-black/75 px-4 py-3 text-xs uppercase tracking-[0.18em] text-white shadow-2xl backdrop-blur-xl transition hover:border-white/50 hover:bg-black"
         onClick={() => setVisible(true)}
         aria-label="Show music player"
       >
@@ -68,10 +68,10 @@ export function Player({
       initial={{ y: 80, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-      className="fixed bottom-4 left-1/2 z-50 w-[min(96vw,70rem)] -translate-x-1/2 rounded-3xl border border-white/20 bg-black/65 p-4 shadow-[0_20px_80px_rgba(0,0,0,0.55)] backdrop-blur-2xl"
+      className="player-shell fixed bottom-3 left-1/2 z-50 w-[min(96vw,70rem)] -translate-x-1/2 rounded-3xl border border-white/20 bg-black/65 p-4 shadow-[0_20px_80px_rgba(0,0,0,0.55)] backdrop-blur-2xl"
       aria-label="Music player"
     >
-      <div className="mb-3 flex items-center justify-between gap-4">
+      <div className="player-header mb-3 flex items-center justify-between gap-4">
         <div className="flex min-w-0 items-center gap-3">
           <img
             src={track.artwork}
@@ -79,9 +79,9 @@ export function Player({
             className="h-12 w-12 shrink-0 rounded-xl object-cover ring-1 ring-white/20"
           />
           <div className="min-w-0">
-          <p className="truncate text-xs uppercase tracking-[0.25em] text-cyan-300">Now playing</p>
-          <h3 className="truncate text-lg font-medium text-white">{track.title}</h3>
-          <p className="truncate text-sm text-white/70">{track.artist}</p>
+            <p className="truncate text-xs uppercase tracking-[0.25em] text-cyan-300">Now playing</p>
+            <h3 className="truncate text-lg font-medium text-white">{track.title}</h3>
+            <p className="truncate text-sm text-white/70">{track.artist}</p>
           </div>
         </div>
         <div className="flex items-center gap-2">
@@ -104,7 +104,7 @@ export function Player({
         </div>
       </div>
 
-      <div className={`${expanded ? 'h-20' : 'h-10'} mb-3 flex items-end gap-1 transition-[height] duration-300`}>
+      <div className={`player-visualizer ${expanded ? 'player-visualizer-expanded' : ''} mb-3 flex items-end gap-1`}>
         {visualizerData.map((bar, index) => (
           <span
             key={`bar-${index}`}
@@ -117,7 +117,7 @@ export function Player({
         ))}
       </div>
 
-      <div className="mb-3">
+      <div className="player-timeline mb-3">
         <label className="sr-only" htmlFor="seek">
           Seek position
         </label>
@@ -136,7 +136,7 @@ export function Player({
         </div>
       </div>
 
-      <div className="flex flex-wrap items-center gap-3">
+      <div className="player-controls flex flex-wrap items-center gap-3">
         <div className="flex items-center gap-2">
           <button
             type="button"
@@ -164,7 +164,7 @@ export function Player({
           </button>
         </div>
 
-        <div className="ml-auto flex w-full items-center gap-3 sm:w-auto">
+        <div className="player-volume ml-auto flex w-full items-center gap-3 sm:w-auto">
           <FaVolumeUp className="text-white/70" aria-hidden="true" />
           <label htmlFor="volume" className="sr-only">
             Player volume

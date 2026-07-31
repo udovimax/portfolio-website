@@ -25,7 +25,7 @@ function App() {
   const [libraryMode, setLibraryMode] = useState<'local' | 'soundcloud'>('local')
   const [playerExpanded, setPlayerExpanded] = useState(false)
   const [visualizerData, setVisualizerData] = useState<number[]>(
-    Array.from({ length: 48 }, () => 0.2),
+    Array.from({ length: 32 }, () => 0.2),
   )
 
   const [trackIndex, setTrackIndex] = useState(0)
@@ -41,6 +41,7 @@ function App() {
   const howlRef = useRef<Howl | null>(null)
   const initialVolumeRef = useRef(volume)
   const shouldAutoplayRef = useRef(isPlaying)
+  const isPlayingRef = useRef(isPlaying)
 
   const tracks = content?.music.tracks ?? []
   const activeTrack: Track | null = tracks[trackIndex] ?? null
@@ -51,6 +52,7 @@ function App() {
 
   useEffect(() => {
     shouldAutoplayRef.current = isPlaying
+    isPlayingRef.current = isPlaying
   }, [isPlaying])
 
   useEffect(() => {
@@ -118,6 +120,8 @@ function App() {
     }
 
     howlRef.current?.unload()
+    setCurrentTime(0)
+    setDuration(0)
 
     const howl = new Howl({
       src: [activeTrack.src],
@@ -132,10 +136,18 @@ function App() {
       onstop: () => {
         setIsPlaying(false)
       },
+      onloaderror: () => {
+        setIsPlaying(false)
+      },
+      onplayerror: () => {
+        setIsPlaying(false)
+      },
       onload: () => {
         setDuration(howl.duration())
       },
       onend: () => {
+        shouldAutoplayRef.current = true
+        setIsPlaying(true)
         setTrackIndex((previous) => {
           if (!tracks.length) {
             return previous
@@ -147,7 +159,11 @@ function App() {
 
     howlRef.current = howl
     if (shouldAutoplayRef.current) {
-      howl.play()
+      if (Howler.ctx?.state === 'suspended') {
+        void Howler.ctx.resume().then(() => howl.play())
+      } else {
+        howl.play()
+      }
     }
 
     return () => {
@@ -177,33 +193,39 @@ function App() {
   }, [])
 
   useEffect(() => {
-    const fallback = () => {
-      setVisualizerData((previous) =>
-        previous.map(() => 0.15 + Math.random() * (isPlaying ? 0.65 : 0.25)),
-      )
-    }
-
     const ctx = Howler.ctx
     const gainNode = Howler.masterGain
 
     if (!ctx || !gainNode) {
-      const interval = window.setInterval(fallback, 120)
+      const interval = window.setInterval(() => {
+        setVisualizerData((previous) =>
+          previous.map(() => 0.12 + Math.random() * (isPlayingRef.current ? 0.55 : 0.12)),
+        )
+      }, 140)
       return () => {
         window.clearInterval(interval)
       }
     }
 
     const analyser = ctx.createAnalyser()
-    analyser.fftSize = 128
+    analyser.fftSize = 256
+    analyser.smoothingTimeConstant = 0.82
     const data = new Uint8Array(analyser.frequencyBinCount)
     gainNode.connect(analyser)
 
     let frame = 0
-    const animate = () => {
+    let lastUpdate = 0
+    const animate = (timestamp: number) => {
       analyser.getByteFrequencyData(data)
-      setVisualizerData((previous) =>
-        previous.map((_, index) => (data[index] ?? data[data.length - 1] ?? 0) / 255),
-      )
+      if (timestamp - lastUpdate > 45) {
+        setVisualizerData((previous) =>
+          previous.map((_, index) => {
+            const bucket = Math.floor((index / previous.length) * data.length)
+            return Math.max(0.04, (data[bucket] ?? 0) / 255)
+          }),
+        )
+        lastUpdate = timestamp
+      }
       frame = requestAnimationFrame(animate)
     }
 
@@ -213,7 +235,13 @@ function App() {
       cancelAnimationFrame(frame)
       analyser.disconnect()
     }
-  }, [isPlaying])
+  }, [content])
+
+  const resumeAudioContext = () => {
+    if (Howler.ctx?.state === 'suspended') {
+      void Howler.ctx.resume()
+    }
+  }
 
   const togglePlay = () => {
     const howl = howlRef.current
@@ -224,28 +252,44 @@ function App() {
       howl.pause()
       return
     }
+    resumeAudioContext()
     howl.play()
   }
 
-  const playSpecificTrack = (index: number) => {
-    setTrackIndex(index)
+  const selectTrack = (index: number) => {
+    if (!tracks.length) {
+      return
+    }
+
+    resumeAudioContext()
+    shouldAutoplayRef.current = true
+
+    if (index === trackIndex) {
+      setIsPlaying(true)
+      howlRef.current?.play()
+      return
+    }
+
     setIsPlaying(true)
+    setTrackIndex(index)
+  }
+
+  const playSpecificTrack = (index: number) => {
+    selectTrack(index)
   }
 
   const goPrevious = () => {
     if (!tracks.length) {
       return
     }
-    setTrackIndex((previous) => (previous - 1 + tracks.length) % tracks.length)
-    setIsPlaying(true)
+    selectTrack((trackIndex - 1 + tracks.length) % tracks.length)
   }
 
   const goNext = () => {
     if (!tracks.length) {
       return
     }
-    setTrackIndex((previous) => (previous + 1) % tracks.length)
-    setIsPlaying(true)
+    selectTrack((trackIndex + 1) % tracks.length)
   }
 
   const seekTo = (time: number) => {
@@ -333,7 +377,7 @@ function App() {
       <CustomCursor />
       <FloatingNav hidden={hideNav} activeSection={activeSection} />
 
-      <main className="relative pb-56 text-white">
+      <main className="relative pb-72 text-white md:pb-56">
         <section id="home" className="section-shell min-h-screen pt-28">
           <motion.p
             initial={{ opacity: 0, y: 12 }}

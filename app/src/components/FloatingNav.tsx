@@ -21,7 +21,7 @@ export function FloatingNav({ hidden, activeSection }: FloatingNavProps) {
       initial={{ opacity: 0, y: -20 }}
       animate={{ opacity: hidden ? 0 : 1, y: hidden ? -20 : 0 }}
       transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
-      className="fixed left-1/2 top-4 z-50 w-[min(94vw,46rem)] -translate-x-1/2 rounded-full border border-white/20 bg-black/55 p-2 backdrop-blur-xl"
+      className="floating-nav fixed left-1/2 top-4 z-50 w-[min(94vw,46rem)] -translate-x-1/2 rounded-full border border-white/20 bg-black/55 p-2 backdrop-blur-xl"
     >
       <ul className="flex items-center justify-between gap-1">
         {links.map((link) => (
