@@ -427,7 +427,7 @@ function App() {
       <CustomCursor />
       <FloatingNav activePage={currentPage} />
 
-      <main className="relative pb-24 text-white md:pb-16">
+      <main className={`relative text-white ${currentPage === 'home' ? 'home-page-main' : 'pb-24 md:pb-16'}`}>
         <AnimatePresence mode="wait" initial={false}>
           <motion.div
             key={currentPage}
@@ -449,32 +449,48 @@ function App() {
             Cinematic Portfolio
           </motion.p>
           <WordReveal text={content?.about.name ?? ''} />
-          <div className="mt-8 space-y-3 text-2xl text-white/75 sm:text-4xl">
-            {content?.about.roles.map((role, index) => (
+          <div className="hero-intro-grid mt-10">
+            <div className="hero-copy">
+              <div className="hero-role-stack space-y-3 text-2xl text-white/75 sm:text-4xl">
+                {content?.about.roles.map((role, index) => (
+                  <motion.p
+                    key={role}
+                    initial={{ opacity: 0, x: -20 }}
+                    whileInView={{ opacity: 1, x: 0 }}
+                    viewport={{ once: true, amount: 0.6 }}
+                    transition={{ delay: index * 0.14, duration: 0.5 }}
+                  >
+                    {role}.
+                  </motion.p>
+                ))}
+              </div>
               <motion.p
-                key={role}
-                initial={{ opacity: 0, x: -20 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true, amount: 0.6 }}
-                transition={{ delay: index * 0.14, duration: 0.5 }}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.7, delay: 0.62 }}
+                className="mt-10 max-w-3xl text-lg text-white/70"
               >
-                {role}.
+                {content?.about.intro}
               </motion.p>
-            ))}
+            </div>
+            <motion.figure
+              initial={{ opacity: 0, x: 24, scale: 0.97 }}
+              animate={{ opacity: 1, x: 0, scale: 1 }}
+              transition={{ duration: 0.85, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}
+              className="hero-portrait"
+            >
+              <img
+                src={assetUrl('media/images/max/photo-9.jpg')}
+                alt="Max Udovichenko in a warm portrait"
+              />
+              <figcaption>Max Udovichenko / Artist</figcaption>
+            </motion.figure>
           </div>
-          <motion.p
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.7, delay: 0.62 }}
-            className="mt-10 max-w-3xl text-lg text-white/70"
-          >
-            {content?.about.intro}
-          </motion.p>
           <motion.div
             initial={{ opacity: 0, y: 18 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.28, duration: 0.7 }}
-            className="mt-16 max-w-4xl border-t border-white/20 pt-5 text-center"
+            className="mx-auto mt-16 max-w-4xl border-t border-white/20 pt-5 text-center"
           >
             <p className="text-xs uppercase tracking-[0.2em] text-white/55">
               Original music / spatial sound / visual worlds
