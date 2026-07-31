@@ -483,7 +483,7 @@ textarea:focus {
 .player-shell {
   right: max(0.75rem, env(safe-area-inset-right));
   bottom: max(0.75rem, env(safe-area-inset-bottom));
-  transition: background 180ms ease, box-shadow 180ms ease, border-color 180ms ease;
+  transition: width 240ms ease, height 240ms ease, padding 240ms ease, background 180ms ease, box-shadow 180ms ease, border-color 180ms ease;
 }
 
 .player-reopen {
@@ -509,11 +509,19 @@ textarea:focus {
 }
 
 .player-shell-minimized {
-  width: 5.75rem !important;
-  height: 5.75rem;
+  width: 6rem !important;
+  height: 6rem;
   overflow: hidden;
   border-radius: 1.25rem;
   padding: 0.35rem;
+}
+
+.player-shell-minimized:hover,
+.player-shell-minimized:focus-within,
+.player-shell-minimized.player-controls-revealed {
+  width: 8.5rem !important;
+  height: 8.5rem;
+  padding: 0.45rem;
 }
 
 .player-mini-square {
@@ -710,9 +718,17 @@ textarea:focus {
   }
 
   .player-shell-minimized {
-    width: 5.75rem !important;
-    height: 5.75rem;
+    width: 6rem !important;
+    height: 6rem;
     padding: 0.35rem;
+  }
+
+  .player-shell-minimized:hover,
+  .player-shell-minimized:focus-within,
+  .player-shell-minimized.player-controls-revealed {
+    width: 8.5rem !important;
+    height: 8.5rem;
+    padding: 0.45rem;
   }
 
   .player-header {
@@ -777,11 +793,11 @@ textarea:focus {
   .hero-intro-grid {
     grid-template-columns: 1fr;
     gap: 2.25rem;
-    text-align: center;
+    text-align: left;
   }
 
   .hero-role-stack {
-    text-align: center;
+    text-align: left;
   }
 
   .hero-copy > p {

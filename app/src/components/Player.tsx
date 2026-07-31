@@ -49,7 +49,7 @@ export function Player({
   onVolumeChange,
 }: PlayerProps) {
   const [visible, setVisible] = useState(true)
-  const [minimized, setMinimized] = useState(false)
+  const [minimized, setMinimized] = useState(true)
   const [controlsRevealed, setControlsRevealed] = useState(false)
 
   const energy = useMemo(() => {
@@ -144,7 +144,7 @@ export function Player({
           <div className="player-mini-controls flex items-center gap-1">
             <button
               type="button"
-              className="player-transport-action magnetic-btn rounded-full border border-white/30 p-2 text-white hover:bg-white/10"
+              className="player-transport-action magnetic-btn rounded-full border border-white/30 p-2.5 text-white hover:bg-white/10"
               onClick={onPrevious}
               aria-label="Previous track"
             >
@@ -152,7 +152,7 @@ export function Player({
             </button>
             <button
               type="button"
-              className="player-transport-action magnetic-btn rounded-full bg-cyan-300 p-2.5 text-black"
+              className="player-transport-action magnetic-btn rounded-full bg-cyan-300 p-3 text-black"
               onClick={onTogglePlay}
               aria-label={isPlaying ? 'Pause track' : 'Play track'}
             >
@@ -160,7 +160,7 @@ export function Player({
             </button>
             <button
               type="button"
-              className="player-transport-action magnetic-btn rounded-full border border-white/30 p-2 text-white hover:bg-white/10"
+              className="player-transport-action magnetic-btn rounded-full border border-white/30 p-2.5 text-white hover:bg-white/10"
               onClick={onNext}
               aria-label="Next track"
             >

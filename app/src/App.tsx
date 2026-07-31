@@ -440,14 +440,6 @@ function App() {
           >
         {currentPage === 'home' ? (
           <section id="home" className="hero-section section-shell pt-28">
-          <motion.p
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.65, delay: 0.12, ease: [0.22, 1, 0.36, 1] }}
-            className="mb-8 text-xs uppercase tracking-[0.32em] text-cyan-300"
-          >
-            Cinematic Portfolio
-          </motion.p>
           <WordReveal text={content?.about.name ?? ''} />
           <div className="hero-intro-grid mt-10">
             <div className="hero-copy">
