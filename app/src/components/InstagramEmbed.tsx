@@ -31,7 +31,7 @@ function loadInstagramEmbeds() {
   const script = document.createElement('script')
   script.async = true
   script.defer = true
-  script.src = 'https://www.instagram.com/embed.js'
+  script.src = 'https://platform.instagram.com/en_US/embeds.js'
   script.dataset.instagramEmbed = 'true'
   script.onload = () => window.instgrm?.Embeds?.process()
   document.body.appendChild(script)
@@ -48,13 +48,12 @@ export function InstagramEmbed({ permalink, label = 'Instagram content' }: Insta
     <div ref={embedRef} className="instagram-feed-frame" aria-label={label}>
       <blockquote
         className="instagram-media"
-        data-instgrm-permalink={permalink}
-        data-instgrm-version="14"
+        data-instgrm-version="2"
       >
         <div className="instagram-embed-fallback">
           <p>View Max Udovichenko on Instagram.</p>
-          <a href={permalink} target="_blank" rel="noreferrer">
-            Open Instagram profile
+          <a href={permalink} target="_top" rel="noreferrer">
+            View on Instagram
           </a>
         </div>
       </blockquote>
