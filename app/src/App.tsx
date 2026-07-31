@@ -3,6 +3,7 @@ import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
 import { Howl, Howler } from 'howler'
 import { FaInstagram, FaSoundcloud, FaSpotify, FaYoutube } from 'react-icons/fa'
 import { CustomCursor } from './components/CustomCursor'
+import { Carousel } from './components/Carousel'
 import { FloatingNav } from './components/FloatingNav'
 import { GlassCard } from './components/GlassCard'
 import { ProjectModal, VideoModal } from './components/MediaModals'
@@ -11,7 +12,12 @@ import { useLenis } from './hooks/useLenis'
 import { assetUrl, useSiteContent } from './hooks/useSiteContent'
 import type { NavSection, ProjectItem, Track, VideoItem } from './types/content'
 
-const sectionIds: NavSection[] = ['home', 'music', 'projects', 'about', 'contact']
+const pageIds: NavSection[] = ['home', 'music', 'projects', 'about', 'contact']
+
+function getPageFromHash(): NavSection {
+  const hash = window.location.hash.replace(/^#\/?/, '') as NavSection
+  return pageIds.includes(hash) ? hash : 'home'
+}
 
 const artistImages = [
   { file: 'photo-9.jpg', alt: 'Max in a warm, candid portrait' },
@@ -80,8 +86,7 @@ function App() {
   const { content, error, isLoading } = useSiteContent()
 
   const [loadingProgress, setLoadingProgress] = useState(0)
-  const [activeSection, setActiveSection] = useState<NavSection>('home')
-  const [hideNav, setHideNav] = useState(false)
+  const [currentPage, setCurrentPage] = useState<NavSection>(() => getPageFromHash())
   const [libraryMode, setLibraryMode] = useState<'local' | 'soundcloud'>('local')
   const [visualizerData, setVisualizerData] = useState<number[]>(
     Array.from({ length: 32 }, () => 0.2),
@@ -130,48 +135,17 @@ function App() {
   }, [isLoading])
 
   useEffect(() => {
-    let lastScroll = window.scrollY
-
-    const onScroll = () => {
-      const current = window.scrollY
-      const delta = current - lastScroll
-      if (current < 80) {
-        setHideNav(false)
-      } else if (delta > 6) {
-        setHideNav(true)
-      } else if (delta < -6) {
-        setHideNav(false)
-      }
-      lastScroll = current
+    const onHashChange = () => {
+      setCurrentPage(getPageFromHash())
     }
 
-    const observer = new IntersectionObserver(
-      (entries) => {
-        const visible = entries
-          .filter((entry) => entry.isIntersecting)
-          .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0]
-        if (!visible) {
-          return
-        }
-        setActiveSection(visible.target.id as NavSection)
-      },
-      { threshold: [0.2, 0.45, 0.75], rootMargin: '-20% 0px -20% 0px' },
-    )
-
-    sectionIds.forEach((id) => {
-      const element = document.getElementById(id)
-      if (element) {
-        observer.observe(element)
-      }
-    })
-
-    window.addEventListener('scroll', onScroll, { passive: true })
-
-    return () => {
-      window.removeEventListener('scroll', onScroll)
-      observer.disconnect()
-    }
+    window.addEventListener('hashchange', onHashChange)
+    return () => window.removeEventListener('hashchange', onHashChange)
   }, [])
+
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'auto' })
+  }, [currentPage])
 
   useEffect(() => {
     if (!activeTrack) {
@@ -443,10 +417,19 @@ function App() {
       </AnimatePresence>
 
       <CustomCursor />
-      <FloatingNav hidden={hideNav} activeSection={activeSection} />
+      <FloatingNav activePage={currentPage} />
 
       <main className="relative pb-40 text-white md:pb-32">
-        <section id="home" className="hero-section section-shell min-h-screen pt-28">
+        <AnimatePresence mode="wait" initial={false}>
+          <motion.div
+            key={currentPage}
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -12 }}
+            transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+          >
+        {currentPage === 'home' ? (
+          <section id="home" className="hero-section section-shell min-h-screen pt-28">
           <motion.p
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
@@ -488,10 +471,12 @@ function App() {
               Enter the work <span aria-hidden="true">↘</span>
             </a>
           </motion.div>
-        </section>
+          </section>
+        ) : null}
 
-        <section id="music" className="section-shell">
-          <Reveal className="section-heading sticky top-24 z-10 mb-8 inline-flex rounded-full border border-white/20 bg-black/45 px-4 py-2 backdrop-blur-md">
+        {currentPage === 'music' ? (
+          <section id="music" className="section-shell">
+          <Reveal className="section-heading mb-8 inline-flex rounded-full border border-white/20 bg-black/45 px-4 py-2 backdrop-blur-md">
             Music
           </Reveal>
 
@@ -523,39 +508,41 @@ function App() {
           </Reveal>
 
           {libraryMode === 'local' ? (
-            <div className="grid gap-5 md:grid-cols-2">
+            <Carousel label="Music" count={tracks.length}>
               {tracks.map((track, index) => (
-                <GlassCard key={track.id} className="cursor-pointer" >
-                  <div data-cursor-reactive className="space-y-4">
-                    <img
-                      src={track.artwork}
-                      alt={`${track.title} artwork`}
-                      loading="lazy"
-                      className="h-52 w-full rounded-2xl object-cover"
-                    />
-                    <div className="flex items-start justify-between gap-3">
-                      <div>
-                        <p className="text-xs uppercase tracking-[0.2em] text-cyan-300">{track.year}</p>
-                        <h3 className="text-2xl text-white">{track.title}</h3>
-                        <p className="text-white/70">{track.description}</p>
+                <div className="carousel-item" key={track.id}>
+                  <GlassCard className="h-full cursor-pointer">
+                    <div data-cursor-reactive className="space-y-4">
+                      <img
+                        src={track.artwork}
+                        alt={`${track.title} artwork`}
+                        loading="lazy"
+                        className="h-52 w-full rounded-2xl object-cover"
+                      />
+                      <div className="flex items-start justify-between gap-3">
+                        <div>
+                          <p className="text-xs uppercase tracking-[0.2em] text-cyan-300">{track.year}</p>
+                          <h3 className="text-2xl text-white">{track.title}</h3>
+                          <p className="text-white/70">{track.description}</p>
+                        </div>
+                        <button
+                          type="button"
+                          className="magnetic-btn rounded-full border border-white/30 px-3 py-2 text-xs uppercase tracking-[0.2em] text-white"
+                          onClick={() => playSpecificTrack(index)}
+                          aria-label={`Play ${track.title}`}
+                        >
+                          Play
+                        </button>
                       </div>
-                      <button
-                        type="button"
-                        className="magnetic-btn rounded-full border border-white/30 px-3 py-2 text-xs uppercase tracking-[0.2em] text-white"
-                        onClick={() => playSpecificTrack(index)}
-                        aria-label={`Play ${track.title}`}
-                      >
-                        Play
-                      </button>
+                      <div className="flex items-center justify-between text-xs text-white/60">
+                        <span>{track.duration}</span>
+                        <span>{track.credits}</span>
+                      </div>
                     </div>
-                    <div className="flex items-center justify-between text-xs text-white/60">
-                      <span>{track.duration}</span>
-                      <span>{track.credits}</span>
-                    </div>
-                  </div>
-                </GlassCard>
+                  </GlassCard>
+                </div>
               ))}
-            </div>
+            </Carousel>
           ) : (
             <GlassCard>
               <h3 className="mb-3 text-xl text-white">{content?.music.soundcloud.title}</h3>
@@ -572,51 +559,57 @@ function App() {
               </div>
             </GlassCard>
           )}
-        </section>
+          </section>
+        ) : null}
 
-        <section id="projects" className="section-shell">
+        {currentPage === 'projects' ? (
+          <section id="projects" className="section-shell">
           <Reveal className="section-heading mb-8 inline-flex rounded-full border border-white/20 bg-black/45 px-4 py-2 backdrop-blur-md">
             Projects & Video
           </Reveal>
-          <div className="grid gap-5 md:grid-cols-2">
+          <Carousel label="Projects & Video" count={content?.projects.projects.length ?? 0}>
             {content?.projects.projects.map((project) => {
               const linkedVideo = content.videos.videos.find((video) => video.id === project.videoId)
               return (
-                <GlassCard key={project.id} className="card-tilt">
-                  <button
-                    type="button"
-                    className="block w-full text-left"
-                    onClick={() => setActiveProject(project)}
-                    data-cursor-reactive
-                  >
-                    <img
-                      src={project.thumbnail}
-                      alt={`${project.title} thumbnail`}
-                      loading="lazy"
-                      className="mb-4 h-56 w-full rounded-2xl object-cover"
-                    />
-                    <p className="text-xs uppercase tracking-[0.2em] text-cyan-300">
-                      {project.type} / {project.year}
-                    </p>
-                    <h3 className="text-3xl text-white">{project.title}</h3>
-                    <p className="mt-2 text-white/70">{project.description}</p>
-                  </button>
-                  {linkedVideo ? (
+                <div className="carousel-item" key={project.id}>
+                  <GlassCard className="card-tilt h-full">
                     <button
                       type="button"
-                      className="magnetic-btn mt-4 rounded-full border border-white/30 px-4 py-2 text-sm text-white"
-                      onClick={() => setActiveVideo(linkedVideo)}
+                      className="block w-full text-left"
+                      onClick={() => setActiveProject(project)}
+                      data-cursor-reactive
                     >
-                      Watch cinematic video
+                      <img
+                        src={project.thumbnail}
+                        alt={`${project.title} thumbnail`}
+                        loading="lazy"
+                        className="mb-4 h-56 w-full rounded-2xl object-cover"
+                      />
+                      <p className="text-xs uppercase tracking-[0.2em] text-cyan-300">
+                        {project.type} / {project.year}
+                      </p>
+                      <h3 className="text-3xl text-white">{project.title}</h3>
+                      <p className="mt-2 text-white/70">{project.description}</p>
                     </button>
-                  ) : null}
-                </GlassCard>
+                    {linkedVideo ? (
+                      <button
+                        type="button"
+                        className="magnetic-btn mt-4 rounded-full border border-white/30 px-4 py-2 text-sm text-white"
+                        onClick={() => setActiveVideo(linkedVideo)}
+                      >
+                        Watch cinematic video
+                      </button>
+                    ) : null}
+                  </GlassCard>
+                </div>
               )
             })}
-          </div>
+          </Carousel>
         </section>
+        ) : null}
 
-        <section id="about" className="section-shell">
+        {currentPage === 'about' ? (
+          <section id="about" className="section-shell">
           <Reveal className="section-heading mb-8 inline-flex rounded-full border border-white/20 bg-black/45 px-4 py-2 backdrop-blur-md">
             About
           </Reveal>
@@ -668,30 +661,33 @@ function App() {
                 View profile + highlights <span aria-hidden="true">↗</span>
               </a>
             </div>
-            <div className="artist-gallery grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+            <Carousel label="Visual archive" count={artistImages.length}>
               {artistImages.map((image, index) => (
-                <motion.figure
-                  key={image.file}
-                  initial={shouldReduceMotion ? false : { opacity: 0, y: 18 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true, amount: 0.12 }}
-                  transition={{ duration: 0.55, delay: Math.min(index * 0.045, 0.3), ease: [0.22, 1, 0.36, 1] }}
-                  className={`artist-gallery-item group relative overflow-hidden rounded-2xl border border-white/15 bg-white/5 ${index === 0 ? 'sm:col-span-2 sm:row-span-2' : ''}`}
-                >
-                  <img
-                    src={assetUrl(`media/images/max/${image.file}`)}
-                    alt={image.alt}
-                    loading={index < 4 ? 'eager' : 'lazy'}
-                    className="h-full min-h-40 w-full object-cover transition duration-700 group-hover:scale-105"
-                  />
-                  <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/35 to-transparent opacity-0 transition duration-500 group-hover:opacity-100" />
-                </motion.figure>
+                <div className="carousel-item" key={image.file}>
+                  <motion.figure
+                    initial={shouldReduceMotion ? false : { opacity: 0, y: 18 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true, amount: 0.12 }}
+                    transition={{ duration: 0.55, delay: Math.min(index * 0.045, 0.3), ease: [0.22, 1, 0.36, 1] }}
+                    className="artist-gallery-item group relative overflow-hidden rounded-2xl border border-white/15 bg-white/5"
+                  >
+                    <img
+                      src={assetUrl(`media/images/max/${image.file}`)}
+                      alt={image.alt}
+                      loading={index < 4 ? 'eager' : 'lazy'}
+                      className="h-full min-h-40 w-full object-cover transition duration-700 group-hover:scale-105"
+                    />
+                    <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/35 to-transparent opacity-0 transition duration-500 group-hover:opacity-100" />
+                  </motion.figure>
+                </div>
               ))}
-            </div>
+            </Carousel>
           </Reveal>
-        </section>
+          </section>
+        ) : null}
 
-        <section id="contact" className="section-shell pb-36">
+        {currentPage === 'contact' ? (
+          <section id="contact" className="section-shell pb-36">
           <Reveal className="section-heading mb-8 inline-flex rounded-full border border-white/20 bg-black/45 px-4 py-2 backdrop-blur-md">
             Contact
           </Reveal>
@@ -776,7 +772,10 @@ function App() {
               </ul>
             </GlassCard>
           </div>
-        </section>
+          </section>
+        ) : null}
+          </motion.div>
+        </AnimatePresence>
       </main>
 
       <motion.footer
