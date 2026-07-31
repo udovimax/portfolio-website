@@ -56,6 +56,7 @@ function Reveal({ children, className = '', delay = 0, amount = 0.2, y = 24 }: R
   return (
     <motion.div
       initial={shouldReduceMotion ? false : { opacity: 0, y }}
+      animate={{ opacity: 1, y: 0 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, amount }}
       transition={{ duration: 0.7, delay, ease: [0.22, 1, 0.36, 1] }}
@@ -675,45 +676,47 @@ function App() {
           <Reveal className="section-heading mb-8 inline-flex rounded-full border border-white/20 bg-black/45 px-4 py-2 backdrop-blur-md">
             Projects & Video
           </Reveal>
-          <Carousel label="Projects & Video" count={content?.projects.projects.length ?? 0}>
-            {content?.projects.projects.map((project) => {
-              const linkedVideo = content.videos.videos.find((video) => video.id === project.videoId)
-              return (
-                <div className="carousel-item" key={project.id}>
-                  <GlassCard image={project.thumbnail} className="card-tilt h-full">
-                    <button
-                      type="button"
-                      className="block w-full text-left"
-                      onClick={() => setActiveProject(project)}
-                      data-cursor-reactive
-                    >
-                      <img
-                        src={project.thumbnail}
-                        alt={`${project.title} thumbnail`}
-                        loading="lazy"
-                        decoding="async"
-                        className="content-image mb-4 h-56 w-full rounded-2xl object-cover"
-                      />
-                      <p className="text-xs uppercase tracking-[0.2em] text-cyan-300">
-                        {project.type} / {project.year}
-                      </p>
-                      <h3 className="text-3xl text-white">{project.title}</h3>
-                      <p className="mt-2 text-white/70">{project.description}</p>
-                    </button>
-                    {linkedVideo ? (
+          <Reveal delay={0.1}>
+            <Carousel label="Projects & Video" count={content?.projects.projects.length ?? 0}>
+              {content?.projects.projects.map((project) => {
+                const linkedVideo = content.videos.videos.find((video) => video.id === project.videoId)
+                return (
+                  <div className="carousel-item" key={project.id}>
+                    <GlassCard image={project.thumbnail} className="card-tilt h-full">
                       <button
                         type="button"
-                        className="magnetic-btn mt-4 rounded-full border border-white/30 px-4 py-2 text-sm text-white"
-                        onClick={() => setActiveVideo(linkedVideo)}
+                        className="block w-full text-left"
+                        onClick={() => setActiveProject(project)}
+                        data-cursor-reactive
                       >
-                        Watch cinematic video
+                        <img
+                          src={project.thumbnail}
+                          alt={`${project.title} thumbnail`}
+                          loading="lazy"
+                          decoding="async"
+                          className="content-image mb-4 h-56 w-full rounded-2xl object-cover"
+                        />
+                        <p className="text-xs uppercase tracking-[0.2em] text-cyan-300">
+                          {project.type} / {project.year}
+                        </p>
+                        <h3 className="text-3xl text-white">{project.title}</h3>
+                        <p className="mt-2 text-white/70">{project.description}</p>
                       </button>
-                    ) : null}
-                  </GlassCard>
-                </div>
-              )
-            })}
-          </Carousel>
+                      {linkedVideo ? (
+                        <button
+                          type="button"
+                          className="magnetic-btn mt-4 rounded-full border border-white/30 px-4 py-2 text-sm text-white"
+                          onClick={() => setActiveVideo(linkedVideo)}
+                        >
+                          Watch cinematic video
+                        </button>
+                      ) : null}
+                    </GlassCard>
+                  </div>
+                )
+              })}
+            </Carousel>
+          </Reveal>
         </section>
         ) : null}
 
@@ -722,38 +725,40 @@ function App() {
           <Reveal className="section-heading mb-8 inline-flex rounded-full border border-white/20 bg-black/45 px-4 py-2 backdrop-blur-md">
             About
           </Reveal>
-          <div className="grid gap-10 lg:grid-cols-[1.2fr_1fr]">
-            <div>
-              <h2 className="text-4xl font-semibold sm:text-6xl">Artistic Philosophy</h2>
-              <p className="mt-4 max-w-3xl text-lg text-white/75">{content?.about.philosophy}</p>
-              <ul className="mt-8 flex flex-wrap gap-2">
-                {content?.about.skills.map((skill) => (
-                  <li
-                    key={skill}
-                    className="rounded-full border border-white/20 bg-white/5 px-4 py-2 text-sm text-white/85"
+          <Reveal delay={0.1}>
+            <div className="grid gap-10 lg:grid-cols-[1.2fr_1fr]">
+              <div>
+                <h2 className="text-4xl font-semibold sm:text-6xl">Artistic Philosophy</h2>
+                <p className="mt-4 max-w-3xl text-lg text-white/75">{content?.about.philosophy}</p>
+                <ul className="mt-8 flex flex-wrap gap-2">
+                  {content?.about.skills.map((skill) => (
+                    <li
+                      key={skill}
+                      className="rounded-full border border-white/20 bg-white/5 px-4 py-2 text-sm text-white/85"
+                    >
+                      {skill}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+              <ol className="space-y-4">
+                {content?.about.timeline.map((item, index) => (
+                  <motion.li
+                    key={`${item.year}-${item.title}`}
+                    initial={shouldReduceMotion ? false : { opacity: 0, x: 24 }}
+                    whileInView={{ opacity: 1, x: 0 }}
+                    viewport={{ once: true, amount: 0.25 }}
+                    transition={{ duration: 0.6, delay: index * 0.08, ease: [0.22, 1, 0.36, 1] }}
+                    className="timeline-item rounded-2xl border border-white/20 p-4"
                   >
-                    {skill}
-                  </li>
+                    <p className="text-xs uppercase tracking-[0.2em] text-cyan-300">{item.year}</p>
+                    <h3 className="mt-1 text-xl text-white">{item.title}</h3>
+                    <p className="mt-2 text-white/70">{item.description}</p>
+                  </motion.li>
                 ))}
-              </ul>
+              </ol>
             </div>
-            <ol className="space-y-4">
-              {content?.about.timeline.map((item, index) => (
-                <motion.li
-                  key={`${item.year}-${item.title}`}
-                  initial={shouldReduceMotion ? false : { opacity: 0, x: 24 }}
-                  whileInView={{ opacity: 1, x: 0 }}
-                  viewport={{ once: true, amount: 0.25 }}
-                  transition={{ duration: 0.6, delay: index * 0.08, ease: [0.22, 1, 0.36, 1] }}
-                  className="timeline-item rounded-2xl border border-white/20 p-4"
-                >
-                  <p className="text-xs uppercase tracking-[0.2em] text-cyan-300">{item.year}</p>
-                  <h3 className="mt-1 text-xl text-white">{item.title}</h3>
-                  <p className="mt-2 text-white/70">{item.description}</p>
-                </motion.li>
-              ))}
-            </ol>
-          </div>
+          </Reveal>
 
           <Reveal className="mt-16" delay={0.1}>
             <div className="mb-5 flex flex-wrap items-end justify-between gap-4">
@@ -813,8 +818,9 @@ function App() {
           <Reveal className="section-heading mb-8 inline-flex rounded-full border border-white/20 bg-black/45 px-4 py-2 backdrop-blur-md">
             Contact
           </Reveal>
-          <div className="grid gap-8 lg:grid-cols-2">
-            <GlassCard image={assetUrl(pageArtwork.contact)}>
+          <Reveal delay={0.1}>
+            <div className="grid gap-8 lg:grid-cols-2">
+              <GlassCard image={assetUrl(pageArtwork.contact)}>
               <h2 className="text-4xl text-white">Start a Collaboration</h2>
               <p className="mt-2 text-white/70">
                 Reach out for games, films, artist partnerships, and live performance concepts.
@@ -872,9 +878,9 @@ function App() {
                   Send Message
                 </button>
               </form>
-            </GlassCard>
+              </GlassCard>
 
-            <GlassCard image={assetUrl(pageArtworkSecondary.contact)}>
+              <GlassCard image={assetUrl(pageArtworkSecondary.contact)}>
               <h3 className="text-2xl text-white">Connect</h3>
               <p className="mt-2 text-white/70">{content?.socials.email}</p>
               <ul className="mt-5 grid grid-cols-2 gap-3">
@@ -892,8 +898,9 @@ function App() {
                   </li>
                 ))}
               </ul>
-            </GlassCard>
-          </div>
+              </GlassCard>
+            </div>
+          </Reveal>
           </section>
         ) : null}
           </motion.div>

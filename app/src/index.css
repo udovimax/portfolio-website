@@ -863,15 +863,28 @@ textarea:focus {
 
 .instagram-posts-carousel .carousel-item {
   flex-basis: min(calc(100% - 0.75rem), 34rem);
+  height: 52rem;
 }
 
 .instagram-posts-carousel .instagram-feed-frame {
   width: 100%;
+  height: 100%;
+}
+
+.instagram-posts-carousel .instagram-media {
+  height: 100% !important;
+  overflow: hidden !important;
+}
+
+.instagram-posts-carousel .instagram-media iframe {
+  width: 100% !important;
+  height: 100% !important;
 }
 
 @media (min-width: 768px) {
   .instagram-posts-carousel .carousel-item {
     flex-basis: calc((100% - 1.25rem) / 2);
+    height: 48rem;
   }
 }
 
