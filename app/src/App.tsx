@@ -726,7 +726,7 @@ function App() {
             About
           </Reveal>
           <Reveal delay={0.1}>
-            <div className="grid gap-10 lg:grid-cols-[1.2fr_1fr]">
+            <div className="max-w-4xl">
               <div>
                 <h2 className="text-4xl font-semibold sm:text-6xl">Artistic Philosophy</h2>
                 <p className="mt-4 max-w-3xl text-lg text-white/75">{content?.about.philosophy}</p>
@@ -741,23 +741,65 @@ function App() {
                   ))}
                 </ul>
               </div>
-              <ol className="space-y-4">
-                {content?.about.timeline.map((item, index) => (
-                  <motion.li
-                    key={`${item.year}-${item.title}`}
-                    initial={shouldReduceMotion ? false : { opacity: 0, x: 24 }}
-                    whileInView={{ opacity: 1, x: 0 }}
-                    viewport={{ once: true, amount: 0.25 }}
-                    transition={{ duration: 0.6, delay: index * 0.08, ease: [0.22, 1, 0.36, 1] }}
-                    className="timeline-item rounded-2xl border border-white/20 p-4"
-                  >
-                    <p className="text-xs uppercase tracking-[0.2em] text-cyan-300">{item.year}</p>
-                    <h3 className="mt-1 text-xl text-white">{item.title}</h3>
-                    <p className="mt-2 text-white/70">{item.description}</p>
-                  </motion.li>
-                ))}
-              </ol>
             </div>
+          </Reveal>
+
+          <Reveal className="mt-14" delay={0.14}>
+            <details className="experience-accordion" open>
+              <summary className="experience-accordion-summary">
+                <span>
+                  <span className="section-heading">Selected timeline</span>
+                  <strong>Experience</strong>
+                </span>
+                <span className="experience-accordion-toggle" aria-hidden="true" />
+              </summary>
+              <div className="experience-list">
+                {content?.about.timeline.map((item, index) => (
+                  <motion.div
+                    key={`${item.year}-${item.title}`}
+                    initial={shouldReduceMotion ? false : { opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true, amount: 0.2 }}
+                    transition={{ duration: 0.55, delay: index * 0.08, ease: [0.22, 1, 0.36, 1] }}
+                  >
+                    <details
+                      className="experience-item"
+                      style={
+                        {
+                          '--experience-accent': item.accent ?? 'var(--accent)',
+                          '--experience-art': item.image ? `url("${assetUrl(item.image)}")` : 'none',
+                        } as CSSProperties
+                      }
+                    >
+                      <summary>
+                        <span className="experience-year">{item.year}</span>
+                        <span className="experience-summary-copy">
+                          <span className="experience-kicker">{item.kicker ?? 'Experience'}</span>
+                          <strong>{item.title}</strong>
+                        </span>
+                        <span className="experience-item-toggle" aria-hidden="true" />
+                      </summary>
+                      <div className="experience-item-body">
+                        <div>
+                          <p>{item.description}</p>
+                          <span className="experience-accent-line" aria-hidden="true" />
+                        </div>
+                        {item.image ? (
+                          <figure className="experience-image">
+                            <img
+                              src={assetUrl(item.image)}
+                              alt={`${item.title} — Max Udovichenko`}
+                              loading="lazy"
+                              decoding="async"
+                            />
+                          </figure>
+                        ) : null}
+                      </div>
+                    </details>
+                  </motion.div>
+                ))}
+              </div>
+            </details>
           </Reveal>
 
           <Reveal className="mt-16" delay={0.1}>

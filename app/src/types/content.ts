@@ -4,6 +4,9 @@ export interface AboutTimelineItem {
   year: string
   title: string
   description: string
+  kicker?: string
+  image?: string
+  accent?: string
 }
 
 export interface AboutContent {

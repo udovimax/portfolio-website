@@ -7,22 +7,34 @@
     {
       "year": "2024",
       "title": "Kingston University London",
-      "description": "BA (Hons) Music Technology. Focus on synthesis, sequencing, and interactive audio systems."
+      "description": "BA (Hons) Music Technology. Focus on synthesis, sequencing, and interactive audio systems.",
+      "kicker": "Study / foundation",
+      "image": "/media/images/max/photo-6.jpg",
+      "accent": "#9ec9ff"
     },
     {
       "year": "2025",
       "title": "Film and Game Collaboration",
-      "description": "Scored student films and designed game audio environments for independent creators."
+      "description": "Scored student films and designed game audio environments for independent creators.",
+      "kicker": "Collaboration / score",
+      "image": "/media/images/instagram/film-1.jpg",
+      "accent": "#e4ad95"
     },
     {
       "year": "2026",
       "title": "Spatial Mixing Development",
-      "description": "Expanded multichannel practice through 5.1 composition and analog studio workflows."
+      "description": "Expanded multichannel practice through 5.1 composition and analog studio workflows.",
+      "kicker": "Practice / space",
+      "image": "/media/images/max/photo-1.jpg",
+      "accent": "#7debd4"
     },
     {
       "year": "2027",
       "title": "Graduation Target",
-      "description": "Expected completion of BA (Hons) with portfolio centered on narrative music and interactive sound design."
+      "description": "Expected completion of BA (Hons) with portfolio centered on narrative music and interactive sound design.",
+      "kicker": "Next horizon",
+      "image": "/media/images/max/photo-5.jpg",
+      "accent": "#d5b8ff"
     }
   ],
   "skills": [
