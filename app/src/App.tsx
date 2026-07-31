@@ -126,6 +126,7 @@ function App() {
     const howl = new Howl({
       src: [activeTrack.src],
       html5: true,
+      pool: 1,
       volume: initialVolumeRef.current,
       onplay: () => {
         setIsPlaying(true)
