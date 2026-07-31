@@ -2,7 +2,7 @@
 
 @font-face {
   font-family: 'Neue Haas Display';
-  src: url('/fonts/neue-haas/NeueHaasDisplayXXThin.ttf') format('truetype');
+  src: url('../fonts/neue-haas/NeueHaasDisplayXXThin.ttf') format('truetype');
   font-weight: 200;
   font-style: normal;
   font-display: swap;
@@ -10,7 +10,7 @@
 
 @font-face {
   font-family: 'Neue Haas Display';
-  src: url('/fonts/neue-haas/NeueHaasDisplayRoman.ttf') format('truetype');
+  src: url('../fonts/neue-haas/NeueHaasDisplayRoman.ttf') format('truetype');
   font-weight: 400;
   font-style: normal;
   font-display: swap;
@@ -18,7 +18,7 @@
 
 @font-face {
   font-family: 'Neue Haas Display';
-  src: url('/fonts/neue-haas/NeueHaasDisplayMediu.ttf') format('truetype');
+  src: url('../fonts/neue-haas/NeueHaasDisplayMediu.ttf') format('truetype');
   font-weight: 500;
   font-style: normal;
   font-display: swap;
@@ -26,7 +26,7 @@
 
 @font-face {
   font-family: 'Neue Haas Display';
-  src: url('/fonts/neue-haas/NeueHaasDisplayBold.ttf') format('truetype');
+  src: url('../fonts/neue-haas/NeueHaasDisplayBold.ttf') format('truetype');
   font-weight: 700;
   font-style: normal;
   font-display: swap;
@@ -80,7 +80,7 @@ body::before {
   inset: 0;
   z-index: -2;
   content: '';
-  background: linear-gradient(180deg, rgba(12, 16, 24, 0.64), rgba(6, 8, 12, 0.92)), url('/media/images/site-background.jpg') center / cover;
+  background: linear-gradient(180deg, rgba(12, 16, 24, 0.64), rgba(6, 8, 12, 0.92)), url('../media/images/site-background.jpg') center / cover;
   opacity: 0.22;
   pointer-events: none;
 }

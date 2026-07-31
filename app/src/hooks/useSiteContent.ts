@@ -16,6 +16,49 @@ async function loadJson<T>(path: string): Promise<T> {
   return (await response.json()) as T
 }
 
+export function assetUrl(path: string) {
+  if (/^(https?:|data:|blob:|#)/i.test(path)) {
+    return path
+  }
+
+  return `${import.meta.env.BASE_URL}${path.replace(/^\/+/, '')}`
+}
+
+function resolveContentAssets(
+  music: MusicContent,
+  projects: ProjectsContent,
+  videos: VideosContent,
+): Pick<SiteContent, 'music' | 'projects' | 'videos'> {
+  return {
+    music: {
+      ...music,
+      tracks: music.tracks.map((track) => ({
+        ...track,
+        artwork: assetUrl(track.artwork),
+        src: assetUrl(track.src),
+        downloadLink: track.downloadLink ? assetUrl(track.downloadLink) : undefined,
+      })),
+    },
+    projects: {
+      ...projects,
+      projects: projects.projects.map((project) => ({
+        ...project,
+        thumbnail: assetUrl(project.thumbnail),
+        gallery: project.gallery.map(assetUrl),
+      })),
+    },
+    videos: {
+      ...videos,
+      videos: videos.videos.map((video) => ({
+        ...video,
+        poster: assetUrl(video.poster),
+        src: assetUrl(video.src),
+        captions: video.captions ? assetUrl(video.captions) : video.captions,
+      })),
+    },
+  }
+}
+
 export function useSiteContent() {
   const [content, setContent] = useState<SiteContent | null>(null)
   const [error, setError] = useState<string | null>(null)
@@ -24,17 +67,21 @@ export function useSiteContent() {
     let mounted = true
 
     Promise.all([
-      loadJson<AboutContent>('/content/about.json'),
-      loadJson<MusicContent>('/content/music.json'),
-      loadJson<ProjectsContent>('/content/projects.json'),
-      loadJson<VideosContent>('/content/videos.json'),
-      loadJson<SocialsContent>('/content/socials.json'),
+      loadJson<AboutContent>(`${import.meta.env.BASE_URL}content/about.json`),
+      loadJson<MusicContent>(`${import.meta.env.BASE_URL}content/music.json`),
+      loadJson<ProjectsContent>(`${import.meta.env.BASE_URL}content/projects.json`),
+      loadJson<VideosContent>(`${import.meta.env.BASE_URL}content/videos.json`),
+      loadJson<SocialsContent>(`${import.meta.env.BASE_URL}content/socials.json`),
     ])
       .then(([about, music, projects, videos, socials]) => {
         if (!mounted) {
           return
         }
-        setContent({ about, music, projects, videos, socials })
+        setContent({
+          about,
+          socials,
+          ...resolveContentAssets(music, projects, videos),
+        })
       })
       .catch((loadError: unknown) => {
         if (!mounted) {
