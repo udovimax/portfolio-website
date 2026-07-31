@@ -24,7 +24,7 @@ export function FloatingNav({ activePage }: FloatingNavProps) {
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-        className="site-nav fixed left-1/2 top-3 z-50 flex w-[min(94vw,56rem)] -translate-x-1/2 items-center justify-between gap-4 rounded-full border border-white/20 bg-black/60 px-3 py-2 backdrop-blur-xl sm:top-5 sm:px-4"
+        className="site-nav fixed left-1/2 top-3 z-50 flex w-[min(94vw,56rem)] -translate-x-1/2 items-center justify-between gap-4 rounded-2xl border border-white/20 bg-black/60 px-3 py-2 backdrop-blur-xl sm:top-5 sm:px-4"
       >
         <button
           type="button"
@@ -45,7 +45,7 @@ export function FloatingNav({ activePage }: FloatingNavProps) {
         </a>
 
         <a href="#contact" className="site-nav-button magnetic-btn" onClick={() => setMenuOpen(false)}>
-          Contact <span aria-hidden="true">↗</span>
+          Contact
         </a>
       </motion.nav>
 

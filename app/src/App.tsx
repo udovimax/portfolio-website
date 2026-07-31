@@ -427,7 +427,7 @@ function App() {
       <CustomCursor />
       <FloatingNav activePage={currentPage} />
 
-      <main className="relative pb-40 text-white md:pb-32">
+      <main className="relative pb-24 text-white md:pb-16">
         <AnimatePresence mode="wait" initial={false}>
           <motion.div
             key={currentPage}
@@ -439,7 +439,7 @@ function App() {
             style={{ '--page-art': `url("${assetUrl(pageArtwork[currentPage])}")` } as CSSProperties}
           >
         {currentPage === 'home' ? (
-          <section id="home" className="hero-section section-shell min-h-screen pt-28">
+          <section id="home" className="hero-section section-shell pt-28">
           <motion.p
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
@@ -474,12 +474,16 @@ function App() {
             initial={{ opacity: 0, y: 18 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.28, duration: 0.7 }}
-            className="mt-16 grid max-w-4xl gap-5 border-t border-white/20 pt-4 text-xs uppercase tracking-[0.2em] text-white/55 sm:grid-cols-[1fr_auto]"
+            className="mt-16 max-w-4xl border-t border-white/20 pt-5 text-center"
           >
-            <span>Original music / spatial sound / visual worlds</span>
-            <a href="#music" className="magnetic-btn text-white hover:text-[var(--accent)]">
-              Enter the work <span aria-hidden="true">↘</span>
-            </a>
+            <p className="text-xs uppercase tracking-[0.2em] text-white/55">
+              Original music / spatial sound / visual worlds
+            </p>
+            <div className="mt-6 flex justify-center">
+              <a href="#music" className="home-work-cta magnetic-btn">
+                Enter the work <span aria-hidden="true">↘</span>
+              </a>
+            </div>
           </motion.div>
           </section>
         ) : null}

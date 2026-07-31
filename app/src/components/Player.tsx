@@ -107,60 +107,102 @@ export function Player({
       onClick={handleCardClick}
       onMouseLeave={() => setControlsRevealed(false)}
     >
-      <div className="player-header mb-3 flex items-center justify-between gap-4">
-        <div className="flex min-w-0 items-center gap-3">
+      {minimized ? (
+        <div className="player-mini-square">
           <img
             src={track.artwork}
-            alt=""
-            className="h-12 w-12 shrink-0 rounded-xl object-cover ring-1 ring-white/20"
+            alt={`${track.title} artwork`}
+            className="player-mini-art"
           />
-          <div className="min-w-0">
-            {!minimized ? (
-              <p className="truncate text-xs uppercase tracking-[0.25em] text-cyan-300">Now playing</p>
-            ) : null}
-            <h3 className="truncate text-lg font-medium text-white">{track.title}</h3>
-            {minimized ? (
-              <p className="truncate text-xs text-white/60">
-                {formatTime(currentTime)} / {formatTime(duration)}
-              </p>
-            ) : (
-              <p className="truncate text-sm text-white/70">{track.artist}</p>
-            )}
+          <div className="player-mini-overlay">
+            <div className="player-mini-marquee" aria-label={track.title}>
+              <span>{track.title}</span>
+              <span aria-hidden="true">{track.title}</span>
+            </div>
+            <p className="player-mini-time">
+              {formatTime(currentTime)} / {formatTime(duration)}
+            </p>
           </div>
-        </div>
-        <div className="player-actions flex items-center gap-2">
-          {!minimized ? (
+          <div className="player-actions absolute right-1.5 top-1.5 z-10 flex items-center gap-1">
             <button
               type="button"
-              className="player-action magnetic-btn rounded-full border border-white/30 p-2 text-white hover:bg-white/10"
-              aria-label="Minimize music player"
-              onClick={() => setMinimized(true)}
-            >
-              <span aria-hidden="true">−</span>
-            </button>
-          ) : (
-            <button
-              type="button"
-              className="player-action magnetic-btn rounded-full border border-white/30 p-2 text-white hover:bg-white/10"
+              className="player-action magnetic-btn rounded-full border border-white/30 bg-black/35 p-1.5 text-white hover:bg-black/60"
               aria-label="Expand music player"
               onClick={() => setMinimized(false)}
             >
               <FaExpand />
             </button>
-          )}
-          <button
-            type="button"
-            className="player-action magnetic-btn rounded-full border border-white/30 p-2 text-white hover:bg-white/10"
-            aria-label="Hide music player"
-            onClick={() => setVisible(false)}
-          >
-            <FaTimes />
-          </button>
+            <button
+              type="button"
+              className="player-action magnetic-btn rounded-full border border-white/30 bg-black/35 p-1.5 text-white hover:bg-black/60"
+              aria-label="Hide music player"
+              onClick={() => setVisible(false)}
+            >
+              <FaTimes />
+            </button>
+          </div>
+          <div className="player-mini-controls flex items-center gap-1">
+            <button
+              type="button"
+              className="player-transport-action magnetic-btn rounded-full border border-white/30 p-2 text-white hover:bg-white/10"
+              onClick={onPrevious}
+              aria-label="Previous track"
+            >
+              <FaBackward />
+            </button>
+            <button
+              type="button"
+              className="player-transport-action magnetic-btn rounded-full bg-cyan-300 p-2.5 text-black"
+              onClick={onTogglePlay}
+              aria-label={isPlaying ? 'Pause track' : 'Play track'}
+            >
+              {isPlaying ? <FaPause /> : <FaPlay />}
+            </button>
+            <button
+              type="button"
+              className="player-transport-action magnetic-btn rounded-full border border-white/30 p-2 text-white hover:bg-white/10"
+              onClick={onNext}
+              aria-label="Next track"
+            >
+              <FaForward />
+            </button>
+          </div>
         </div>
-      </div>
-
-      {!minimized ? (
+      ) : (
         <>
+          <div className="player-header mb-3 flex items-center justify-between gap-4">
+            <div className="flex min-w-0 items-center gap-3">
+              <img
+                src={track.artwork}
+                alt=""
+                className="h-12 w-12 shrink-0 rounded-xl object-cover ring-1 ring-white/20"
+              />
+              <div className="min-w-0">
+                <p className="truncate text-xs uppercase tracking-[0.25em] text-cyan-300">Now playing</p>
+                <h3 className="truncate text-lg font-medium text-white">{track.title}</h3>
+                <p className="truncate text-sm text-white/70">{track.artist}</p>
+              </div>
+            </div>
+            <div className="player-actions flex items-center gap-2">
+              <button
+                type="button"
+                className="player-action magnetic-btn rounded-full border border-white/30 p-2 text-white hover:bg-white/10"
+                aria-label="Minimize music player"
+                onClick={() => setMinimized(true)}
+              >
+                <span aria-hidden="true">−</span>
+              </button>
+              <button
+                type="button"
+                className="player-action magnetic-btn rounded-full border border-white/30 p-2 text-white hover:bg-white/10"
+                aria-label="Hide music player"
+                onClick={() => setVisible(false)}
+              >
+                <FaTimes />
+              </button>
+            </div>
+          </div>
+
           <div className="player-visualizer mb-3 flex items-end gap-1" aria-hidden="true">
             {visualizerData.map((bar, index) => (
               <span
@@ -239,33 +281,6 @@ export function Player({
             </div>
           </div>
         </>
-      ) : (
-        <div className="player-mini-controls flex items-center gap-2">
-          <button
-            type="button"
-            className="player-transport-action magnetic-btn rounded-full border border-white/30 p-2 text-white hover:bg-white/10"
-            onClick={onPrevious}
-            aria-label="Previous track"
-          >
-            <FaBackward />
-          </button>
-          <button
-            type="button"
-            className="player-transport-action magnetic-btn rounded-full bg-cyan-300 p-2.5 text-black"
-            onClick={onTogglePlay}
-            aria-label={isPlaying ? 'Pause track' : 'Play track'}
-          >
-            {isPlaying ? <FaPause /> : <FaPlay />}
-          </button>
-          <button
-            type="button"
-            className="player-transport-action magnetic-btn rounded-full border border-white/30 p-2 text-white hover:bg-white/10"
-            onClick={onNext}
-            aria-label="Next track"
-          >
-            <FaForward />
-          </button>
-        </div>
       )}
     </motion.aside>
   )

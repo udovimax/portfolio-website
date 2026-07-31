@@ -137,13 +137,13 @@ textarea:focus-visible {
 .section-shell {
   width: min(94rem, 100%);
   margin-inline: auto;
-  padding: 7.5rem clamp(1.15rem, 4vw, 4rem);
+  padding: 5rem clamp(1.15rem, 4vw, 4rem);
 }
 
 .site-page {
   position: relative;
   isolation: isolate;
-  min-height: calc(100vh - 5rem);
+  min-height: 0;
 }
 
 .site-page::before {
@@ -191,6 +191,28 @@ textarea:focus-visible {
   text-transform: uppercase;
 }
 
+.home-work-cta {
+  display: inline-flex;
+  min-height: 2.9rem;
+  align-items: center;
+  gap: 0.75rem;
+  border: 1px solid rgba(158, 201, 255, 0.55);
+  border-radius: 999px;
+  padding: 0.7rem 1.25rem;
+  color: var(--text-main);
+  font-size: 0.68rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  transition: border-color 180ms ease, background-color 180ms ease, transform 180ms ease;
+}
+
+.home-work-cta:hover,
+.home-work-cta:focus-visible {
+  border-color: var(--accent);
+  background: rgba(158, 201, 255, 0.13);
+  transform: translateY(-2px);
+}
+
 .nav-link-active {
   color: #071019 !important;
   font-weight: 500;
@@ -213,9 +235,9 @@ textarea:focus-visible {
   align-items: center;
   justify-content: center;
   gap: 0.55rem;
-  border: 1px solid rgba(247, 244, 239, 0.18);
-  border-radius: 999px;
-  padding: 0.55rem 0.85rem;
+  border: 0;
+  border-radius: 0;
+  padding: 0.55rem 0.25rem;
   color: rgba(247, 244, 239, 0.78);
   font-size: 0.62rem;
   letter-spacing: 0.16em;
@@ -225,9 +247,7 @@ textarea:focus-visible {
 
 .site-nav-button:hover,
 .site-nav-button:focus-visible {
-  border-color: rgba(158, 201, 255, 0.6);
   color: var(--text-main);
-  background: rgba(158, 201, 255, 0.12);
 }
 
 .site-nav-menu-icon {
@@ -417,29 +437,99 @@ textarea:focus {
   pointer-events: auto;
 }
 
-.player-shell-minimized .player-header {
-  margin-bottom: 0;
+.player-shell-minimized {
+  width: 5.75rem !important;
+  height: 5.75rem;
+  overflow: hidden;
+  border-radius: 1.25rem;
+  padding: 0.35rem;
 }
 
-.player-shell-minimized .player-header img {
-  height: 2.25rem;
-  width: 2.25rem;
+.player-mini-square {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  border-radius: 1rem;
+}
+
+.player-mini-art {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0.82;
+  transition: transform 240ms ease, opacity 180ms ease;
+}
+
+.player-mini-square::after {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  content: '';
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.04), rgba(0, 0, 0, 0.88));
+  pointer-events: none;
+}
+
+.player-shell-minimized:hover .player-mini-art,
+.player-shell-minimized.player-controls-revealed .player-mini-art {
+  transform: scale(1.08);
+  opacity: 0.46;
+}
+
+.player-mini-overlay {
+  position: absolute;
+  right: 0.45rem;
+  bottom: 0.4rem;
+  left: 0.45rem;
+  z-index: 2;
+  min-width: 0;
+}
+
+.player-mini-marquee {
+  display: flex;
+  width: 100%;
+  overflow: hidden;
+  color: white;
+  font-size: 0.56rem;
+  letter-spacing: 0.05em;
+  line-height: 1.1;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.player-mini-marquee span {
+  flex: 0 0 auto;
+  padding-right: 1.75rem;
+  animation: player-title-marquee 10s linear infinite;
+}
+
+.player-mini-time {
+  margin-top: 0.16rem;
+  color: rgba(255, 255, 255, 0.68);
+  font-size: 0.53rem;
+  line-height: 1;
+}
+
+.player-shell-minimized .player-actions {
+  margin: 0;
 }
 
 .player-shell-minimized .player-mini-controls {
-  max-height: 0;
-  margin-top: 0;
-  overflow: hidden;
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0;
   opacity: 0;
   pointer-events: none;
-  transition: max-height 180ms ease, margin-top 180ms ease, opacity 180ms ease;
+  transition: opacity 180ms ease;
 }
 
 .player-shell-minimized:hover .player-mini-controls,
 .player-shell-minimized:focus-within .player-mini-controls,
 .player-shell-minimized.player-controls-revealed .player-mini-controls {
-  max-height: 3rem;
-  margin-top: 0.5rem;
   opacity: 1;
   pointer-events: auto;
 }
@@ -455,6 +545,18 @@ textarea:focus {
 .player-shell-minimized.player-controls-revealed .player-transport-action {
   opacity: 1;
   pointer-events: auto;
+}
+
+@keyframes player-title-marquee {
+  0%,
+  18% {
+    transform: translateX(0);
+  }
+
+  82%,
+  100% {
+    transform: translateX(-50%);
+  }
 }
 
 .artist-gallery-item {
@@ -504,7 +606,7 @@ textarea:focus {
   .site-nav-button {
     min-height: 1.95rem;
     gap: 0.35rem;
-    padding: 0.45rem 0.58rem;
+    padding: 0.45rem 0.25rem;
     font-size: 0.52rem;
     letter-spacing: 0.11em;
   }
@@ -538,6 +640,12 @@ textarea:focus {
     width: min(18rem, calc(100% - 1rem));
     border-radius: 1.25rem;
     padding: 0.75rem;
+  }
+
+  .player-shell-minimized {
+    width: 5.75rem !important;
+    height: 5.75rem;
+    padding: 0.35rem;
   }
 
   .player-header {
@@ -591,8 +699,8 @@ textarea:focus {
   }
 
   .section-shell {
-    padding-top: 5.25rem;
-    padding-bottom: 5.25rem;
+    padding-top: 3.75rem;
+    padding-bottom: 3.75rem;
   }
 
   body::after {
