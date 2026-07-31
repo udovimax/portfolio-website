@@ -80,8 +80,8 @@ body::before {
   inset: 0;
   z-index: -2;
   content: '';
-  background: linear-gradient(180deg, rgba(12, 16, 24, 0.64), rgba(6, 8, 12, 0.92)), url('../media/images/site-background.jpg') center / cover;
-  opacity: 0.22;
+  background: linear-gradient(180deg, rgba(12, 16, 24, 0.34), rgba(6, 8, 12, 0.72)), url('../media/images/site-background.jpg') center / cover;
+  opacity: 0.5;
   pointer-events: none;
 }
 
@@ -147,10 +147,11 @@ textarea:focus-visible {
   text-transform: uppercase;
 }
 
+.section-shell h1,
 .section-shell h2,
 .section-shell h3,
 footer p:first-child {
-  letter-spacing: -0.055em;
+  letter-spacing: -0.012em;
 }
 
 .section-shell p {

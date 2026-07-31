@@ -316,7 +316,7 @@ function App() {
                 animate={{ opacity: 1, y: 0 }}
                 className="text-xs uppercase tracking-[0.4em] text-white/70"
               >
-                Max Kingston
+                Max Udovichenko
               </motion.p>
               <h1 className="text-4xl font-semibold text-white sm:text-6xl">Loading Experience</h1>
               <div className="mx-auto h-1 w-72 overflow-hidden rounded-full bg-white/20">
@@ -452,7 +452,7 @@ function App() {
               <h3 className="mb-3 text-xl text-white">{content?.music.soundcloud.title}</h3>
               <div className="rounded-2xl border border-white/15 bg-black/40 p-2">
                 <iframe
-                  title="Max Kingston SoundCloud Playlist"
+                  title="Max Udovichenko SoundCloud Playlist"
                   src={content?.music.soundcloud.embedUrl}
                   loading="lazy"
                   width="100%"
@@ -627,9 +627,9 @@ function App() {
       </main>
 
       <footer className="border-t border-white/10 px-6 py-10 text-center">
-        <p className="text-3xl font-semibold text-white sm:text-5xl">MAX KINGSTON</p>
+        <p className="text-3xl font-semibold text-white sm:text-5xl">MAX UDOVICHENKO</p>
         <p className="mt-3 text-sm uppercase tracking-[0.18em] text-white/60">
-          Copyright {new Date().getFullYear()} Max Kingston
+          Copyright {new Date().getFullYear()} Max Udovichenko
         </p>
       </footer>
 
