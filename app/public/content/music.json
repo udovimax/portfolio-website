@@ -1,0 +1,35 @@
+{
+  "featuredAlbum": "Sijanie",
+  "description": "A curated set of original productions, score fragments, and spatial experiments.",
+  "tracks": [
+    {
+      "id": "track-51",
+      "title": "5.1 Surround Composition",
+      "artist": "Max Kingston",
+      "year": 2026,
+      "description": "An original piece composed and mixed in 5.1 surround sound.",
+      "duration": "05:00",
+      "credits": "Composition, production, and multichannel mix by Max Kingston",
+      "artwork": "/media/images/site-background.jpg",
+      "streamingSource": "local",
+      "src": "/media/audio/5.1.mp3",
+      "downloadLink": "/media/audio/5.1.mp3"
+    },
+    {
+      "id": "track-tape",
+      "title": "Analog Mastering - Visconti Studio",
+      "artist": "Max Kingston",
+      "year": 2026,
+      "description": "Mixed and mastered on analog equipment and printed to tape.",
+      "duration": "04:00",
+      "credits": "Mix and master by Max Kingston",
+      "artwork": "/media/images/site-background.jpg",
+      "streamingSource": "local",
+      "src": "/media/audio/assignment-max-udovichenko-tape-master.wav"
+    }
+  ],
+  "soundcloud": {
+    "title": "Official SoundCloud Playlist",
+    "embedUrl": "https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/playlists/soundcloud%253Aplaylists%253A1828624572&color=%23cc9c89&auto_play=false&hide_related=false&show_comments=true&show_user=true&show_reposts=false&show_teaser=true"
+  }
+}

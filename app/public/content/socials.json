@@ -1,0 +1,11 @@
+{
+  "email": "maxkingstonmusic@gmail.com",
+  "spotify": "https://open.spotify.com/artist/",
+  "instagram": "https://instagram.com/",
+  "youtube": "https://youtube.com/",
+  "soundcloud": "https://soundcloud.com/sijanieee",
+  "formsubmit": {
+    "endpointEmail": "maxkingstonmusic@gmail.com",
+    "subject": "New portfolio contact"
+  }
+}

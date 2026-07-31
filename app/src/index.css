@@ -1,0 +1,214 @@
+@import 'tailwindcss';
+
+@font-face {
+  font-family: 'Neue Haas Display';
+  src: url('/fonts/neue-haas/NeueHaasDisplayXXThin.ttf') format('truetype');
+  font-weight: 200;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Neue Haas Display';
+  src: url('/fonts/neue-haas/NeueHaasDisplayRoman.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Neue Haas Display';
+  src: url('/fonts/neue-haas/NeueHaasDisplayMediu.ttf') format('truetype');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Neue Haas Display';
+  src: url('/fonts/neue-haas/NeueHaasDisplayBold.ttf') format('truetype');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+:root {
+  color-scheme: dark;
+  --page-bg: #111419;
+  --page-bg-deep: #080a0e;
+  --paper: #f2eee7;
+  --text-main: #f7f4ef;
+  --text-muted: rgba(247, 244, 239, 0.64);
+  --text-faint: rgba(247, 244, 239, 0.42);
+  --accent: #9ec9ff;
+  --accent-hot: #e4ad95;
+  --accent-soft: rgba(158, 201, 255, 0.18);
+  --line: rgba(247, 244, 239, 0.16);
+  --glass: rgba(255, 255, 255, 0.055);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  margin: 0;
+  min-height: 100%;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  overflow-x: hidden;
+  font-family: 'Neue Haas Display', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  color: var(--text-main);
+  background:
+    linear-gradient(180deg, rgba(8, 10, 14, 0.58), rgba(8, 10, 14, 0.92)),
+    radial-gradient(90rem 55rem at 8% -12%, rgba(83, 128, 190, 0.42), transparent 62%),
+    linear-gradient(165deg, var(--page-bg) 0%, var(--page-bg-deep) 64%, #050609 100%);
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body::before {
+  position: fixed;
+  inset: 0;
+  z-index: -2;
+  content: '';
+  background: linear-gradient(180deg, rgba(12, 16, 24, 0.64), rgba(6, 8, 12, 0.92)), url('/media/images/site-background.jpg') center / cover;
+  opacity: 0.22;
+  pointer-events: none;
+}
+
+body::after {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  content: '';
+  background-image: linear-gradient(rgba(255, 255, 255, 0.025) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.025) 1px, transparent 1px);
+  background-size: 72px 72px;
+  mask-image: linear-gradient(to bottom, black, transparent 70%);
+  pointer-events: none;
+}
+
+a,
+button,
+input,
+textarea {
+  font: inherit;
+}
+
+a {
+  color: inherit;
+}
+
+button,
+a {
+  -webkit-tap-highlight-color: transparent;
+}
+
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+textarea:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+::selection {
+  color: #0a0d12;
+  background: var(--accent);
+}
+
+.text-cyan-300 {
+  color: var(--accent) !important;
+}
+
+.bg-cyan-300 {
+  background-color: var(--accent) !important;
+}
+
+.section-shell {
+  width: min(94rem, 100%);
+  margin-inline: auto;
+  padding: 7.5rem clamp(1.15rem, 4vw, 4rem);
+}
+
+.section-heading {
+  color: var(--accent);
+  font-size: 0.68rem;
+  font-weight: 500;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+}
+
+.section-shell h2,
+.section-shell h3,
+footer p:first-child {
+  letter-spacing: -0.055em;
+}
+
+.section-shell p {
+  line-height: 1.45;
+}
+
+.magnetic-btn {
+  position: relative;
+  transition: transform 240ms ease, background-color 240ms ease, color 240ms ease, border-color 240ms ease;
+}
+
+.magnetic-btn:hover {
+  transform: translateY(-2px);
+}
+
+.card-tilt {
+  transform-style: preserve-3d;
+}
+
+.timeline-item {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.025));
+}
+
+input[type='range'] {
+  accent-color: var(--accent);
+}
+
+input,
+textarea {
+  transition: border-color 180ms ease, background-color 180ms ease;
+}
+
+input:hover,
+textarea:hover,
+input:focus,
+textarea:focus {
+  border-color: rgba(158, 201, 255, 0.7) !important;
+  background-color: rgba(255, 255, 255, 0.07) !important;
+}
+
+@media (max-width: 767px) {
+  .section-shell {
+    padding-top: 5.25rem;
+    padding-bottom: 5.25rem;
+  }
+
+  body::after {
+    background-size: 48px 48px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

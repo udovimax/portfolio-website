@@ -1,0 +1,10 @@
+# Local exports, archives, and source drops are kept out of the deployable app.
+portfolio_website_for_max.zip
+portfolio website/
+neue-haas-grotesk-display-pro-cufonfonts.zip
+__MACOSX/
+soundcloudwidget.html
+
+# Generated output and local tooling.
+app/dist/
+.DS_Store

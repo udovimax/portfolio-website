@@ -1,0 +1,35 @@
+{
+  "name": "Max Kingston",
+  "roles": ["Artist", "Producer", "Creative"],
+  "intro": "I am a third-year Music Technology student at Kingston University London, composing original music and designing sound for games and films. My work spans ambient scoring, sound design, and 5.1 composition.",
+  "philosophy": "I build emotional worlds through texture, rhythm, and space. Every project starts with narrative, then becomes sound.",
+  "timeline": [
+    {
+      "year": "2024",
+      "title": "Kingston University London",
+      "description": "BA (Hons) Music Technology. Focus on synthesis, sequencing, and interactive audio systems."
+    },
+    {
+      "year": "2025",
+      "title": "Film and Game Collaboration",
+      "description": "Scored student films and designed game audio environments for independent creators."
+    },
+    {
+      "year": "2026",
+      "title": "Spatial Mixing Development",
+      "description": "Expanded multichannel practice through 5.1 composition and analog studio workflows."
+    },
+    {
+      "year": "2027",
+      "title": "Graduation Target",
+      "description": "Expected completion of BA (Hons) with portfolio centered on narrative music and interactive sound design."
+    }
+  ],
+  "skills": [
+    "Sound design for interactive media",
+    "Original composition and arrangement",
+    "Mixing and mastering",
+    "5.1 surround composition",
+    "Analog tape mastering"
+  ]
+}

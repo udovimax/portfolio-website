@@ -1,0 +1,52 @@
+{
+  "projects": [
+    {
+      "id": "project-universe",
+      "title": "Uni-Verse",
+      "type": "Student Game",
+      "year": 2026,
+      "description": "Composed the music and designed sound effects for a game project developed at Kingston University.",
+      "technologies": ["Composition", "Sound Design", "Interactive Audio"],
+      "thumbnail": "/media/images/site-background.jpg",
+      "gallery": ["/media/images/site-background.jpg"],
+      "videoId": "video-universe",
+      "links": [{ "label": "View Video", "url": "#videos" }]
+    },
+    {
+      "id": "project-gimmick",
+      "title": "Gimmick! Reimagining",
+      "type": "8-bit Coursework",
+      "year": 2026,
+      "description": "Original chiptune reimagining of music and SFX inspired by the cult NES title Gimmick!.",
+      "technologies": ["Synthesis", "Sampling", "Sequencing"],
+      "thumbnail": "/media/images/site-background.jpg",
+      "gallery": ["/media/images/site-background.jpg"],
+      "videoId": "video-gimmick",
+      "links": [{ "label": "View Video", "url": "#videos" }]
+    },
+    {
+      "id": "project-third-day",
+      "title": "Third Day",
+      "type": "Short Film Score",
+      "year": 2026,
+      "description": "Composed an original score for a short narrative film directed by Arikta Verma.",
+      "technologies": ["Film Scoring", "Arrangement", "Mixing"],
+      "thumbnail": "/media/images/site-background.jpg",
+      "gallery": ["/media/images/site-background.jpg"],
+      "videoId": "video-third-day",
+      "links": [{ "label": "View Video", "url": "#videos" }]
+    },
+    {
+      "id": "project-climate",
+      "title": "Climate Change Awareness Film",
+      "type": "Original Score",
+      "year": 2026,
+      "description": "Composed original music for an awareness film on climate change.",
+      "technologies": ["Story Scoring", "Atmospheric Design"],
+      "thumbnail": "/media/images/site-background.jpg",
+      "gallery": ["/media/images/site-background.jpg"],
+      "videoId": "video-climate",
+      "links": [{ "label": "View Video", "url": "#videos" }]
+    }
+  ]
+}
