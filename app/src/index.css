@@ -861,6 +861,20 @@ textarea:focus {
   box-shadow: 0 1.5rem 4rem rgba(0, 0, 0, 0.25);
 }
 
+.instagram-posts-carousel .carousel-item {
+  flex-basis: min(calc(100% - 0.75rem), 34rem);
+}
+
+.instagram-posts-carousel .instagram-feed-frame {
+  width: 100%;
+}
+
+@media (min-width: 768px) {
+  .instagram-posts-carousel .carousel-item {
+    flex-basis: calc((100% - 1.25rem) / 2);
+  }
+}
+
 .instagram-highlight-card {
   display: grid;
   min-height: 9rem;

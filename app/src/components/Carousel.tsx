@@ -5,9 +5,10 @@ interface CarouselProps extends PropsWithChildren {
   label: string
   count: number
   countLabel?: string
+  className?: string
 }
 
-export function Carousel({ label, count, countLabel = 'works', children }: CarouselProps) {
+export function Carousel({ label, count, countLabel = 'works', className = '', children }: CarouselProps) {
   const trackRef = useRef<HTMLDivElement>(null)
   const [canScrollPrevious, setCanScrollPrevious] = useState(false)
   const [canScrollNext, setCanScrollNext] = useState(false)
@@ -73,7 +74,7 @@ export function Carousel({ label, count, countLabel = 'works', children }: Carou
   }
 
   return (
-    <div className="carousel-shell" role="region" aria-roledescription="carousel" aria-label={`${label} carousel`}>
+    <div className={`carousel-shell ${className}`} role="region" aria-roledescription="carousel" aria-label={`${label} carousel`}>
       <div
         ref={trackRef}
         className="carousel-track"

@@ -790,6 +790,7 @@ function App() {
                 label="Instagram posts"
                 count={content.socials.instagramPosts.length}
                 countLabel="posts"
+                className="instagram-posts-carousel"
               >
                 {content.socials.instagramPosts.map((permalink) => (
                   <div className="carousel-item" key={permalink}>
