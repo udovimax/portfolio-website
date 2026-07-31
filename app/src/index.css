@@ -140,6 +140,49 @@ textarea:focus-visible {
   padding: 7.5rem clamp(1.15rem, 4vw, 4rem);
 }
 
+.site-page {
+  position: relative;
+  isolation: isolate;
+  min-height: calc(100vh - 5rem);
+}
+
+.site-page::before {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  content: '';
+  background:
+    linear-gradient(180deg, rgba(8, 10, 14, 0.86), rgba(8, 10, 14, 0.97)),
+    var(--page-art) center / cover;
+  background-attachment: fixed;
+  opacity: 0.34;
+  pointer-events: none;
+}
+
+.page-home::before {
+  opacity: 0.08;
+}
+
+.page-music::before {
+  background-position: 78% center;
+  opacity: 0.24;
+}
+
+.page-projects::before {
+  background-position: center 30%;
+  opacity: 0.22;
+}
+
+.page-about::before {
+  background-position: 72% center;
+  opacity: 0.2;
+}
+
+.page-contact::before {
+  background-position: 68% center;
+  opacity: 0.2;
+}
+
 .section-heading {
   color: var(--accent);
   font-size: 0.68rem;
@@ -512,6 +555,10 @@ textarea:focus {
 }
 
 @media (max-width: 767px) {
+  .site-page::before {
+    background-attachment: scroll;
+  }
+
   .section-shell {
     padding-top: 5.25rem;
     padding-bottom: 5.25rem;

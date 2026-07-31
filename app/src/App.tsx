@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
+import { useEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from 'react'
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
 import { Howl, Howler } from 'howler'
 import { FaInstagram, FaSoundcloud, FaSpotify, FaYoutube } from 'react-icons/fa'
@@ -30,6 +30,14 @@ const artistImages = [
   { file: 'photo-3.jpg', alt: 'Max reaching toward the camera, alternate frame' },
   { file: 'photo-4.jpg', alt: 'Max playing bass guitar, alternate frame' },
 ]
+
+const pageArtwork: Record<NavSection, string> = {
+  home: 'media/images/site-background.jpg',
+  music: 'media/images/max/photo-1.jpg',
+  projects: 'media/images/max/photo-2.jpg',
+  about: 'media/images/max/photo-9.jpg',
+  contact: 'media/images/max/photo-6.jpg',
+}
 
 interface RevealProps {
   children: ReactNode
@@ -427,6 +435,8 @@ function App() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -12 }}
             transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+            className={`site-page page-${currentPage}`}
+            style={{ '--page-art': `url("${assetUrl(pageArtwork[currentPage])}")` } as CSSProperties}
           >
         {currentPage === 'home' ? (
           <section id="home" className="hero-section section-shell min-h-screen pt-28">
