@@ -510,7 +510,7 @@ function App() {
       <FloatingNav activePage={currentPage} />
       <ScrollGuide currentPage={currentPage} />
 
-      <main className={`relative text-white ${currentPage === 'home' ? 'home-page-main' : 'pb-24 md:pb-16'}`}>
+      <main className={`relative text-white ${currentPage === 'home' ? 'home-page-main' : ''}`}>
         <AnimatePresence mode="wait" initial={false}>
           <motion.div
             key={currentPage}
@@ -721,7 +721,7 @@ function App() {
         ) : null}
 
         {currentPage === 'about' ? (
-          <section id="about" className="section-shell">
+          <section id="about" className="about-section section-shell">
           <Reveal className="section-heading mb-8 inline-flex rounded-full border border-white/20 bg-black/45 px-4 py-2 backdrop-blur-md">
             About
           </Reveal>

@@ -144,6 +144,10 @@ textarea:focus-visible {
   padding-bottom: 1.5rem;
 }
 
+.about-section {
+  padding-bottom: 2.5rem;
+}
+
 .site-page {
   position: relative;
   isolation: isolate;
@@ -1298,6 +1302,10 @@ textarea:focus {
   .section-shell {
     padding-top: 3.75rem;
     padding-bottom: 3.75rem;
+  }
+
+  .about-section {
+    padding-bottom: 1.5rem;
   }
 
   .hero-section {
