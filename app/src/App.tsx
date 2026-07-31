@@ -770,6 +770,21 @@ function App() {
                 View profile + highlights
               </a>
             </div>
+            {content?.socials.instagramHighlight ? (
+              <a
+                href={content.socials.instagramHighlight}
+                target="_blank"
+                rel="noreferrer"
+                className="instagram-highlight-card magnetic-btn mb-6"
+                style={{
+                  backgroundImage: `linear-gradient(90deg, rgba(5, 8, 13, 0.92), rgba(5, 8, 13, 0.5)), url("${assetUrl(pageArtworkSecondary.about)}")`,
+                }}
+              >
+                <span className="section-heading">Music / Instagram highlight</span>
+                <strong>Latest music stories</strong>
+                <span>Open the music highlight on Instagram</span>
+              </a>
+            ) : null}
             {content?.socials.instagramPosts?.length ? (
               <Carousel
                 label="Instagram posts"

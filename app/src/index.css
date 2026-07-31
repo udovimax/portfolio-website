@@ -813,6 +813,38 @@ textarea:focus {
   box-shadow: 0 1.5rem 4rem rgba(0, 0, 0, 0.25);
 }
 
+.instagram-highlight-card {
+  display: grid;
+  min-height: 9rem;
+  align-content: center;
+  gap: 0.55rem;
+  border: 1px solid rgba(158, 201, 255, 0.35);
+  border-radius: 1.5rem;
+  padding: 1.5rem;
+  background-position: center;
+  background-size: cover;
+  color: var(--text-main);
+  box-shadow: 0 1.5rem 4rem rgba(0, 0, 0, 0.22);
+}
+
+.instagram-highlight-card strong {
+  font-size: clamp(1.6rem, 4vw, 2.7rem);
+  font-weight: 500;
+  letter-spacing: -0.02em;
+}
+
+.instagram-highlight-card > span:last-child {
+  color: rgba(247, 244, 239, 0.72);
+  font-size: 0.72rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.instagram-highlight-card:hover,
+.instagram-highlight-card:focus-visible {
+  border-color: var(--accent);
+}
+
 .instagram-feed-frame .instagram-media {
   width: 100% !important;
   max-width: none !important;
