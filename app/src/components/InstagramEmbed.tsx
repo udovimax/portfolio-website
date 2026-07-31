@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react'
+import { useEffect } from 'react'
 
 declare global {
   interface Window {
@@ -15,39 +15,46 @@ interface InstagramEmbedProps {
   label?: string
 }
 
+let instagramScriptPromise: Promise<void> | null = null
+
 function loadInstagramEmbeds() {
-  const existingScript = document.querySelector<HTMLScriptElement>('script[data-instagram-embed]')
-
   if (window.instgrm?.Embeds) {
-    window.instgrm.Embeds.process()
-    return
+    return Promise.resolve()
   }
 
-  if (existingScript) {
-    existingScript.addEventListener('load', () => window.instgrm?.Embeds?.process(), { once: true })
-    return
+  if (!instagramScriptPromise) {
+    instagramScriptPromise = new Promise<void>((resolve) => {
+      const existingScript = document.querySelector<HTMLScriptElement>('script[data-instagram-embed]')
+      if (existingScript) {
+        existingScript.addEventListener('load', () => resolve(), { once: true })
+        return
+      }
+
+      const script = document.createElement('script')
+      script.async = true
+      script.defer = true
+      script.src = 'https://platform.instagram.com/en_US/embeds.js'
+      script.dataset.instagramEmbed = 'true'
+      script.onload = () => resolve()
+      document.body.appendChild(script)
+    })
   }
 
-  const script = document.createElement('script')
-  script.async = true
-  script.defer = true
-  script.src = 'https://platform.instagram.com/en_US/embeds.js'
-  script.dataset.instagramEmbed = 'true'
-  script.onload = () => window.instgrm?.Embeds?.process()
-  document.body.appendChild(script)
+  return instagramScriptPromise
 }
 
 export function InstagramEmbed({ permalink, label = 'Instagram content' }: InstagramEmbedProps) {
-  const embedRef = useRef<HTMLDivElement>(null)
-
   useEffect(() => {
-    loadInstagramEmbeds()
+    void loadInstagramEmbeds().then(() => {
+      window.requestAnimationFrame(() => window.instgrm?.Embeds?.process())
+    })
   }, [permalink])
 
   return (
-    <div ref={embedRef} className="instagram-feed-frame" aria-label={label}>
+    <div className="instagram-feed-frame" aria-label={label}>
       <blockquote
         className="instagram-media"
+        data-instgrm-permalink={permalink}
         data-instgrm-version="2"
       >
         <div className="instagram-embed-fallback">

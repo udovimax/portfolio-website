@@ -86,11 +86,14 @@ export function Player({
     return (
       <button
         type="button"
-        className="player-reopen fixed right-4 z-50 rounded-full border border-white/25 bg-black/75 px-4 py-3 text-xs uppercase tracking-[0.18em] text-white shadow-2xl backdrop-blur-xl transition hover:border-white/50 hover:bg-black"
+        className="player-reopen fixed right-4 z-50 border border-white/25 bg-black/75 text-white shadow-2xl backdrop-blur-xl transition hover:border-white/50 hover:bg-black"
         onClick={() => setVisible(true)}
         aria-label="Show music player"
       >
-        Show player
+        <img src={track.artwork} alt="" />
+        <span className="player-reopen-icon" aria-hidden="true">
+          <FaExpand />
+        </span>
       </button>
     )
   }
