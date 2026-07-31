@@ -4,9 +4,10 @@ import { FaArrowLeft, FaArrowRight } from 'react-icons/fa'
 interface CarouselProps extends PropsWithChildren {
   label: string
   count: number
+  countLabel?: string
 }
 
-export function Carousel({ label, count, children }: CarouselProps) {
+export function Carousel({ label, count, countLabel = 'works', children }: CarouselProps) {
   const trackRef = useRef<HTMLDivElement>(null)
   const [canScrollPrevious, setCanScrollPrevious] = useState(false)
   const [canScrollNext, setCanScrollNext] = useState(false)
@@ -84,7 +85,7 @@ export function Carousel({ label, count, children }: CarouselProps) {
         {children}
       </div>
       <div className="carousel-controls" role="group" aria-label={`${label} controls`}>
-        <span className="carousel-count">{count} works</span>
+        <span className="carousel-count">{count} {countLabel}</span>
         <div className="flex items-center gap-2">
           <button
             type="button"

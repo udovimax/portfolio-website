@@ -80,6 +80,7 @@ export interface SocialsContent {
   email: string
   spotify: string
   instagram: string
+  instagramPosts?: string[]
   youtube: string
   soundcloud: string
   formsubmit: {

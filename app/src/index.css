@@ -803,6 +803,43 @@ textarea:focus {
   aspect-ratio: 4 / 3;
 }
 
+.instagram-feed-frame {
+  width: min(100%, 42rem);
+  margin-inline: auto;
+  overflow: hidden;
+  border: 1px solid rgba(247, 244, 239, 0.16);
+  border-radius: 1.5rem;
+  background: rgba(5, 7, 10, 0.72);
+  box-shadow: 0 1.5rem 4rem rgba(0, 0, 0, 0.25);
+}
+
+.instagram-feed-frame .instagram-media {
+  width: 100% !important;
+  max-width: none !important;
+  min-width: 0 !important;
+  margin: 0 !important;
+  border: 0 !important;
+  border-radius: 1.5rem !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+.instagram-embed-fallback {
+  display: grid;
+  min-height: 12rem;
+  place-content: center;
+  gap: 0.75rem;
+  padding: 2rem;
+  color: var(--text-muted);
+  text-align: center;
+}
+
+.instagram-embed-fallback a {
+  color: var(--accent);
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+}
+
 @keyframes atmosphere-drift {
   from {
     transform: scale(1) translate3d(0, 0, 0);

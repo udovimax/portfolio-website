@@ -6,6 +6,7 @@ import { CustomCursor } from './components/CustomCursor'
 import { Carousel } from './components/Carousel'
 import { FloatingNav } from './components/FloatingNav'
 import { GlassCard } from './components/GlassCard'
+import { InstagramEmbed } from './components/InstagramEmbed'
 import { Player } from './components/Player'
 import { useLenis } from './hooks/useLenis'
 import { assetUrl, useSiteContent } from './hooks/useSiteContent'
@@ -24,20 +25,6 @@ function getPageFromHash(): NavSection {
   const hash = window.location.hash.replace(/^#\/?/, '') as NavSection
   return pageIds.includes(hash) ? hash : 'home'
 }
-
-const artistImages = [
-  'film-1.jpg', 'film-2.jpg', 'film-3.webp', 'film-4.jpg', 'film-5.webp', 'film-6.jpg',
-  'film-7.webp', 'film-8.jpg', 'film-9.webp', 'film-10.webp', 'film-11.jpg', 'film-12.jpg',
-  'film-13.jpg', 'film-14.jpg', 'film-15.jpg', 'film-16.jpg', 'film-17.webp', 'film-18.jpg',
-  'film-19.webp', 'film-20.jpg', 'film-21.webp', 'film-22.jpg', 'film-23.webp', 'film-24.jpg',
-  'film-25.webp', 'film-26.jpg', 'film-27.webp', 'film-28.jpg', 'film-29.jpg', 'film-30.jpg',
-  'film-31.jpg', 'film-32.webp', 'film-33.jpg', 'film-34.jpg', 'film-35.jpg', 'film-36.jpg',
-  'film-37.webp', 'film-38.webp', 'film-39.webp', 'film-40.jpg', 'film-41.jpg', 'film-42.jpg',
-  'film-43.jpg', 'film-44.jpg', 'film-45.jpg', 'film-46.webp', 'film-47.webp', 'film-48.jpg',
-].map((file, index) => ({
-  file,
-  alt: `Film photograph from Max Udovichenko's visual archive ${index + 1}`,
-}))
 
 const pageArtwork: Record<NavSection, string> = {
   home: 'media/images/instagram/film-1.jpg',
@@ -783,28 +770,24 @@ function App() {
                 View profile + highlights
               </a>
             </div>
-            <Carousel label="Visual archive" count={artistImages.length}>
-              {artistImages.map((image, index) => (
-                <div className="carousel-item" key={image.file}>
-                  <motion.figure
-                    initial={shouldReduceMotion ? false : { opacity: 0, y: 18 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true, amount: 0.12 }}
-                    transition={{ duration: 0.55, delay: Math.min(index * 0.045, 0.3), ease: [0.22, 1, 0.36, 1] }}
-                    className="artist-gallery-item group relative overflow-hidden rounded-2xl border border-white/15 bg-white/5"
-                  >
-                    <img
-                      src={assetUrl(`media/images/instagram/${image.file}`)}
-                      alt={image.alt}
-                      loading={index < 4 ? 'eager' : 'lazy'}
-                      decoding="async"
-                      className="content-image h-full min-h-40 w-full object-cover transition duration-700 group-hover:scale-105"
-                    />
-                    <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/35 to-transparent opacity-0 transition duration-500 group-hover:opacity-100" />
-                  </motion.figure>
-                </div>
-              ))}
-            </Carousel>
+            {content?.socials.instagramPosts?.length ? (
+              <Carousel
+                label="Instagram posts"
+                count={content.socials.instagramPosts.length}
+                countLabel="posts"
+              >
+                {content.socials.instagramPosts.map((permalink) => (
+                  <div className="carousel-item" key={permalink}>
+                    <InstagramEmbed permalink={permalink} label={`Instagram post ${permalink}`} />
+                  </div>
+                ))}
+              </Carousel>
+            ) : (
+              <InstagramEmbed
+                permalink={content?.socials.instagram ?? 'https://www.instagram.com/udaaaww/'}
+                label="Max Udovichenko Instagram profile"
+              />
+            )}
           </Reveal>
           </section>
         ) : null}
