@@ -386,7 +386,7 @@ textarea:focus-visible {
   display: flex;
   align-items: center;
   justify-content: flex-start;
-  border-radius: 0.8rem;
+  border-radius: 0;
   padding: 0.85rem 1rem;
   color: rgba(247, 244, 239, 0.72);
   font-size: 0.72rem;
@@ -412,11 +412,13 @@ textarea:focus-visible {
 .site-menu-link:hover,
 .site-menu-link:focus-visible {
   color: var(--text-main);
-  background: rgba(158, 201, 255, 0.1);
+  background: transparent;
 }
 
+.site-menu-link:focus,
 .site-menu-link:focus-visible {
-  outline: none;
+  outline: 0 !important;
+  -webkit-focus-ring-color: transparent;
   box-shadow: inset 0 -1px 0 var(--accent);
 }
 
