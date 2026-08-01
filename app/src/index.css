@@ -247,11 +247,11 @@ textarea:focus-visible {
 }
 
 .work-accordion[open] .work-accordion-summary-media {
-  opacity: 0.46;
+  opacity: 0;
 }
 
 .work-accordion[open] .work-accordion-summary-video {
-  opacity: 0.2;
+  opacity: 0;
 }
 
 .work-accordion-toggle {
