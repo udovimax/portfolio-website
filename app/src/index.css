@@ -855,8 +855,7 @@ textarea:focus-visible {
   transform: scale(1);
 }
 
-.home-ambient-panel,
-.archive-ambient-panel {
+.home-ambient-panel {
   position: relative;
   isolation: isolate;
   overflow: hidden;
@@ -870,12 +869,7 @@ textarea:focus-visible {
   min-height: 10.5rem;
 }
 
-.archive-ambient-panel {
-  min-height: 22rem;
-}
-
-.home-ambient-video,
-.archive-ambient-video {
+.home-ambient-video {
   position: absolute;
   inset: 0;
   z-index: -2;
@@ -888,22 +882,11 @@ textarea:focus-visible {
   transform: scale(1.015);
 }
 
-.home-ambient-scrim,
-.archive-ambient-scrim {
+.home-ambient-scrim {
   position: absolute;
   inset: 0;
   z-index: -1;
   background: linear-gradient(90deg, rgba(7, 10, 15, 0.96), rgba(7, 10, 15, 0.45) 65%, rgba(7, 10, 15, 0.7));
-}
-
-.archive-ambient-copy {
-  position: relative;
-  z-index: 1;
-  display: grid;
-  min-height: inherit;
-  align-content: center;
-  gap: 0.5rem;
-  padding: clamp(1.25rem, 4vw, 2.5rem);
 }
 
 .home-journey-panel {

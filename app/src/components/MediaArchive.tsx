@@ -9,29 +9,9 @@ interface MediaArchiveProps {
 }
 
 export function MediaArchive({ archive, onOpenVideo }: MediaArchiveProps) {
-  const featuredVideo = archive.videos[0]
-
   return (
     <div className="media-archive">
-      {featuredVideo ? (
-        <div className="archive-ambient-panel">
-          <LazyBackgroundVideo
-            src={featuredVideo.loop}
-            poster={featuredVideo.poster}
-            className="archive-ambient-video"
-          />
-          <div className="archive-ambient-scrim" aria-hidden="true" />
-          <div className="archive-ambient-copy">
-            <p className="section-heading">Moving archive / {archive.videos.length} studies</p>
-            <h2 className="text-4xl font-semibold text-white sm:text-6xl">Music in motion</h2>
-            <p className="max-w-xl text-white/75">
-              Short fragments from Max&apos;s Instagram highlights, edited into quiet loops and stills for the site.
-            </p>
-          </div>
-        </div>
-      ) : null}
-
-      <div className="mt-10">
+      <div>
         <div className="mb-5 flex items-end justify-between gap-4">
           <div>
             <p className="section-heading">Moving studies</p>

@@ -724,13 +724,7 @@ function App() {
             </summary>
             <div className="work-accordion-body">
 
-          <Reveal className="mb-8 flex flex-wrap items-center justify-between gap-4" delay={0.08}>
-            <div>
-              <PageTitle className="text-4xl font-semibold sm:text-6xl" delay={0.14}>
-                {content?.music.featuredAlbum}
-              </PageTitle>
-              <p className="mt-2 max-w-2xl text-white/70">{content?.music.description}</p>
-            </div>
+          <Reveal className="mb-8 flex justify-end" delay={0.08}>
             <div className="inline-flex rounded-full border border-white/20 bg-white/5 p-1">
               <button
                 type="button"

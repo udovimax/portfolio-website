@@ -34,8 +34,6 @@ export interface Track {
 }
 
 export interface MusicContent {
-  featuredAlbum: string
-  description: string
   tracks: Track[]
   soundcloud: {
     title: string
