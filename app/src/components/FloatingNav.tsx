@@ -4,6 +4,8 @@ import type { NavSection } from '../types/content'
 
 interface FloatingNavProps {
   activePage: NavSection
+  contactOpen: boolean
+  onContactOpenChange: (open: boolean) => void
 }
 
 const links: Array<{ id: NavSection; label: string }> = [
@@ -12,7 +14,7 @@ const links: Array<{ id: NavSection; label: string }> = [
   { id: 'about', label: 'About' },
 ]
 
-export function FloatingNav({ activePage }: FloatingNavProps) {
+export function FloatingNav({ activePage, contactOpen, onContactOpenChange }: FloatingNavProps) {
   const [menuOpen, setMenuOpen] = useState(false)
   const menuTriggerRef = useRef<HTMLButtonElement>(null)
   const menuPanelRef = useRef<HTMLElement>(null)
@@ -101,15 +103,17 @@ export function FloatingNav({ activePage }: FloatingNavProps) {
       if (deltaX > 0) {
         if (menuOpen) {
           setMenuOpen(false)
+        } else if (contactOpen) {
+          onContactOpenChange(false)
         } else if (start.x <= edgeDistance) {
           setMenuOpen(true)
-        } else if (window.location.hash.replace(/^#\/?/, '') === 'contact') {
-          window.location.hash = 'home'
         }
       } else if (menuOpen) {
         setMenuOpen(false)
+      } else if (contactOpen) {
+        onContactOpenChange(false)
       } else if (start.x >= window.innerWidth - edgeDistance) {
-        window.location.hash = 'contact'
+        onContactOpenChange(true)
       }
     }
 
@@ -119,7 +123,7 @@ export function FloatingNav({ activePage }: FloatingNavProps) {
       document.removeEventListener('touchstart', onTouchStart)
       document.removeEventListener('touchend', onTouchEnd)
     }
-  }, [menuOpen])
+  }, [contactOpen, menuOpen, onContactOpenChange])
 
   return (
     <>
@@ -137,7 +141,13 @@ export function FloatingNav({ activePage }: FloatingNavProps) {
           aria-expanded={menuOpen}
           aria-controls="site-menu"
           aria-haspopup="dialog"
-          onClick={() => setMenuOpen((value) => !value)}
+          onClick={() => {
+            const nextOpen = !menuOpen
+            setMenuOpen(nextOpen)
+            if (nextOpen) {
+              onContactOpenChange(false)
+            }
+          }}
         >
           <span className="site-nav-menu-icon" aria-hidden="true">
             <span />
@@ -150,9 +160,19 @@ export function FloatingNav({ activePage }: FloatingNavProps) {
           MAX UDOVICHENKO
         </a>
 
-        <a href="#contact" className="site-nav-button magnetic-btn" onClick={() => setMenuOpen(false)}>
+        <button
+          type="button"
+          className="site-nav-button magnetic-btn"
+          aria-expanded={contactOpen}
+          aria-controls="contact-drawer"
+          aria-haspopup="dialog"
+          onClick={() => {
+            setMenuOpen(false)
+            onContactOpenChange(!contactOpen)
+          }}
+        >
           Contact
-        </a>
+        </button>
       </motion.nav>
 
       <AnimatePresence>

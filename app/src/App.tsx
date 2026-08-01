@@ -3,6 +3,7 @@ import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
 import { Howl, Howler } from 'howler'
 import { FaInstagram, FaSoundcloud, FaSpotify, FaYoutube } from 'react-icons/fa'
 import { Carousel } from './components/Carousel'
+import { ContactDrawer } from './components/ContactDrawer'
 import { FloatingNav } from './components/FloatingNav'
 import { GlassCard } from './components/GlassCard'
 import { InstagramEmbed } from './components/InstagramEmbed'
@@ -189,6 +190,7 @@ function App() {
 
   const [activeVideo, setActiveVideo] = useState<VideoItem | null>(null)
   const [activeProject, setActiveProject] = useState<ProjectItem | null>(null)
+  const [contactOpen, setContactOpen] = useState(false)
   const [videoResumePoints, setVideoResumePoints] = useState<Record<string, number>>({})
 
   const howlRef = useRef<Howl | null>(null)
@@ -519,7 +521,11 @@ function App() {
         ) : null}
       </AnimatePresence>
 
-      <FloatingNav activePage={currentPage} />
+      <FloatingNav
+        activePage={currentPage}
+        contactOpen={contactOpen}
+        onContactOpenChange={setContactOpen}
+      />
       <ScrollGuide currentPage={currentPage} />
 
       <main className={`relative text-white ${currentPage === 'home' ? 'home-page-main' : ''}`}>
@@ -989,6 +995,15 @@ function App() {
           </motion.div>
         </AnimatePresence>
       </main>
+
+      {content?.socials ? (
+        <ContactDrawer
+          isOpen={contactOpen}
+          endpointEmail={content.socials.formsubmit.endpointEmail}
+          subject={content.socials.formsubmit.subject}
+          onClose={() => setContactOpen(false)}
+        />
+      ) : null}
 
       <motion.footer
         initial={shouldReduceMotion ? false : { opacity: 0, y: 18 }}
