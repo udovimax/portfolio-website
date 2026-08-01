@@ -668,7 +668,7 @@ textarea:focus-visible {
 }
 
 .home-ambient-panel {
-  min-height: 13rem;
+  min-height: 10.5rem;
 }
 
 .archive-ambient-panel {
@@ -727,7 +727,7 @@ textarea:focus-visible {
   display: grid;
   align-content: center;
   gap: 0.45rem;
-  min-height: 10.5rem;
+  min-height: 13rem;
   border: 1px solid rgba(247, 244, 239, 0.23);
   border-radius: 1.25rem;
   padding: clamp(1rem, 3vw, 1.75rem);
@@ -746,7 +746,7 @@ textarea:focus-visible {
   object-position: center;
   filter: saturate(0.7) contrast(1.08);
   opacity: 0.46;
-  transform: scale(1.02);
+  transform: scale(1.14);
 }
 
 .home-journey-scrim {
