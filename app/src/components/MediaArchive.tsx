@@ -1,5 +1,4 @@
 import { FaPlay } from 'react-icons/fa'
-import { useReducedMotion } from 'framer-motion'
 import { Carousel } from './Carousel'
 import { LazyBackgroundVideo } from './LazyBackgroundVideo'
 import type { ArchiveContent, ArchiveVideo } from '../types/content'
@@ -11,7 +10,6 @@ interface MediaArchiveProps {
 
 export function MediaArchive({ archive, onOpenVideo }: MediaArchiveProps) {
   const featuredVideo = archive.videos[0]
-  const shouldReduceMotion = useReducedMotion()
 
   return (
     <div className="media-archive">
@@ -46,11 +44,10 @@ export function MediaArchive({ archive, onOpenVideo }: MediaArchiveProps) {
             <div className="carousel-item" key={video.id}>
               <article className="archive-video-card">
                 <div className="archive-video-preview">
-                  <img
-                    src={shouldReduceMotion ? video.poster : video.preview}
-                    alt={`${video.title} preview`}
-                    loading="lazy"
-                    decoding="async"
+                  <LazyBackgroundVideo
+                    src={video.loop}
+                    poster={video.poster}
+                    className="archive-video-preview-media"
                   />
                   <span className="archive-video-badge" aria-hidden="true">
                     <FaPlay />

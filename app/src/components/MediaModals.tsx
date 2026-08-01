@@ -71,7 +71,7 @@ export function VideoModal({
             >
               <source src={video.src} type="video/mp4" />
               {video.captions ? (
-                <track kind="captions" src={video.captions} label="English" default />
+                <track kind="captions" src={video.captions} label="English" srcLang="en" default />
               ) : null}
             </video>
           </motion.div>

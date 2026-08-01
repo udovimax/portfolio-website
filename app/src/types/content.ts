@@ -109,7 +109,6 @@ export interface SocialsContent {
   bandlab: string
   instagramPosts?: string[]
   instagramHighlight?: string
-  youtube: string
   soundcloud: string
   formsubmit: {
     endpointEmail: string

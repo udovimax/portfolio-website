@@ -1,7 +1,7 @@
 import { lazy, Suspense, useEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from 'react'
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
 import { Howl, Howler } from 'howler'
-import { FaEnvelope, FaInstagram, FaLinkedin, FaSoundcloud, FaSpotify, FaYoutube } from 'react-icons/fa'
+import { FaEnvelope, FaInstagram, FaLinkedin, FaSoundcloud, FaSpotify } from 'react-icons/fa'
 import { SiBandlab } from 'react-icons/si'
 import { Carousel } from './components/Carousel'
 import { ContactDrawer } from './components/ContactDrawer'
@@ -549,12 +549,6 @@ function App() {
         href: content.socials.bandlab,
         label: 'BandLab',
         icon: <SiBandlab aria-hidden="true" />,
-      },
-      {
-        id: 'youtube',
-        href: content.socials.youtube,
-        label: 'YouTube',
-        icon: <FaYoutube aria-hidden="true" />,
       },
       {
         id: 'soundcloud',

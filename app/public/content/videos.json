@@ -7,7 +7,7 @@
       "duration": "03:54",
       "poster": "/media/images/instagram/film-17.webp",
       "src": "/media/video/uni-verse.mp4",
-      "captions": ""
+      "captions": "/media/captions/video-universe.vtt"
     },
     {
       "id": "video-gimmick",
@@ -16,7 +16,7 @@
       "duration": "03:11",
       "poster": "/media/images/instagram/film-3.webp",
       "src": "/media/video/gimmick-music-sfx.mp4",
-      "captions": ""
+      "captions": "/media/captions/video-gimmick.vtt"
     },
     {
       "id": "video-third-day",
@@ -25,7 +25,7 @@
       "duration": "04:08",
       "poster": "/media/images/instagram/film-1.jpg",
       "src": "/media/video/third-day.mp4",
-      "captions": ""
+      "captions": "/media/captions/video-third-day.vtt"
     },
     {
       "id": "video-climate",
@@ -34,7 +34,7 @@
       "duration": "04:27",
       "poster": "/media/images/instagram/film-34.jpg",
       "src": "/media/video/global-warming.mp4",
-      "captions": ""
+      "captions": "/media/captions/video-climate.vtt"
     }
   ]
 }
