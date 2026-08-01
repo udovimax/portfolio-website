@@ -193,6 +193,12 @@ textarea:focus-visible {
   opacity: 0.24;
 }
 
+.page-work::after {
+  background: none;
+  opacity: 0;
+  animation: none;
+}
+
 .page-about::before {
   background-position: 72% center;
   opacity: 0.2;
@@ -204,6 +210,75 @@ textarea:focus-visible {
   font-weight: 500;
   letter-spacing: 0.28em;
   text-transform: uppercase;
+}
+
+.work-section {
+  display: grid;
+  gap: 1rem;
+}
+
+.work-accordion {
+  border-top: 1px solid rgba(247, 244, 239, 0.22);
+  border-bottom: 1px solid rgba(247, 244, 239, 0.14);
+}
+
+.work-accordion-summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  cursor: pointer;
+  list-style: none;
+  padding: 1.25rem 0;
+}
+
+.work-accordion-summary::-webkit-details-marker {
+  display: none;
+}
+
+.work-accordion-summary strong {
+  display: block;
+  margin-top: 0.35rem;
+  color: var(--text-main);
+  font-size: clamp(2rem, 5vw, 4rem);
+  font-weight: 400;
+  letter-spacing: -0.035em;
+}
+
+.work-accordion-toggle {
+  position: relative;
+  display: block;
+  width: 1.5rem;
+  height: 1.5rem;
+  flex: 0 0 auto;
+  border: 1px solid var(--accent);
+  border-radius: 50%;
+}
+
+.work-accordion-toggle::before,
+.work-accordion-toggle::after {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0.6rem;
+  height: 1px;
+  content: '';
+  background: var(--accent);
+  transform: translate(-50%, -50%);
+  transition: transform 220ms ease;
+}
+
+.work-accordion-toggle::after {
+  transform: translate(-50%, -50%) rotate(90deg);
+}
+
+.work-accordion[open] .work-accordion-toggle::after {
+  transform: translate(-50%, -50%) rotate(0deg);
+}
+
+.work-accordion-body {
+  padding: 0 0 1.5rem;
+  animation: experience-reveal 420ms ease both;
 }
 
 .scroll-guide {

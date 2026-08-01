@@ -646,9 +646,15 @@ function App() {
 
         {currentPage === 'work' ? (
           <section id="work" className="work-section section-shell">
-          <Reveal className="section-heading mb-8 inline-flex rounded-full border border-white/20 bg-black/45 px-4 py-2 backdrop-blur-md">
-            Work / Music
-          </Reveal>
+          <details className="work-accordion" open>
+            <summary className="work-accordion-summary">
+              <span>
+                <span className="section-heading">Work / 01</span>
+                <strong>Music</strong>
+              </span>
+              <span className="work-accordion-toggle" aria-hidden="true" />
+            </summary>
+            <div className="work-accordion-body">
 
           <Reveal className="mb-8 flex flex-wrap items-center justify-between gap-4" delay={0.08}>
             <div>
@@ -732,9 +738,18 @@ function App() {
               </div>
             </GlassCard>
           )}
-          <Reveal className="section-heading mt-20 mb-8 inline-flex rounded-full border border-white/20 bg-black/45 px-4 py-2 backdrop-blur-md">
-            Work / Projects
-          </Reveal>
+            </div>
+          </details>
+
+          <details className="work-accordion">
+            <summary className="work-accordion-summary">
+              <span>
+                <span className="section-heading">Work / 02</span>
+                <strong>Projects</strong>
+              </span>
+              <span className="work-accordion-toggle" aria-hidden="true" />
+            </summary>
+            <div className="work-accordion-body">
           <Reveal delay={0.1}>
             <Carousel label="Projects" count={content?.projects.projects.length ?? 0}>
               {content?.projects.projects.map((project) => {
@@ -775,12 +790,25 @@ function App() {
               })}
             </Carousel>
           </Reveal>
+            </div>
+          </details>
+
+          <details className="work-accordion">
+            <summary className="work-accordion-summary">
+              <span>
+                <span className="section-heading">Work / 03</span>
+                <strong>Video</strong>
+              </span>
+              <span className="work-accordion-toggle" aria-hidden="true" />
+            </summary>
+            <div className="work-accordion-body">
           {content?.archive ? (
-            <Reveal className="mt-20" delay={0.12}>
-              <p className="section-heading mb-8">Work / Video</p>
+            <Reveal delay={0.12}>
               <MediaArchive archive={content.archive} onOpenVideo={setActiveVideo} />
             </Reveal>
           ) : null}
+            </div>
+          </details>
         </section>
         ) : null}
 
