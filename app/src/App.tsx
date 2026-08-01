@@ -1,7 +1,7 @@
 import { lazy, Suspense, useEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from 'react'
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
 import { Howl, Howler } from 'howler'
-import { FaInstagram, FaSoundcloud, FaSpotify, FaYoutube } from 'react-icons/fa'
+import { FaInstagram, FaLinkedin, FaSoundcloud, FaSpotify, FaYoutube } from 'react-icons/fa'
 import { Carousel } from './components/Carousel'
 import { ContactDrawer } from './components/ContactDrawer'
 import { FloatingNav } from './components/FloatingNav'
@@ -536,6 +536,12 @@ function App() {
         href: content.socials.instagram,
         label: 'Instagram',
         icon: <FaInstagram aria-hidden="true" />,
+      },
+      {
+        id: 'linkedin',
+        href: content.socials.linkedin,
+        label: 'LinkedIn',
+        icon: <FaLinkedin aria-hidden="true" />,
       },
       {
         id: 'youtube',

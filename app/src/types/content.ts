@@ -105,6 +105,7 @@ export interface SocialsContent {
   email: string
   spotify: string
   instagram: string
+  linkedin: string
   instagramPosts?: string[]
   instagramHighlight?: string
   youtube: string
