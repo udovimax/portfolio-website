@@ -579,22 +579,42 @@ function App() {
           {content?.archive?.videos[1] ? (
             <Reveal className="mt-10" delay={0.16}>
               <div className="home-ambient-panel home-journey-panel">
-                <LazyBackgroundVideo
-                  src={content.archive.videos[1].loop}
-                  poster={content.archive.videos[1].poster}
-                  className="home-ambient-video"
-                />
-                <div className="home-ambient-scrim" aria-hidden="true" />
                 <div className="home-journey-actions">
                   <a href="#work" className="home-journey-link home-journey-link-primary magnetic-btn">
-                    <span className="section-heading">View my projects</span>
-                    <strong>Music / Projects / Video</strong>
-                    <span>Explore the work</span>
+                    <LazyBackgroundVideo
+                      src={content.archive.videos[1].loop}
+                      poster={content.archive.videos[1].poster}
+                      className="home-journey-video"
+                    />
+                    <div className="home-journey-scrim" aria-hidden="true" />
+                    <motion.span
+                      className="home-journey-copy"
+                      initial={shouldReduceMotion ? false : { opacity: 0, y: 14 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.2, duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
+                    >
+                      <span className="section-heading">View my projects</span>
+                      <strong>Music / Projects / Video</strong>
+                      <span>Explore the work</span>
+                    </motion.span>
                   </a>
                   <a href="#about" className="home-journey-link magnetic-btn">
-                    <span className="section-heading">Get to know me</span>
-                    <strong>About / Contact</strong>
-                    <span>Read the story and say hello</span>
+                    <LazyBackgroundVideo
+                      src={(content.archive.videos[2] ?? content.archive.videos[1]).loop}
+                      poster={(content.archive.videos[2] ?? content.archive.videos[1]).poster}
+                      className="home-journey-video"
+                    />
+                    <div className="home-journey-scrim" aria-hidden="true" />
+                    <motion.span
+                      className="home-journey-copy"
+                      initial={shouldReduceMotion ? false : { opacity: 0, y: 14 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.3, duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
+                    >
+                      <span className="section-heading">Get to know me</span>
+                      <strong>About / Contact</strong>
+                      <span>Read the story and say hello</span>
+                    </motion.span>
                   </a>
                 </div>
               </div>
@@ -979,14 +999,8 @@ function App() {
       >
         <p className="text-3xl font-semibold text-white sm:text-5xl">MAX UDOVICHENKO</p>
         <nav className="footer-journeys" aria-label="Explore Max Udovichenko">
-          <a href="#work" className="footer-journey-link magnetic-btn">
-            <span className="section-heading">View my projects</span>
-            <strong>Music / Projects / Video</strong>
-          </a>
-          <a href="#about" className="footer-journey-link magnetic-btn">
-            <span className="section-heading">Get to know me</span>
-            <strong>About / Contact</strong>
-          </a>
+          <a href="#work" className="footer-text-link magnetic-btn">View my projects</a>
+          <a href="#about" className="footer-text-link magnetic-btn">Get to know me</a>
         </nav>
         <p className="mt-3 text-sm uppercase tracking-[0.18em] text-white/60">
           Copyright {new Date().getFullYear()} Max Udovichenko
