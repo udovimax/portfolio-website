@@ -636,7 +636,7 @@ function App() {
         {currentPage === 'home' ? (
           <section id="home" className="hero-section section-shell pt-28">
           <WordReveal text={content?.about.name ?? ''} />
-          <div className="hero-intro-grid mt-10">
+          <div className="hero-intro-grid mt-14">
             <div className="hero-copy">
               <div className="hero-role-stack space-y-3 text-2xl text-white/75 sm:text-4xl">
                 {content?.about.roles.map((role, index) => (
