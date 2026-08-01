@@ -56,6 +56,7 @@ body,
 #root {
   margin: 0;
   min-height: 100%;
+  overflow-x: clip;
 }
 
 html {
@@ -64,6 +65,7 @@ html {
 
 body {
   overflow-x: hidden;
+  touch-action: pan-y;
   font-family: 'Neue Haas Display', 'Helvetica Neue', Helvetica, Arial, sans-serif;
   color: var(--text-main);
   background:
@@ -445,6 +447,8 @@ textarea:focus-visible {
 
 .hero-title {
   letter-spacing: 0.018em;
+  max-width: 100%;
+  overflow-wrap: normal;
 }
 
 .hero-section {
@@ -1567,6 +1571,11 @@ textarea:focus {
 
   .hero-section {
     padding-bottom: 1.25rem;
+  }
+
+  .hero-title {
+    font-size: clamp(3.1rem, 13.5vw, 5.5rem);
+    letter-spacing: 0.01em;
   }
 
   .hero-copy {

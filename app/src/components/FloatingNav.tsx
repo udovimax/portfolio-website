@@ -16,6 +16,7 @@ export function FloatingNav({ activePage }: FloatingNavProps) {
   const [menuOpen, setMenuOpen] = useState(false)
   const menuTriggerRef = useRef<HTMLButtonElement>(null)
   const menuPanelRef = useRef<HTMLElement>(null)
+  const touchStartRef = useRef<{ x: number; y: number } | null>(null)
 
   useEffect(() => {
     if (!menuOpen) {
@@ -63,6 +64,60 @@ export function FloatingNav({ activePage }: FloatingNavProps) {
     return () => {
       window.cancelAnimationFrame(focusFrame)
       document.removeEventListener('keydown', handleKeyDown)
+    }
+  }, [menuOpen])
+
+  useEffect(() => {
+    const onTouchStart = (event: TouchEvent) => {
+      const target = event.target as HTMLElement | null
+      if (target?.closest('.carousel-track, input, textarea, [contenteditable="true"]')) {
+        touchStartRef.current = null
+        return
+      }
+
+      const touch = event.changedTouches[0]
+      touchStartRef.current = touch ? { x: touch.clientX, y: touch.clientY } : null
+    }
+
+    const onTouchEnd = (event: TouchEvent) => {
+      const start = touchStartRef.current
+      touchStartRef.current = null
+      if (!start) {
+        return
+      }
+
+      const touch = event.changedTouches[0]
+      if (!touch) {
+        return
+      }
+
+      const deltaX = touch.clientX - start.x
+      const deltaY = touch.clientY - start.y
+      if (Math.abs(deltaX) < 64 || Math.abs(deltaX) < Math.abs(deltaY) * 1.2) {
+        return
+      }
+
+      const edgeDistance = 48
+      if (deltaX > 0) {
+        if (menuOpen) {
+          setMenuOpen(false)
+        } else if (start.x <= edgeDistance) {
+          setMenuOpen(true)
+        } else if (window.location.hash.replace(/^#\/?/, '') === 'contact') {
+          window.location.hash = 'home'
+        }
+      } else if (menuOpen) {
+        setMenuOpen(false)
+      } else if (start.x >= window.innerWidth - edgeDistance) {
+        window.location.hash = 'contact'
+      }
+    }
+
+    document.addEventListener('touchstart', onTouchStart, { passive: true })
+    document.addEventListener('touchend', onTouchEnd, { passive: true })
+    return () => {
+      document.removeEventListener('touchstart', onTouchStart)
+      document.removeEventListener('touchend', onTouchEnd)
     }
   }, [menuOpen])
 
