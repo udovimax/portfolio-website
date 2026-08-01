@@ -106,6 +106,7 @@ export interface SocialsContent {
   spotify: string
   instagram: string
   linkedin: string
+  bandlab: string
   instagramPosts?: string[]
   instagramHighlight?: string
   youtube: string

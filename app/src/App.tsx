@@ -2,6 +2,7 @@ import { lazy, Suspense, useEffect, useMemo, useRef, useState, type CSSPropertie
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
 import { Howl, Howler } from 'howler'
 import { FaInstagram, FaLinkedin, FaSoundcloud, FaSpotify, FaYoutube } from 'react-icons/fa'
+import { SiBandlab } from 'react-icons/si'
 import { Carousel } from './components/Carousel'
 import { ContactDrawer } from './components/ContactDrawer'
 import { FloatingNav } from './components/FloatingNav'
@@ -542,6 +543,12 @@ function App() {
         href: content.socials.linkedin,
         label: 'LinkedIn',
         icon: <FaLinkedin aria-hidden="true" />,
+      },
+      {
+        id: 'bandlab',
+        href: content.socials.bandlab,
+        label: 'BandLab',
+        icon: <SiBandlab aria-hidden="true" />,
       },
       {
         id: 'youtube',
