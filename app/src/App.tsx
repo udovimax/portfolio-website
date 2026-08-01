@@ -13,7 +13,7 @@ import { MediaArchive } from './components/MediaArchive'
 import { Player } from './components/Player'
 import { useLenis } from './hooks/useLenis'
 import { assetUrl, useSiteContent } from './hooks/useSiteContent'
-import type { NavSection, ProjectItem, Track, VideoItem } from './types/content'
+import type { ArchiveVideo, NavSection, ProjectItem, Track, VideoItem } from './types/content'
 
 const pageIds: NavSection[] = ['home', 'work', 'about']
 
@@ -64,6 +64,23 @@ function Reveal({ children, className = '', delay = 0, amount = 0.2, y = 24 }: R
     >
       {children}
     </motion.div>
+  )
+}
+
+function WorkSummaryVideo({ video }: { video?: ArchiveVideo }) {
+  if (!video) {
+    return null
+  }
+
+  return (
+    <span className="work-accordion-summary-media" aria-hidden="true">
+      <LazyBackgroundVideo
+        src={video.loop}
+        poster={video.poster}
+        className="work-accordion-summary-video"
+      />
+      <span className="work-accordion-summary-scrim" />
+    </span>
   )
 }
 
@@ -698,11 +715,12 @@ function App() {
           <section id="work" className="work-section section-shell">
           <details className="work-accordion" open>
             <summary className="work-accordion-summary">
-              <span>
+              <span className="work-accordion-summary-copy">
                 <span className="section-heading">Work / 01</span>
                 <strong>Music</strong>
               </span>
               <span className="work-accordion-toggle" aria-hidden="true" />
+              <WorkSummaryVideo video={content?.archive?.videos[0]} />
             </summary>
             <div className="work-accordion-body">
 
@@ -793,11 +811,12 @@ function App() {
 
           <details className="work-accordion">
             <summary className="work-accordion-summary">
-              <span>
+              <span className="work-accordion-summary-copy">
                 <span className="section-heading">Work / 02</span>
                 <strong>Projects</strong>
               </span>
               <span className="work-accordion-toggle" aria-hidden="true" />
+              <WorkSummaryVideo video={content?.archive?.videos[1] ?? content?.archive?.videos[0]} />
             </summary>
             <div className="work-accordion-body">
           <Reveal delay={0.1}>
@@ -845,11 +864,12 @@ function App() {
 
           <details className="work-accordion">
             <summary className="work-accordion-summary">
-              <span>
+              <span className="work-accordion-summary-copy">
                 <span className="section-heading">Work / 03</span>
                 <strong>Video</strong>
               </span>
               <span className="work-accordion-toggle" aria-hidden="true" />
+              <WorkSummaryVideo video={content?.archive?.videos[2] ?? content?.archive?.videos[0]} />
             </summary>
             <div className="work-accordion-body">
           {content?.archive ? (
