@@ -1,4 +1,4 @@
-export type NavSection = 'home' | 'music' | 'projects' | 'about' | 'contact'
+export type NavSection = 'home' | 'work' | 'about'
 
 export interface AboutTimelineItem {
   year: string

@@ -186,23 +186,13 @@ textarea:focus-visible {
   opacity: 0.08;
 }
 
-.page-music::before {
+.page-work::before {
   background-position: 78% center;
   opacity: 0.24;
 }
 
-.page-projects::before {
-  background-position: center 30%;
-  opacity: 0.22;
-}
-
 .page-about::before {
   background-position: 72% center;
-  opacity: 0.2;
-}
-
-.page-contact::before {
-  background-position: 68% center;
   opacity: 0.2;
 }
 
@@ -212,28 +202,6 @@ textarea:focus-visible {
   font-weight: 500;
   letter-spacing: 0.28em;
   text-transform: uppercase;
-}
-
-.home-work-cta {
-  display: inline-flex;
-  min-height: 2.9rem;
-  align-items: center;
-  gap: 0.75rem;
-  border: 1px solid rgba(158, 201, 255, 0.55);
-  border-radius: 999px;
-  padding: 0.7rem 1.25rem;
-  color: var(--text-main);
-  font-size: 0.68rem;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  transition: border-color 180ms ease, background-color 180ms ease, transform 180ms ease;
-}
-
-.home-work-cta:hover,
-.home-work-cta:focus-visible {
-  border-color: var(--accent);
-  background: rgba(158, 201, 255, 0.13);
-  transform: translateY(-2px);
 }
 
 .scroll-guide {
@@ -491,10 +459,24 @@ textarea:focus-visible {
 }
 
 .hero-intro-grid {
+  width: min(76rem, 100%);
+}
+
+.hero-copy {
   display: grid;
-  grid-template-columns: minmax(0, 1.1fr) minmax(15rem, 0.72fr);
+  grid-template-columns: minmax(0, 1fr) minmax(15rem, 0.7fr);
   align-items: center;
-  gap: clamp(2rem, 7vw, 7rem);
+  column-gap: clamp(2rem, 7vw, 7rem);
+}
+
+.hero-copy > .hero-role-stack,
+.hero-copy > p {
+  grid-column: 1;
+}
+
+.hero-copy > .hero-portrait {
+  grid-column: 2;
+  grid-row: 1 / span 2;
 }
 
 .hero-portrait {
@@ -542,7 +524,7 @@ textarea:focus-visible {
 }
 
 .home-ambient-panel {
-  min-height: 11rem;
+  min-height: 13rem;
 }
 
 .archive-ambient-panel {
@@ -571,7 +553,6 @@ textarea:focus-visible {
   background: linear-gradient(90deg, rgba(7, 10, 15, 0.96), rgba(7, 10, 15, 0.45) 65%, rgba(7, 10, 15, 0.7));
 }
 
-.home-ambient-copy,
 .archive-ambient-copy {
   position: relative;
   z-index: 1;
@@ -582,9 +563,70 @@ textarea:focus-visible {
   padding: clamp(1.25rem, 4vw, 2.5rem);
 }
 
-.home-ambient-copy p:last-child {
-  color: rgba(247, 244, 239, 0.76);
-  font-size: clamp(1.15rem, 2.2vw, 1.7rem);
+.home-journey-panel {
+  min-height: 14rem;
+}
+
+.home-journey-actions {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+  padding: clamp(0.75rem, 2vw, 1.25rem);
+}
+
+.home-journey-link,
+.footer-journey-link {
+  display: grid;
+  align-content: center;
+  gap: 0.45rem;
+  min-height: 10.5rem;
+  border: 1px solid rgba(247, 244, 239, 0.23);
+  border-radius: 1.25rem;
+  padding: clamp(1rem, 3vw, 1.75rem);
+  background: rgba(5, 7, 10, 0.48);
+  color: var(--text-main);
+  transition: border-color 220ms ease, background-color 220ms ease, transform 220ms ease;
+}
+
+.home-journey-link:hover,
+.home-journey-link:focus-visible,
+.footer-journey-link:hover,
+.footer-journey-link:focus-visible {
+  border-color: var(--accent);
+  background: rgba(158, 201, 255, 0.12);
+  transform: translateY(-2px);
+}
+
+.home-journey-link strong,
+.footer-journey-link strong {
+  font-size: clamp(1.2rem, 3vw, 2rem);
+  font-weight: 400;
+  letter-spacing: -0.02em;
+}
+
+.home-journey-link > span:last-child {
+  color: rgba(247, 244, 239, 0.66);
+  font-size: 0.75rem;
+}
+
+.home-journey-link-primary {
+  border-color: rgba(158, 201, 255, 0.62);
+}
+
+.footer-journeys {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 20rem));
+  justify-content: center;
+  gap: 0.75rem;
+  margin: 2rem auto 0;
+}
+
+.footer-journey-link {
+  min-height: 6rem;
+  padding: 1rem 1.15rem;
+  text-align: left;
 }
 
 .archive-video-carousel .carousel-item {
@@ -1494,23 +1536,35 @@ textarea:focus {
     padding-bottom: 1.25rem;
   }
 
-.hero-intro-grid {
-    grid-template-columns: minmax(0, 1fr) minmax(6rem, 0.42fr);
-    gap: 1rem;
+  .hero-copy {
+    grid-template-columns: minmax(0, 1fr) minmax(8.5rem, 0.56fr);
+    column-gap: 1rem;
     text-align: left;
   }
 
-  .hero-role-stack {
+  .hero-copy > .hero-role-stack {
     text-align: left;
   }
 
   .hero-copy > p {
+    grid-column: 1 / -1;
     margin-inline: 0;
   }
 
-  .hero-portrait {
+  .hero-copy > .hero-portrait {
+    grid-column: 2;
+    grid-row: 1;
     justify-self: end;
-    width: 100%;
+    width: min(12rem, 100%);
+  }
+
+  .home-journey-actions,
+  .footer-journeys {
+    grid-template-columns: 1fr;
+  }
+
+  .home-journey-link {
+    min-height: 7.5rem;
   }
 
   .experience-item > summary {

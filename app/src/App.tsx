@@ -13,7 +13,7 @@ import { useLenis } from './hooks/useLenis'
 import { assetUrl, useSiteContent } from './hooks/useSiteContent'
 import type { NavSection, ProjectItem, Track, VideoItem } from './types/content'
 
-const pageIds: NavSection[] = ['home', 'music', 'projects', 'about', 'contact']
+const pageIds: NavSection[] = ['home', 'work', 'about']
 
 const VideoModal = lazy(() =>
   import('./components/MediaModals').then((module) => ({ default: module.VideoModal })),
@@ -23,24 +23,26 @@ const ProjectModal = lazy(() =>
 )
 
 function getPageFromHash(): NavSection {
-  const hash = window.location.hash.replace(/^#\/?/, '') as NavSection
-  return pageIds.includes(hash) ? hash : 'home'
+  const hash = window.location.hash.replace(/^#\/?/, '')
+  const legacyPageMap: Record<string, NavSection> = {
+    music: 'work',
+    projects: 'work',
+    contact: 'about',
+  }
+  const page = legacyPageMap[hash] ?? hash
+  return pageIds.includes(page as NavSection) ? (page as NavSection) : 'home'
 }
 
 const pageArtwork: Record<NavSection, string> = {
   home: 'media/images/instagram/film-1.jpg',
-  music: 'media/images/instagram/film-4.jpg',
-  projects: 'media/images/instagram/film-3.webp',
+  work: 'media/images/instagram/film-3.webp',
   about: 'media/images/instagram/film-40.jpg',
-  contact: 'media/images/instagram/film-43.jpg',
 }
 
 const pageArtworkSecondary: Record<NavSection, string> = {
   home: 'media/images/instagram/film-40.jpg',
-  music: 'media/images/max/photo-1.jpg',
-  projects: 'media/images/instagram/film-12.jpg',
+  work: 'media/images/max/photo-1.jpg',
   about: 'media/images/instagram/film-2.jpg',
-  contact: 'media/images/instagram/film-11.jpg',
 }
 
 interface RevealProps {
@@ -93,11 +95,9 @@ function WordReveal({ text }: { text: string }) {
 }
 
 const nextPage: Record<NavSection, NavSection> = {
-  home: 'music',
-  music: 'projects',
-  projects: 'about',
-  about: 'contact',
-  contact: 'home',
+  home: 'work',
+  work: 'about',
+  about: 'home',
 }
 
 function ScrollGuide({ currentPage }: { currentPage: NavSection }) {
@@ -226,15 +226,27 @@ function App() {
   useEffect(() => {
     const onHashChange = () => {
       setCurrentPage(getPageFromHash())
+      if (window.location.hash.replace(/^#\/?/, '') === 'contact') {
+        window.requestAnimationFrame(() => {
+          document.getElementById('contact')?.scrollIntoView({ behavior: shouldReduceMotion ? 'auto' : 'smooth' })
+        })
+      }
     }
 
     window.addEventListener('hashchange', onHashChange)
     return () => window.removeEventListener('hashchange', onHashChange)
-  }, [])
+  }, [shouldReduceMotion])
 
   useEffect(() => {
+    if (window.location.hash.replace(/^#\/?/, '') === 'contact') {
+      window.requestAnimationFrame(() => {
+        document.getElementById('contact')?.scrollIntoView({ behavior: 'auto' })
+      })
+      return
+    }
+
     window.scrollTo({ top: 0, behavior: 'auto' })
-  }, [currentPage])
+  }, [currentPage, shouldReduceMotion])
 
   useEffect(() => {
     if (!activeTrack) {
@@ -542,6 +554,18 @@ function App() {
                   </motion.p>
                 ))}
               </div>
+              <motion.figure
+                initial={{ opacity: 0, x: 24, scale: 0.97 }}
+                animate={{ opacity: 1, x: 0, scale: 1 }}
+                transition={{ duration: 0.85, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}
+                className="hero-portrait"
+              >
+                <img
+                  src={assetUrl('media/images/instagram/film-40.jpg')}
+                  alt="Max Udovichenko in a warm portrait"
+                />
+                <figcaption>Max Udovichenko / Artist</figcaption>
+              </motion.figure>
               <motion.p
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
@@ -551,46 +575,27 @@ function App() {
                 {content?.about.intro}
               </motion.p>
             </div>
-            <motion.figure
-              initial={{ opacity: 0, x: 24, scale: 0.97 }}
-              animate={{ opacity: 1, x: 0, scale: 1 }}
-              transition={{ duration: 0.85, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}
-              className="hero-portrait"
-            >
-              <img
-                src={assetUrl('media/images/instagram/film-40.jpg')}
-                alt="Max Udovichenko in a warm portrait"
-              />
-              <figcaption>Max Udovichenko / Artist</figcaption>
-            </motion.figure>
           </div>
-          <motion.div
-            initial={{ opacity: 0, y: 18 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.28, duration: 0.7 }}
-            className="mx-auto mt-16 max-w-4xl border-t border-white/20 pt-5 text-center"
-          >
-            <p className="text-xs uppercase tracking-[0.2em] text-white/55">
-              Original music / spatial sound / visual worlds
-            </p>
-            <div className="mt-6 flex justify-center">
-              <a href="#music" className="home-work-cta magnetic-btn">
-                Enter the work
-              </a>
-            </div>
-          </motion.div>
           {content?.archive?.videos[1] ? (
             <Reveal className="mt-10" delay={0.16}>
-              <div className="home-ambient-panel">
+              <div className="home-ambient-panel home-journey-panel">
                 <LazyBackgroundVideo
                   src={content.archive.videos[1].loop}
                   poster={content.archive.videos[1].poster}
                   className="home-ambient-video"
                 />
                 <div className="home-ambient-scrim" aria-hidden="true" />
-                <div className="home-ambient-copy">
-                  <p className="section-heading">From the highlight archive</p>
-                  <p>Sound, image, and movement in the same frame.</p>
+                <div className="home-journey-actions">
+                  <a href="#work" className="home-journey-link home-journey-link-primary magnetic-btn">
+                    <span className="section-heading">View my projects</span>
+                    <strong>Music / Projects / Video</strong>
+                    <span>Explore the work</span>
+                  </a>
+                  <a href="#about" className="home-journey-link magnetic-btn">
+                    <span className="section-heading">Get to know me</span>
+                    <strong>About / Contact</strong>
+                    <span>Read the story and say hello</span>
+                  </a>
                 </div>
               </div>
             </Reveal>
@@ -598,10 +603,10 @@ function App() {
           </section>
         ) : null}
 
-        {currentPage === 'music' ? (
-          <section id="music" className="section-shell">
+        {currentPage === 'work' ? (
+          <section id="work" className="work-section section-shell">
           <Reveal className="section-heading mb-8 inline-flex rounded-full border border-white/20 bg-black/45 px-4 py-2 backdrop-blur-md">
-            Music
+            Work / Music
           </Reveal>
 
           <Reveal className="mb-8 flex flex-wrap items-center justify-between gap-4" delay={0.08}>
@@ -669,7 +674,7 @@ function App() {
               ))}
             </Carousel>
           ) : (
-            <GlassCard image={assetUrl(pageArtwork.music)}>
+            <GlassCard image={assetUrl(pageArtwork.work)}>
               <h3 className="mb-3 text-xl text-white">{content?.music.soundcloud.title}</h3>
               <div className="rounded-2xl border border-white/15 bg-black/40 p-2">
                 <iframe
@@ -684,16 +689,11 @@ function App() {
               </div>
             </GlassCard>
           )}
-          </section>
-        ) : null}
-
-        {currentPage === 'projects' ? (
-          <section id="projects" className="section-shell">
-          <Reveal className="section-heading mb-8 inline-flex rounded-full border border-white/20 bg-black/45 px-4 py-2 backdrop-blur-md">
-            Projects & Video
+          <Reveal className="section-heading mt-20 mb-8 inline-flex rounded-full border border-white/20 bg-black/45 px-4 py-2 backdrop-blur-md">
+            Work / Projects
           </Reveal>
           <Reveal delay={0.1}>
-            <Carousel label="Projects & Video" count={content?.projects.projects.length ?? 0}>
+            <Carousel label="Projects" count={content?.projects.projects.length ?? 0}>
               {content?.projects.projects.map((project) => {
                 const linkedVideo = content.videos.videos.find((video) => video.id === project.videoId)
                 return (
@@ -733,7 +733,8 @@ function App() {
             </Carousel>
           </Reveal>
           {content?.archive ? (
-            <Reveal className="mt-14" delay={0.12}>
+            <Reveal className="mt-20" delay={0.12}>
+              <p className="section-heading mb-8">Work / Video</p>
               <MediaArchive archive={content.archive} onOpenVideo={setActiveVideo} />
             </Reveal>
           ) : null}
@@ -875,14 +876,14 @@ function App() {
           </section>
         ) : null}
 
-        {currentPage === 'contact' ? (
-          <section id="contact" className="section-shell pb-36">
+        {currentPage === 'about' ? (
+          <section id="contact" className="contact-section section-shell pb-12">
           <Reveal className="section-heading mb-8 inline-flex rounded-full border border-white/20 bg-black/45 px-4 py-2 backdrop-blur-md">
             Contact
           </Reveal>
           <Reveal delay={0.1}>
             <div className="grid gap-8 lg:grid-cols-2">
-              <GlassCard image={assetUrl(pageArtwork.contact)}>
+              <GlassCard image={assetUrl(pageArtwork.about)}>
               <h2 className="text-4xl text-white">Start a Collaboration</h2>
               <p className="mt-2 text-white/70">
                 Reach out for games, films, artist partnerships, and live performance concepts.
@@ -942,7 +943,7 @@ function App() {
               </form>
               </GlassCard>
 
-              <GlassCard image={assetUrl(pageArtworkSecondary.contact)}>
+              <GlassCard image={assetUrl(pageArtworkSecondary.about)}>
               <h3 className="text-2xl text-white">Connect</h3>
               <p className="mt-2 text-white/70">{content?.socials.email}</p>
               <ul className="mt-5 grid grid-cols-2 gap-3">
@@ -977,6 +978,16 @@ function App() {
         className="footer-site border-t border-white/10 px-6 py-10 text-center"
       >
         <p className="text-3xl font-semibold text-white sm:text-5xl">MAX UDOVICHENKO</p>
+        <nav className="footer-journeys" aria-label="Explore Max Udovichenko">
+          <a href="#work" className="footer-journey-link magnetic-btn">
+            <span className="section-heading">View my projects</span>
+            <strong>Music / Projects / Video</strong>
+          </a>
+          <a href="#about" className="footer-journey-link magnetic-btn">
+            <span className="section-heading">Get to know me</span>
+            <strong>About / Contact</strong>
+          </a>
+        </nav>
         <p className="mt-3 text-sm uppercase tracking-[0.18em] text-white/60">
           Copyright {new Date().getFullYear()} Max Udovichenko
         </p>

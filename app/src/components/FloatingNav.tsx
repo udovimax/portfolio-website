@@ -8,10 +8,8 @@ interface FloatingNavProps {
 
 const links: Array<{ id: NavSection; label: string }> = [
   { id: 'home', label: 'Home' },
-  { id: 'music', label: 'Music' },
-  { id: 'projects', label: 'Projects' },
+  { id: 'work', label: 'Work' },
   { id: 'about', label: 'About' },
-  { id: 'contact', label: 'Contact' },
 ]
 
 export function FloatingNav({ activePage }: FloatingNavProps) {
