@@ -751,7 +751,7 @@ textarea:focus-visible {
 }
 
 .footer-copyright {
-  margin-top: 0.85rem;
+  margin-top: 0.55rem;
   color: rgba(247, 244, 239, 0.54);
   font-size: 0.62rem;
   letter-spacing: 0.14em;
@@ -761,8 +761,8 @@ textarea:focus-visible {
 .footer-connect {
   display: grid;
   justify-items: center;
-  gap: 0.45rem;
-  margin: 1.15rem auto 0;
+  gap: 0.3rem;
+  margin: 0.75rem auto 0;
 }
 
 .footer-connect-label {
@@ -991,7 +991,7 @@ textarea:focus-visible {
   flex-wrap: wrap;
   justify-content: center;
   gap: 0.35rem 1.25rem;
-  margin: 1rem auto 0;
+  margin: 0.65rem auto 0;
 }
 
 .footer-text-link {

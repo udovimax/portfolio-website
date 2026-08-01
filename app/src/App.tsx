@@ -1123,7 +1123,7 @@ function App() {
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true, amount: 0.4 }}
         transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-        className="footer-site border-t border-white/10 px-4 py-6 text-center sm:px-6 sm:py-8"
+        className="footer-site border-t border-white/10 px-4 py-5 text-center sm:px-6 sm:py-6"
       >
         <p className="footer-brand text-2xl font-semibold text-white sm:text-4xl">MAX UDOVICHENKO</p>
         <nav className="footer-journeys" aria-label="Explore Max Udovichenko">
