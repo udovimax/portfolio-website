@@ -1,32 +1,32 @@
 @import 'tailwindcss';
 
 @font-face {
-  font-family: 'Neue Haas Display';
-  src: url('./assets/fonts/neue-haas/NeueHaasDisplayXXThin.ttf') format('truetype');
-  font-weight: 200;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: 'Neue Haas Display';
-  src: url('./assets/fonts/neue-haas/NeueHaasDisplayRoman.ttf') format('truetype');
+  font-family: 'Inter';
+  src: url('./assets/fonts/inter/Inter-Regular.ttf') format('truetype');
   font-weight: 400;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'Neue Haas Display';
-  src: url('./assets/fonts/neue-haas/NeueHaasDisplayMediu.ttf') format('truetype');
-  font-weight: 500;
+  font-family: 'Inter';
+  src: url('./assets/fonts/inter/Inter-SemiBold.ttf') format('truetype');
+  font-weight: 600;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'Neue Haas Display';
-  src: url('./assets/fonts/neue-haas/NeueHaasDisplayBold.ttf') format('truetype');
+  font-family: 'Space Grotesk';
+  src: url('./assets/fonts/space-grotesk/SpaceGrotesk-Regular.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Space Grotesk';
+  src: url('./assets/fonts/space-grotesk/SpaceGrotesk-Bold.ttf') format('truetype');
   font-weight: 700;
   font-style: normal;
   font-display: swap;
@@ -66,7 +66,7 @@ html {
 body {
   overflow-x: hidden;
   touch-action: pan-y;
-  font-family: 'Neue Haas Display', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  font-family: 'Inter', 'Helvetica Neue', Helvetica, Arial, sans-serif;
   color: var(--text-main);
   background:
     linear-gradient(180deg, rgba(8, 10, 14, 0.58), rgba(8, 10, 14, 0.92)),
@@ -75,6 +75,18 @@ body {
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+.hero-title,
+.work-accordion-summary strong,
+.footer-brand {
+  font-family: 'Space Grotesk', 'Helvetica Neue', Helvetica, Arial, sans-serif;
 }
 
 body::before {
