@@ -79,6 +79,28 @@ export interface VideosContent {
   videos: VideoItem[]
 }
 
+export interface ArchivePhoto {
+  id: string
+  src: string
+  alt: string
+}
+
+export interface ArchiveVideo {
+  id: string
+  title: string
+  description: string
+  duration: string
+  poster: string
+  preview: string
+  loop: string
+  src: string
+}
+
+export interface ArchiveContent {
+  photos: ArchivePhoto[]
+  videos: ArchiveVideo[]
+}
+
 export interface SocialsContent {
   email: string
   spotify: string
@@ -98,5 +120,6 @@ export interface SiteContent {
   music: MusicContent
   projects: ProjectsContent
   videos: VideosContent
+  archive: ArchiveContent
   socials: SocialsContent
 }

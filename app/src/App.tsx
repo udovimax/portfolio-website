@@ -6,6 +6,8 @@ import { Carousel } from './components/Carousel'
 import { FloatingNav } from './components/FloatingNav'
 import { GlassCard } from './components/GlassCard'
 import { InstagramEmbed } from './components/InstagramEmbed'
+import { LazyBackgroundVideo } from './components/LazyBackgroundVideo'
+import { MediaArchive } from './components/MediaArchive'
 import { Player } from './components/Player'
 import { useLenis } from './hooks/useLenis'
 import { assetUrl, useSiteContent } from './hooks/useSiteContent'
@@ -577,6 +579,22 @@ function App() {
               </a>
             </div>
           </motion.div>
+          {content?.archive?.videos[1] ? (
+            <Reveal className="mt-10" delay={0.16}>
+              <div className="home-ambient-panel">
+                <LazyBackgroundVideo
+                  src={content.archive.videos[1].loop}
+                  poster={content.archive.videos[1].poster}
+                  className="home-ambient-video"
+                />
+                <div className="home-ambient-scrim" aria-hidden="true" />
+                <div className="home-ambient-copy">
+                  <p className="section-heading">From the highlight archive</p>
+                  <p>Sound, image, and movement in the same frame.</p>
+                </div>
+              </div>
+            </Reveal>
+          ) : null}
           </section>
         ) : null}
 
@@ -714,6 +732,11 @@ function App() {
               })}
             </Carousel>
           </Reveal>
+          {content?.archive ? (
+            <Reveal className="mt-14" delay={0.12}>
+              <MediaArchive archive={content.archive} onOpenVideo={setActiveVideo} />
+            </Reveal>
+          ) : null}
         </section>
         ) : null}
 

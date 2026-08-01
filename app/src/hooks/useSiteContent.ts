@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import type {
   AboutContent,
+  ArchiveContent,
   MusicContent,
   ProjectsContent,
   SiteContent,
@@ -59,6 +60,22 @@ function resolveContentAssets(
   }
 }
 
+function resolveArchiveAssets(archive: ArchiveContent): ArchiveContent {
+  return {
+    photos: archive.photos.map((photo) => ({
+      ...photo,
+      src: assetUrl(photo.src),
+    })),
+    videos: archive.videos.map((video) => ({
+      ...video,
+      poster: assetUrl(video.poster),
+      preview: assetUrl(video.preview),
+      loop: assetUrl(video.loop),
+      src: assetUrl(video.src),
+    })),
+  }
+}
+
 export function useSiteContent() {
   const [content, setContent] = useState<SiteContent | null>(null)
   const [error, setError] = useState<string | null>(null)
@@ -71,15 +88,17 @@ export function useSiteContent() {
       loadJson<MusicContent>(`${import.meta.env.BASE_URL}content/music.json`),
       loadJson<ProjectsContent>(`${import.meta.env.BASE_URL}content/projects.json`),
       loadJson<VideosContent>(`${import.meta.env.BASE_URL}content/videos.json`),
+      loadJson<ArchiveContent>(`${import.meta.env.BASE_URL}content/archive.json`),
       loadJson<SocialsContent>(`${import.meta.env.BASE_URL}content/socials.json`),
     ])
-      .then(([about, music, projects, videos, socials]) => {
+      .then(([about, music, projects, videos, archive, socials]) => {
         if (!mounted) {
           return
         }
         setContent({
           about,
           socials,
+          archive: resolveArchiveAssets(archive),
           ...resolveContentAssets(music, projects, videos),
         })
       })
