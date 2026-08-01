@@ -17,6 +17,7 @@ interface PlayerProps {
   currentTime: number
   duration: number
   volume: number
+  audioError: string | null
   visualizerData: number[]
   onTogglePlay: () => void
   onPrevious: () => void
@@ -41,6 +42,7 @@ export function Player({
   currentTime,
   duration,
   volume,
+  audioError,
   visualizerData,
   onTogglePlay,
   onPrevious,
@@ -72,7 +74,7 @@ export function Player({
 
   const handleCardClick = (event: MouseEvent<HTMLElement>) => {
     const target = event.target
-    if (target instanceof HTMLElement && target.closest('button, input, a')) {
+    if (target instanceof Element && target.closest('button, input, a')) {
       return
     }
     setControlsRevealed((value) => !value)
@@ -183,6 +185,9 @@ export function Player({
                 <p className="truncate text-xs uppercase tracking-[0.25em] text-cyan-300">Now playing</p>
                 <h3 className="truncate text-lg font-medium text-white">{track.title}</h3>
                 <p className="truncate text-sm text-white/70">{track.artist}</p>
+                {audioError ? (
+                  <p className="mt-1 text-[0.62rem] text-rose-200" role="status">{audioError}</p>
+                ) : null}
               </div>
             </div>
             <div className="player-actions flex items-center gap-2">

@@ -34,17 +34,12 @@ function getPageFromHash(): NavSection {
   return pageIds.includes(page as NavSection) ? (page as NavSection) : 'home'
 }
 
-const pageArtwork: Record<NavSection, string> = {
-  home: 'media/images/instagram/film-1.jpg',
-  work: 'media/images/instagram/film-3.webp',
-  about: 'media/images/instagram/film-40.jpg',
-}
-
-const pageArtworkSecondary: Record<NavSection, string> = {
-  home: 'media/images/instagram/film-40.jpg',
-  work: 'media/images/max/photo-1.jpg',
-  about: 'media/images/instagram/film-2.jpg',
-}
+const heroImageCycle = [
+  { src: 'media/images/max/photo-6.jpg', alt: 'Max Udovichenko in a mirror', position: 'center 38%' },
+  { src: 'media/images/max/photo-2.jpg', alt: 'Max Udovichenko reaching toward the camera', position: 'center 45%' },
+  { src: 'media/images/instagram/film-1.jpg', alt: 'Max Udovichenko beside a red telephone box', position: 'center 42%' },
+  { src: 'media/images/instagram/film-40.jpg', alt: 'A warm portrait of Max Udovichenko', position: 'center 34%' },
+]
 
 interface RevealProps {
   children: ReactNode
@@ -110,10 +105,69 @@ function PageTitle({ children, className = '', delay = 0 }: { children: ReactNod
   )
 }
 
+function HeroImageBand() {
+  const shouldReduceMotion = useReducedMotion()
+  const [activeIndex, setActiveIndex] = useState(0)
+
+  useEffect(() => {
+    if (shouldReduceMotion) {
+      return
+    }
+
+    const timer = window.setInterval(() => {
+      setActiveIndex((previous) => (previous + 1) % heroImageCycle.length)
+    }, 8000)
+
+    return () => window.clearInterval(timer)
+  }, [shouldReduceMotion])
+
+  return (
+    <figure className="hero-image-band" aria-hidden="true">
+      {heroImageCycle.map((image, index) => (
+        <img
+          key={image.src}
+          src={assetUrl(image.src)}
+          alt=""
+          loading={index === 0 ? 'eager' : 'lazy'}
+          decoding="async"
+          className={index === activeIndex ? 'is-active' : ''}
+          style={{ objectPosition: image.position }}
+        />
+      ))}
+      <div className="hero-image-band-scrim" />
+    </figure>
+  )
+}
+
 const nextPage: Record<NavSection, NavSection> = {
   home: 'work',
   work: 'about',
   about: 'home',
+}
+
+async function playHowlWhenReady(howl: Howl) {
+  if (Howler.ctx?.state === 'suspended') {
+    await Howler.ctx.resume()
+  }
+
+  if (howl.state() === 'unloaded') {
+    howl.load()
+  }
+
+  if (howl.state() === 'loaded') {
+    if (!howl.playing()) {
+      howl.play()
+    }
+    return
+  }
+
+  if (howl.state() === 'loading') {
+    howl.once('load', () => {
+      if (!howl.playing()) {
+        howl.play()
+      }
+    })
+  }
 }
 
 function ScrollGuide({ currentPage }: { currentPage: NavSection }) {
@@ -163,14 +217,21 @@ function ScrollGuide({ currentPage }: { currentPage: NavSection }) {
     })
   }
 
+  const guideLabel = atPageEnd
+    ? `Next / ${nextPage[currentPage]}`
+    : currentPage === 'home'
+      ? 'Continue / explore'
+      : currentPage === 'work'
+        ? 'Continue / work'
+        : 'Continue / story'
   const destinationLabel = atPageEnd
     ? `Open ${nextPage[currentPage]} page`
-    : 'Scroll down to explore'
+    : `Continue through ${currentPage === 'home' ? 'the introduction' : currentPage === 'work' ? 'the selected work' : 'the story'}`
 
   return (
-    <aside className="scroll-guide" aria-label="Page scroll guide">
+    <aside className={`scroll-guide scroll-guide-${currentPage}`} aria-label="Page scroll guide">
       <span className="scroll-guide-label" aria-live="polite">
-        {atPageEnd ? `Next / ${nextPage[currentPage]}` : 'Scroll to explore'}
+        {guideLabel}
       </span>
       <button type="button" className="scroll-guide-button" onClick={handleAdvance} aria-label={destinationLabel}>
         <span className="scroll-guide-track" aria-hidden="true">
@@ -202,6 +263,7 @@ function App() {
   const [currentTime, setCurrentTime] = useState(0)
   const [duration, setDuration] = useState(0)
   const [volume, setVolume] = useState(0.75)
+  const [audioError, setAudioError] = useState<string | null>(null)
 
   const [activeVideo, setActiveVideo] = useState<VideoItem | null>(null)
   const [activeProject, setActiveProject] = useState<ProjectItem | null>(null)
@@ -272,6 +334,7 @@ function App() {
 
     howlRef.current?.unload()
     setCurrentTime(0)
+    setAudioError(null)
     const [minutes, seconds] = activeTrack.duration.split(':').map(Number)
     setDuration((minutes || 0) * 60 + (seconds || 0))
 
@@ -284,6 +347,7 @@ function App() {
       volume: initialVolumeRef.current,
       preload: false,
       onplay: () => {
+        setAudioError(null)
         setIsPlaying(true)
       },
       onpause: () => {
@@ -294,11 +358,14 @@ function App() {
       },
       onloaderror: () => {
         setIsPlaying(false)
+        setAudioError('This track could not be loaded. Try play again.')
       },
       onplayerror: () => {
         setIsPlaying(false)
+        setAudioError('Audio is waiting for a user gesture. Try play again.')
       },
       onload: () => {
+        setAudioError(null)
         setDuration(howl.duration())
       },
       onend: () => {
@@ -315,11 +382,7 @@ function App() {
 
     howlRef.current = howl
     if (shouldAutoplayRef.current) {
-      if (Howler.ctx?.state === 'suspended') {
-        void Howler.ctx.resume().then(() => howl.play())
-      } else {
-        howl.play()
-      }
+      void playHowlWhenReady(howl)
     }
 
     return () => {
@@ -399,12 +462,6 @@ function App() {
     }
   }, [content])
 
-  const resumeAudioContext = () => {
-    if (Howler.ctx?.state === 'suspended') {
-      void Howler.ctx.resume()
-    }
-  }
-
   const togglePlay = () => {
     const howl = howlRef.current
     if (!howl) {
@@ -414,8 +471,7 @@ function App() {
       howl.pause()
       return
     }
-    resumeAudioContext()
-    howl.play()
+    void playHowlWhenReady(howl)
   }
 
   const selectTrack = (index: number) => {
@@ -423,12 +479,12 @@ function App() {
       return
     }
 
-    resumeAudioContext()
     shouldAutoplayRef.current = true
 
     if (index === trackIndex) {
-      setIsPlaying(true)
-      howlRef.current?.play()
+      if (howlRef.current) {
+        void playHowlWhenReady(howlRef.current)
+      }
       return
     }
 
@@ -552,10 +608,6 @@ function App() {
             exit={{ opacity: 0, y: -12 }}
             transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
             className={`site-page page-${currentPage}`}
-            style={{
-              '--page-art': `url("${assetUrl(pageArtwork[currentPage])}")`,
-              '--page-art-secondary': `url("${assetUrl(pageArtworkSecondary[currentPage])}")`,
-            } as CSSProperties}
           >
         {currentPage === 'home' ? (
           <section id="home" className="hero-section section-shell pt-28">
@@ -575,18 +627,6 @@ function App() {
                   </motion.p>
                 ))}
               </div>
-              <motion.figure
-                initial={{ opacity: 0, x: 24, scale: 0.97 }}
-                animate={{ opacity: 1, x: 0, scale: 1 }}
-                transition={{ duration: 0.85, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}
-                className="hero-portrait"
-              >
-                <img
-                  src={assetUrl('media/images/instagram/film-40.jpg')}
-                  alt="Max Udovichenko in a warm portrait"
-                />
-                <figcaption>Max Udovichenko / Artist</figcaption>
-              </motion.figure>
               <motion.p
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
@@ -597,6 +637,9 @@ function App() {
               </motion.p>
             </div>
           </div>
+          <Reveal className="mt-10" delay={0.12}>
+            <HeroImageBand />
+          </Reveal>
           {content?.archive?.videos[1] ? (
             <Reveal className="mt-10" delay={0.16}>
               <div className="home-ambient-panel home-journey-panel">
@@ -723,7 +766,7 @@ function App() {
               ))}
             </Carousel>
           ) : (
-            <GlassCard image={assetUrl(pageArtwork.work)}>
+            <GlassCard image={assetUrl('media/images/max/photo-2.jpg')}>
               <h3 className="mb-3 text-xl text-white">{content?.music.soundcloud.title}</h3>
               <div className="rounded-2xl border border-white/15 bg-black/40 p-2">
                 <iframe
@@ -918,7 +961,7 @@ function App() {
                 rel="noreferrer"
                 className="instagram-highlight-card magnetic-btn mb-6"
                 style={{
-                  backgroundImage: `linear-gradient(90deg, rgba(5, 8, 13, 0.92), rgba(5, 8, 13, 0.5)), url("${assetUrl(pageArtworkSecondary.about)}")`,
+                  backgroundImage: `linear-gradient(90deg, rgba(5, 8, 13, 0.92), rgba(5, 8, 13, 0.5)), url("${assetUrl('media/images/instagram/film-1.jpg')}")`,
                 }}
               >
                 <span className="section-heading">Music / Instagram highlight</span>
@@ -956,7 +999,7 @@ function App() {
           </Reveal>
           <Reveal delay={0.1}>
             <div className="grid gap-8 lg:grid-cols-2">
-              <GlassCard image={assetUrl(pageArtwork.about)}>
+              <GlassCard image={assetUrl('media/images/max/photo-6.jpg')}>
               <PageTitle className="text-4xl text-white" delay={0.14}>
                 Start a Collaboration
               </PageTitle>
@@ -1018,7 +1061,7 @@ function App() {
               </form>
               </GlassCard>
 
-              <GlassCard image={assetUrl(pageArtworkSecondary.about)}>
+              <GlassCard image={assetUrl('media/images/max/photo-2.jpg')}>
               <h3 className="text-2xl text-white">Connect</h3>
               <p className="mt-2 text-white/70">{content?.socials.email}</p>
               <ul className="mt-5 grid grid-cols-2 gap-3">
@@ -1077,6 +1120,7 @@ function App() {
         currentTime={currentTime}
         duration={duration}
         volume={volume}
+        audioError={audioError}
         visualizerData={visualizerData}
         onTogglePlay={togglePlay}
         onPrevious={goPrevious}
