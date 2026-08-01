@@ -742,23 +742,23 @@ function App() {
                         className="content-image h-40 w-full rounded-2xl object-cover sm:h-44"
                       />
                       <div className="flex items-start justify-between gap-3">
-                        <div>
+                        <div className="min-w-0">
                           <p className="text-xs uppercase tracking-[0.2em] text-cyan-300">{track.year}</p>
                           <h3 className="text-2xl text-white">{track.title}</h3>
                           <p className="text-white/70">{track.description}</p>
                         </div>
                         <button
                           type="button"
-                          className="magnetic-btn rounded-full border border-white/30 px-3 py-2 text-xs uppercase tracking-[0.2em] text-white"
+                          className="magnetic-btn shrink-0 rounded-full border border-white/30 px-3 py-2 text-xs uppercase tracking-[0.2em] text-white"
                           onClick={() => playSpecificTrack(index)}
                           aria-label={`Play ${track.title}`}
                         >
                           Play
                         </button>
                       </div>
-                      <div className="flex items-center justify-between text-xs text-white/60">
+                      <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1 text-xs text-white/60">
                         <span>{track.duration}</span>
-                        <span>{track.credits}</span>
+                        <span className="min-w-0 text-right">{track.credits}</span>
                       </div>
                     </div>
                   </GlassCard>

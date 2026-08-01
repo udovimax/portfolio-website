@@ -557,7 +557,7 @@ textarea:focus-visible {
 }
 
 .work-carousel .carousel-item {
-  flex-basis: min(86%, 27rem);
+  flex-basis: min(78%, 24rem);
 }
 
 .work-card {
