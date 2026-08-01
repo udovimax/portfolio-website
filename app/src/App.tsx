@@ -2,7 +2,6 @@ import { lazy, Suspense, useEffect, useMemo, useRef, useState, type CSSPropertie
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
 import { Howl, Howler } from 'howler'
 import { FaInstagram, FaSoundcloud, FaSpotify, FaYoutube } from 'react-icons/fa'
-import { CustomCursor } from './components/CustomCursor'
 import { Carousel } from './components/Carousel'
 import { FloatingNav } from './components/FloatingNav'
 import { GlassCard } from './components/GlassCard'
@@ -36,7 +35,7 @@ const pageArtwork: Record<NavSection, string> = {
 
 const pageArtworkSecondary: Record<NavSection, string> = {
   home: 'media/images/instagram/film-40.jpg',
-  music: 'media/images/instagram/film-8.jpg',
+  music: 'media/images/max/photo-1.jpg',
   projects: 'media/images/instagram/film-12.jpg',
   about: 'media/images/instagram/film-2.jpg',
   contact: 'media/images/instagram/film-11.jpg',
@@ -506,7 +505,6 @@ function App() {
         ) : null}
       </AnimatePresence>
 
-      <CustomCursor />
       <FloatingNav activePage={currentPage} />
       <ScrollGuide currentPage={currentPage} />
 
@@ -620,7 +618,7 @@ function App() {
               {tracks.map((track, index) => (
                 <div className="carousel-item" key={track.id}>
                   <GlassCard image={track.artwork} className="h-full cursor-pointer">
-                    <div data-cursor-reactive className="space-y-4">
+                    <div className="space-y-4">
                       <img
                         src={track.artwork}
                         alt={`${track.title} artwork`}
@@ -687,7 +685,6 @@ function App() {
                         type="button"
                         className="block w-full text-left"
                         onClick={() => setActiveProject(project)}
-                        data-cursor-reactive
                       >
                         <img
                           src={project.thumbnail}

@@ -106,7 +106,6 @@ export function Player({
       className={`player-shell group fixed z-50 w-[min(18rem,calc(100vw-1.5rem))] rounded-3xl border border-white/20 p-3 backdrop-blur-2xl ${minimized ? 'player-shell-minimized' : ''} ${controlsRevealed ? 'player-controls-revealed' : ''}`}
       style={playerStyle}
       aria-label="Music player"
-      data-cursor-reactive
       onClick={handleCardClick}
       onMouseLeave={() => setControlsRevealed(false)}
     >
