@@ -415,6 +415,11 @@ textarea:focus-visible {
   background: rgba(158, 201, 255, 0.1);
 }
 
+.site-menu-link:focus-visible {
+  outline: none;
+  box-shadow: inset 0 -1px 0 var(--accent);
+}
+
 .site-menu-link-active {
   position: relative;
   color: var(--accent);

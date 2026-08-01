@@ -28,7 +28,10 @@ export function FloatingNav({ activePage, contactOpen, onContactOpenChange }: Fl
     const focusableSelector =
       'a[href], button:not([disabled]), input:not([disabled]), textarea:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
     const focusFrame = window.requestAnimationFrame(() => {
-      menuPanelRef.current?.querySelector<HTMLElement>(focusableSelector)?.focus()
+      const activeLink = menuPanelRef.current?.querySelector<HTMLElement>('.site-menu-link-active')
+      const firstFocusable = menuPanelRef.current?.querySelector<HTMLElement>(focusableSelector)
+      const initialFocus = activeLink ?? firstFocusable
+      initialFocus?.focus()
     })
 
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -67,7 +70,7 @@ export function FloatingNav({ activePage, contactOpen, onContactOpenChange }: Fl
       window.cancelAnimationFrame(focusFrame)
       document.removeEventListener('keydown', handleKeyDown)
     }
-  }, [menuOpen])
+  }, [activePage, menuOpen])
 
   useEffect(() => {
     const onTouchStart = (event: TouchEvent) => {
