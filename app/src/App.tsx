@@ -95,6 +95,21 @@ function WordReveal({ text }: { text: string }) {
   )
 }
 
+function PageTitle({ children, className = '', delay = 0 }: { children: ReactNode; className?: string; delay?: number }) {
+  const shouldReduceMotion = useReducedMotion()
+
+  return (
+    <motion.h2
+      className={className}
+      initial={shouldReduceMotion ? false : { opacity: 0, y: 22 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.7, delay, ease: [0.22, 1, 0.36, 1] }}
+    >
+      {children}
+    </motion.h2>
+  )
+}
+
 const nextPage: Record<NavSection, NavSection> = {
   home: 'work',
   work: 'about',
@@ -637,7 +652,9 @@ function App() {
 
           <Reveal className="mb-8 flex flex-wrap items-center justify-between gap-4" delay={0.08}>
             <div>
-              <h2 className="text-4xl font-semibold sm:text-6xl">{content?.music.featuredAlbum}</h2>
+              <PageTitle className="text-4xl font-semibold sm:text-6xl" delay={0.14}>
+                {content?.music.featuredAlbum}
+              </PageTitle>
               <p className="mt-2 max-w-2xl text-white/70">{content?.music.description}</p>
             </div>
             <div className="inline-flex rounded-full border border-white/20 bg-white/5 p-1">
@@ -775,7 +792,9 @@ function App() {
           <Reveal delay={0.1}>
             <div className="max-w-4xl">
               <div>
-                <h2 className="text-4xl font-semibold sm:text-6xl">Artistic Philosophy</h2>
+                <PageTitle className="text-4xl font-semibold sm:text-6xl" delay={0.14}>
+                  Artistic Philosophy
+                </PageTitle>
                 <p className="mt-4 max-w-3xl text-lg text-white/75">{content?.about.philosophy}</p>
                 <ul className="mt-8 flex flex-wrap gap-2">
                   {content?.about.skills.map((skill) => (
@@ -910,7 +929,9 @@ function App() {
           <Reveal delay={0.1}>
             <div className="grid gap-8 lg:grid-cols-2">
               <GlassCard image={assetUrl(pageArtwork.about)}>
-              <h2 className="text-4xl text-white">Start a Collaboration</h2>
+              <PageTitle className="text-4xl text-white" delay={0.14}>
+                Start a Collaboration
+              </PageTitle>
               <p className="mt-2 text-white/70">
                 Reach out for games, films, artist partnerships, and live performance concepts.
               </p>

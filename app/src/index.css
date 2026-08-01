@@ -708,7 +708,12 @@ textarea:focus-visible {
 }
 
 .home-journey-panel {
-  min-height: 13rem;
+  min-height: 10.5rem;
+  overflow: visible;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
 }
 
 .home-journey-actions {
@@ -727,7 +732,7 @@ textarea:focus-visible {
   display: grid;
   align-content: center;
   gap: 0.45rem;
-  min-height: 13rem;
+  min-height: 10.5rem;
   border: 1px solid rgba(247, 244, 239, 0.23);
   border-radius: 1.25rem;
   padding: clamp(1rem, 3vw, 1.75rem);
