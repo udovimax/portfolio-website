@@ -1,7 +1,7 @@
 import { lazy, Suspense, useEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from 'react'
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
 import { Howl, Howler } from 'howler'
-import { FaInstagram, FaLinkedin, FaSoundcloud, FaSpotify, FaYoutube } from 'react-icons/fa'
+import { FaEnvelope, FaInstagram, FaLinkedin, FaSoundcloud, FaSpotify, FaYoutube } from 'react-icons/fa'
 import { SiBandlab } from 'react-icons/si'
 import { Carousel } from './components/Carousel'
 import { ContactDrawer } from './components/ContactDrawer'
@@ -1115,16 +1115,40 @@ function App() {
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true, amount: 0.4 }}
         transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-        className="footer-site border-t border-white/10 px-6 py-10 text-center"
+        className="footer-site border-t border-white/10 px-4 py-6 text-center sm:px-6 sm:py-8"
       >
-        <p className="text-3xl font-semibold text-white sm:text-5xl">MAX UDOVICHENKO</p>
+        <p className="footer-brand text-2xl font-semibold text-white sm:text-4xl">MAX UDOVICHENKO</p>
         <nav className="footer-journeys" aria-label="Explore Max Udovichenko">
           <a href="#work" className="footer-text-link magnetic-btn">View my projects</a>
           <a href="#about" className="footer-text-link magnetic-btn">Get to know me</a>
         </nav>
-        <p className="mt-3 text-sm uppercase tracking-[0.18em] text-white/60">
+        <p className="footer-copyright">
           Copyright {new Date().getFullYear()} Max Udovichenko
         </p>
+        {content?.socials ? (
+          <div className="footer-connect">
+            <p className="footer-connect-label">Connect</p>
+            <a className="footer-email magnetic-btn" href={`mailto:${content.socials.email}`}>
+              <FaEnvelope aria-hidden="true" />
+              <span>{content.socials.email}</span>
+            </a>
+            <nav className="footer-socials" aria-label="Max Udovichenko social profiles">
+              {socialLinks.map((social) => (
+                <a
+                  key={social.id}
+                  href={social.href}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="footer-social-link magnetic-btn"
+                  aria-label={social.label}
+                  title={social.label}
+                >
+                  {social.icon}
+                </a>
+              ))}
+            </nav>
+          </div>
+        ) : null}
       </motion.footer>
 
       <Player
