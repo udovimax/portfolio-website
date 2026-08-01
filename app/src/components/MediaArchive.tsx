@@ -71,24 +71,6 @@ export function MediaArchive({ archive, onOpenVideo }: MediaArchiveProps) {
         </Carousel>
       </div>
 
-      <div className="mt-12">
-        <div className="mb-5 flex items-end justify-between gap-4">
-          <div>
-            <p className="section-heading">Still archive</p>
-            <h3 className="mt-2 text-3xl text-white sm:text-4xl">Frames from the feed</h3>
-          </div>
-          <span className="text-xs uppercase tracking-[0.2em] text-white/45">{archive.photos.length} images / lazy loaded</span>
-        </div>
-        <Carousel label="Still archive" count={archive.photos.length} countLabel="frames" className="archive-photo-carousel">
-          {archive.photos.map((photo) => (
-            <div className="carousel-item" key={photo.id}>
-              <figure className="archive-photo-card">
-                <img src={photo.src} alt={photo.alt} loading="lazy" decoding="async" />
-              </figure>
-            </div>
-          ))}
-        </Carousel>
-      </div>
     </div>
   )
 }
