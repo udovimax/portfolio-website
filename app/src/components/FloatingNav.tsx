@@ -132,7 +132,7 @@ export function FloatingNav({ activePage, contactOpen, onContactOpenChange }: Fl
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-        className="site-nav fixed left-1/2 top-3 z-50 flex w-[min(94vw,56rem)] -translate-x-1/2 items-center justify-between gap-4 rounded-2xl border border-white/20 bg-black/60 px-3 py-2 backdrop-blur-xl sm:top-5 sm:px-4"
+        className="site-nav fixed top-0 z-50 flex items-center justify-between gap-4 px-3 py-2 sm:px-4"
       >
         <button
           type="button"
