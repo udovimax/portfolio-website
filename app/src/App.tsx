@@ -729,17 +729,17 @@ function App() {
           </Reveal>
 
           {libraryMode === 'local' ? (
-            <Carousel label="Music" count={tracks.length}>
+            <Carousel label="Music" count={tracks.length} className="work-carousel">
               {tracks.map((track, index) => (
                 <div className="carousel-item" key={track.id}>
-                  <GlassCard image={track.artwork} className="h-full cursor-pointer">
-                    <div className="space-y-4">
+                  <GlassCard image={track.artwork} className="work-card h-full cursor-pointer">
+                    <div className="space-y-3">
                       <img
                         src={track.artwork}
                         alt={`${track.title} artwork`}
                         loading="lazy"
                         decoding="async"
-                        className="content-image h-52 w-full rounded-2xl object-cover"
+                        className="content-image h-40 w-full rounded-2xl object-cover sm:h-44"
                       />
                       <div className="flex items-start justify-between gap-3">
                         <div>
@@ -794,12 +794,12 @@ function App() {
             </summary>
             <div className="work-accordion-body">
           <Reveal delay={0.1}>
-            <Carousel label="Projects" count={content?.projects.projects.length ?? 0}>
+            <Carousel label="Projects" count={content?.projects.projects.length ?? 0} className="work-carousel">
               {content?.projects.projects.map((project) => {
                 const linkedVideo = content.videos.videos.find((video) => video.id === project.videoId)
                 return (
                   <div className="carousel-item" key={project.id}>
-                    <GlassCard image={project.thumbnail} className="card-tilt h-full">
+                    <GlassCard image={project.thumbnail} className="work-card card-tilt h-full">
                       <button
                         type="button"
                         className="block w-full text-left"
@@ -810,12 +810,12 @@ function App() {
                           alt={`${project.title} thumbnail`}
                           loading="lazy"
                           decoding="async"
-                          className="content-image mb-4 h-56 w-full rounded-2xl object-cover"
+                          className="content-image mb-3 h-40 w-full rounded-2xl object-cover sm:h-48"
                         />
                         <p className="text-xs uppercase tracking-[0.2em] text-cyan-300">
                           {project.type} / {project.year}
                         </p>
-                        <h3 className="text-3xl text-white">{project.title}</h3>
+                        <h3 className="text-2xl text-white sm:text-3xl">{project.title}</h3>
                         <p className="mt-2 text-white/70">{project.description}</p>
                       </button>
                       {linkedVideo ? (
@@ -847,7 +847,7 @@ function App() {
             <div className="work-accordion-body">
           {content?.archive ? (
             <Reveal delay={0.12}>
-              <MediaArchive archive={content.archive} onOpenVideo={setActiveVideo} />
+            <MediaArchive archive={content.archive} onOpenVideo={setActiveVideo} />
             </Reveal>
           ) : null}
             </div>

@@ -556,6 +556,14 @@ textarea:focus-visible {
   scroll-snap-align: start;
 }
 
+.work-carousel .carousel-item {
+  flex-basis: min(86%, 27rem);
+}
+
+.work-card {
+  padding: 1.15rem;
+}
+
 .content-image {
   transform: translateZ(0);
   transition: transform 650ms cubic-bezier(0.22, 1, 0.36, 1), filter 650ms ease;
@@ -861,7 +869,7 @@ textarea:focus-visible {
 
 .archive-video-preview {
   position: relative;
-  aspect-ratio: 9 / 13;
+  aspect-ratio: 16 / 10;
   overflow: hidden;
   background: rgba(0, 0, 0, 0.45);
 }
