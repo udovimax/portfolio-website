@@ -727,9 +727,8 @@ function App() {
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: 0.2, duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
                     >
-                      <span className="section-heading">Work / 01</span>
-                      <strong>Music</strong>
-                      <span>Listen to the work</span>
+                      <span className="section-heading">Music / 01</span>
+                      <strong>Listen to the work</strong>
                     </motion.span>
                   </a>
                   <a href="#projects" className="home-journey-link magnetic-btn">
@@ -745,9 +744,8 @@ function App() {
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: 0.2, duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
                     >
-                      <span className="section-heading">Work / 02</span>
-                      <strong>Projects</strong>
-                      <span>Explore selected projects</span>
+                      <span className="section-heading">Projects / 02</span>
+                      <strong>Explore selected projects</strong>
                     </motion.span>
                   </a>
                   <a href="#video" className="home-journey-link magnetic-btn">
@@ -763,9 +761,8 @@ function App() {
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: 0.4, duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
                     >
-                      <span className="section-heading">Work / 03</span>
-                      <strong>Video</strong>
-                      <span>Watch the films</span>
+                      <span className="section-heading">Video / 03</span>
+                      <strong>Watch the films</strong>
                     </motion.span>
                   </a>
                 </div>
