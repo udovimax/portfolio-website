@@ -1,7 +1,7 @@
 import { lazy, Suspense, useEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from 'react'
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
 import { Howl, Howler } from 'howler'
-import { FaEnvelope, FaInstagram, FaLinkedin, FaSoundcloud, FaSpotify } from 'react-icons/fa'
+import { FaEnvelope, FaInstagram, FaLinkedin, FaPaypal, FaSoundcloud, FaSpotify } from 'react-icons/fa'
 import { SiBandlab } from 'react-icons/si'
 import { Carousel } from './components/Carousel'
 import { ContactDrawer } from './components/ContactDrawer'
@@ -576,6 +576,12 @@ function App() {
         icon: <SiBandlab aria-hidden="true" />,
       },
       {
+        id: 'paypal',
+        href: content.socials.paypal,
+        label: 'Support Max on PayPal',
+        icon: <FaPaypal aria-hidden="true" />,
+      },
+      {
         id: 'soundcloud',
         href: content.socials.soundcloud,
         label: 'SoundCloud',
@@ -1091,6 +1097,8 @@ function App() {
           isOpen={contactOpen}
           endpointEmail={content.socials.formsubmit.endpointEmail}
           subject={content.socials.formsubmit.subject}
+          paypal={content.socials.paypal}
+          paypalQr={content.socials.paypalQr ? assetUrl(content.socials.paypalQr) : undefined}
           onClose={() => setContactOpen(false)}
         />
       ) : null}

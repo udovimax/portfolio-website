@@ -5,10 +5,12 @@ interface ContactDrawerProps {
   isOpen: boolean
   endpointEmail: string
   subject: string
+  paypal: string
+  paypalQr?: string
   onClose: () => void
 }
 
-export function ContactDrawer({ isOpen, endpointEmail, subject, onClose }: ContactDrawerProps) {
+export function ContactDrawer({ isOpen, endpointEmail, subject, paypal, paypalQr, onClose }: ContactDrawerProps) {
   const closeButtonRef = useRef<HTMLButtonElement>(null)
 
   useEffect(() => {
@@ -74,6 +76,29 @@ export function ContactDrawer({ isOpen, endpointEmail, subject, onClose }: Conta
             <p className="contact-drawer-intro">
               Reach out for games, films, artist partnerships, and live performance concepts.
             </p>
+            <div className="contact-donate">
+              <div className="contact-donate-copy">
+                <p className="section-heading">Support Max</p>
+                <p>Help support future music, sound, and visual work.</p>
+                <a
+                  href={paypal}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="contact-donate-link magnetic-btn"
+                >
+                  Donate via PayPal
+                </a>
+              </div>
+              {paypalQr ? (
+                <img
+                  src={paypalQr}
+                  alt="PayPal donation QR code for Max Udovichenko"
+                  className="contact-donate-qr"
+                  loading="lazy"
+                  decoding="async"
+                />
+              ) : null}
+            </div>
             <form
               action={`https://formsubmit.co/${endpointEmail}`}
               method="POST"

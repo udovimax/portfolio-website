@@ -109,6 +109,8 @@ export interface SocialsContent {
   instagram: string
   linkedin: string
   bandlab: string
+  paypal: string
+  paypalQr?: string
   instagramPosts?: string[]
   instagramHighlight?: string
   soundcloud: string

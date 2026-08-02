@@ -586,6 +586,41 @@ textarea:focus-visible {
   font-size: 1.05rem;
 }
 
+.contact-donate {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 7rem;
+  gap: 1rem;
+  align-items: center;
+  margin-top: 1.5rem;
+  padding: 0.9rem;
+  border: 1px solid rgba(158, 201, 255, 0.28);
+  border-radius: 1.25rem;
+  background: rgba(158, 201, 255, 0.06);
+}
+
+.contact-donate-copy > p:not(.section-heading) {
+  margin: 0.35rem 0 0.75rem;
+  color: var(--text-muted);
+  font-size: 0.8rem;
+  line-height: 1.45;
+}
+
+.contact-donate-link {
+  color: var(--accent);
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  text-decoration: underline;
+  text-underline-offset: 0.25rem;
+  text-transform: uppercase;
+}
+
+.contact-donate-qr {
+  width: 7rem;
+  height: 7rem;
+  border-radius: 0.8rem;
+  object-fit: cover;
+}
+
 .contact-drawer-form {
   display: grid;
   gap: 0.65rem;
