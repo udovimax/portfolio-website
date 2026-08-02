@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState, type KeyboardEvent, type PropsWithChildren } from 'react'
+import { useReducedMotion } from 'framer-motion'
 import { FaArrowLeft, FaArrowRight } from 'react-icons/fa'
 
 interface CarouselProps extends PropsWithChildren {
@@ -8,6 +9,7 @@ interface CarouselProps extends PropsWithChildren {
   className?: string
   onActiveIndexChange?: (index: number) => void
   showSwipeHint?: boolean
+  autoAdvanceMs?: number
 }
 
 function getCardPositions(track: HTMLDivElement) {
@@ -21,6 +23,7 @@ export function Carousel({
   className = '',
   onActiveIndexChange,
   showSwipeHint = false,
+  autoAdvanceMs,
   children,
 }: CarouselProps) {
   const trackRef = useRef<HTMLDivElement>(null)
@@ -28,6 +31,8 @@ export function Carousel({
   const scrollEndTimerRef = useRef<number | null>(null)
   const [canScrollPrevious, setCanScrollPrevious] = useState(false)
   const [canScrollNext, setCanScrollNext] = useState(false)
+  const [isAutoPaused, setIsAutoPaused] = useState(false)
+  const shouldReduceMotion = useReducedMotion()
 
   const snapToNearestCard = useCallback(() => {
     const track = trackRef.current
@@ -140,6 +145,29 @@ export function Carousel({
     })
   }
 
+  useEffect(() => {
+    if (!autoAdvanceMs || autoAdvanceMs < 1000 || count < 2 || shouldReduceMotion || isAutoPaused) {
+      return
+    }
+
+    const interval = window.setInterval(() => {
+      const track = trackRef.current
+      if (!track) return
+
+      const maxScrollLeft = Math.max(track.scrollWidth - track.clientWidth, 0)
+      const cardPositions = getCardPositions(track)
+      if (cardPositions.length < 2) return
+
+      const nextIndex = activeIndexRef.current >= cardPositions.length - 1 ? 0 : activeIndexRef.current + 1
+      const targetPosition = Math.min(Math.max(cardPositions[nextIndex], 0), maxScrollLeft)
+      activeIndexRef.current = nextIndex
+      onActiveIndexChange?.(nextIndex)
+      track.scrollTo({ left: targetPosition, behavior: 'smooth' })
+    }, autoAdvanceMs)
+
+    return () => window.clearInterval(interval)
+  }, [autoAdvanceMs, count, isAutoPaused, onActiveIndexChange, shouldReduceMotion])
+
   const handleTrackKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
     if (event.key === 'ArrowLeft' || event.key === 'ArrowRight') {
       event.preventDefault()
@@ -156,6 +184,14 @@ export function Carousel({
         tabIndex={0}
         aria-label={`${label} items. Use horizontal scrolling or the arrow keys to browse.`}
         onKeyDown={handleTrackKeyDown}
+        onMouseEnter={() => setIsAutoPaused(true)}
+        onMouseLeave={() => setIsAutoPaused(false)}
+        onFocusCapture={() => setIsAutoPaused(true)}
+        onBlurCapture={(event) => {
+          if (!event.currentTarget.contains(event.relatedTarget as Node | null)) {
+            setIsAutoPaused(false)
+          }
+        }}
       >
         {children}
       </div>

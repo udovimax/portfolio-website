@@ -163,6 +163,80 @@ textarea:focus-visible {
   padding-bottom: 2.5rem;
 }
 
+.skills-carousel {
+  width: min(100%, 54rem);
+}
+
+.skills-carousel .carousel-track {
+  gap: 0;
+  padding: 0;
+  border-radius: 1.4rem;
+}
+
+.skills-carousel .carousel-item {
+  position: relative;
+  flex-basis: 100%;
+  max-width: 100%;
+  min-height: clamp(15rem, 32vw, 27rem);
+  overflow: hidden;
+  border-radius: 1.4rem;
+  isolation: isolate;
+}
+
+.skills-carousel-item::before,
+.skills-carousel-item::after {
+  position: absolute;
+  inset: 0;
+  content: '';
+}
+
+.skills-carousel-item::before {
+  z-index: -2;
+  background: var(--skill-art) center / cover no-repeat;
+  filter: saturate(0.85) contrast(1.08);
+  transform: scale(1.03);
+  transition: transform 900ms cubic-bezier(0.22, 1, 0.36, 1), filter 900ms ease;
+}
+
+.skills-carousel-item::after {
+  z-index: -1;
+  background: linear-gradient(120deg, rgba(3, 7, 13, 0.82), rgba(3, 7, 13, 0.3) 52%, rgba(3, 7, 13, 0.66));
+}
+
+.skills-carousel-item:hover::before,
+.skills-carousel-item:focus-within::before {
+  filter: saturate(1.05) contrast(1.08);
+  transform: scale(1.08);
+}
+
+.skills-carousel-slide {
+  display: grid;
+  min-height: clamp(15rem, 32vw, 27rem);
+  place-content: center;
+  justify-items: center;
+  gap: 0.8rem;
+  padding: 2rem;
+  text-align: center;
+}
+
+.skills-carousel-slide h2 {
+  max-width: 17ch;
+  color: var(--text-main);
+  font-family: var(--font-display);
+  font-size: clamp(2.1rem, 5vw, 5rem);
+  font-weight: 600;
+  letter-spacing: -0.045em;
+  line-height: 0.95;
+  text-wrap: balance;
+  text-shadow: 0 0.15rem 1.5rem rgba(0, 0, 0, 0.36);
+}
+
+.skills-carousel-index {
+  color: var(--accent);
+  font-size: 0.68rem;
+  letter-spacing: 0.28em;
+}
+
 .site-page {
   position: relative;
   isolation: isolate;

@@ -47,6 +47,20 @@ const heroImageCycle = [
   { src: 'media/images/film/CNV000032.jpg', alt: '35mm clouds against a blue sky', position: 'center 50%' },
 ]
 
+const skillBackgrounds = [
+  'media/images/film/000006630020.jpg',
+  'media/images/film/000006630015.jpg',
+  'media/images/max/photo-1.jpg',
+  'media/images/max/photo-4.jpg',
+  'media/images/max/photo-6.jpg',
+  'media/images/film/000028740011.jpg',
+  'media/images/instagram/film-25.webp',
+  'media/images/film/000028740004.jpg',
+  'media/images/instagram/film-31.jpg',
+  'media/images/film/000006630007.jpg',
+  'media/images/instagram/film-40.jpg',
+]
+
 interface RevealProps {
   children: ReactNode
   className?: string
@@ -962,16 +976,35 @@ function App() {
                   Artistic Philosophy
                 </PageTitle>
                 <p className="mt-4 max-w-3xl text-lg text-white/75">{content?.about.philosophy}</p>
-                <ul className="mt-8 flex flex-wrap gap-2">
-                  {content?.about.skills.map((skill) => (
-                    <li
-                      key={skill}
-                      className="rounded-full border border-white/20 bg-white/5 px-4 py-2 text-sm text-white/85"
-                    >
-                      {skill}
-                    </li>
-                  ))}
-                </ul>
+                {content?.about.skills.length ? (
+                  <Carousel
+                    label="Skills"
+                    count={content.about.skills.length}
+                    countLabel="skills"
+                    className="skills-carousel mt-8"
+                    showSwipeHint
+                    autoAdvanceMs={4200}
+                  >
+                    {content.about.skills.map((skill, index) => (
+                      <div
+                        className="carousel-item skills-carousel-item"
+                        key={skill}
+                        style={
+                          {
+                            '--skill-art': `url("${assetUrl(skillBackgrounds[index % skillBackgrounds.length])}")`,
+                          } as CSSProperties
+                        }
+                      >
+                        <article className="skills-carousel-slide">
+                          <span className="skills-carousel-index" aria-hidden="true">
+                            {String(index + 1).padStart(2, '0')}
+                          </span>
+                          <h2>{skill}</h2>
+                        </article>
+                      </div>
+                    ))}
+                  </Carousel>
+                ) : null}
                 {content?.about.cv ? (
                   <div className="about-cv-links" aria-label="Download CV versions">
                     <a
