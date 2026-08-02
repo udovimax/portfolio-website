@@ -812,6 +812,14 @@ textarea:focus-visible {
   line-height: 1.45;
 }
 
+.contact-donate-copy h3 {
+  margin: 0.35rem 0 0;
+  color: var(--text-main);
+  font-family: 'Space Grotesk', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  font-size: 1.25rem;
+  letter-spacing: -0.02em;
+}
+
 .contact-donate-link {
   color: var(--accent);
   font-size: 0.72rem;
@@ -1061,6 +1069,21 @@ textarea:focus-visible {
 
 .footer-email:hover,
 .footer-email:focus-visible {
+  color: var(--text-main);
+}
+
+.footer-donate-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: var(--accent);
+  font-size: 0.68rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.footer-donate-link:hover,
+.footer-donate-link:focus-visible {
   color: var(--text-main);
 }
 
@@ -1354,6 +1377,27 @@ textarea:focus-visible {
   border-color: var(--accent);
   color: var(--accent);
   background: rgba(158, 201, 255, 0.1);
+}
+
+.about-support-link {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: 1.25rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid rgba(247, 244, 239, 0.16);
+}
+
+.about-support-link > span {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.about-support-link strong {
+  color: rgba(247, 244, 239, 0.8);
+  font-size: 0.95rem;
+  font-weight: 400;
 }
 
 .archive-video-carousel .carousel-item {
@@ -2232,6 +2276,11 @@ textarea:focus {
 
   .about-section {
     padding-bottom: 1.5rem;
+  }
+
+  .about-support-link {
+    align-items: flex-start;
+    flex-direction: column;
   }
 
   .hero-section {

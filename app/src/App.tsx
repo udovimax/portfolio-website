@@ -989,6 +989,22 @@ function App() {
                     </a>
                   </div>
                 ) : null}
+                {content?.socials.paypal ? (
+                  <div className="about-support-link">
+                    <span>
+                      <span className="section-heading">Support Max</span>
+                      <strong>Help fund future music and visual work</strong>
+                    </span>
+                    <a
+                      href={content.socials.paypal}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="about-cv-link magnetic-btn"
+                    >
+                      Donate via PayPal
+                    </a>
+                  </div>
+                ) : null}
               </div>
             </div>
           </Reveal>
@@ -1156,6 +1172,15 @@ function App() {
                 </a>
               ))}
             </nav>
+            <a
+              className="footer-donate-link magnetic-btn"
+              href={content.socials.paypal}
+              target="_blank"
+              rel="noreferrer"
+            >
+              <FaPaypal aria-hidden="true" />
+              <span>Donate via PayPal</span>
+            </a>
           </div>
         ) : null}
         <p className="footer-copyright">

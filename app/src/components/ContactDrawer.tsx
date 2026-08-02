@@ -78,7 +78,8 @@ export function ContactDrawer({ isOpen, endpointEmail, subject, paypal, paypalQr
             </p>
             <div className="contact-donate">
               <div className="contact-donate-copy">
-                <p className="section-heading">Support Max</p>
+                <p className="section-heading">Support / PayPal</p>
+                <h3>Support Max's work</h3>
                 <p>Help support future music, sound, and visual work.</p>
                 <a
                   href={paypal}

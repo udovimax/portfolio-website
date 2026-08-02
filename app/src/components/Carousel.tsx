@@ -25,8 +25,34 @@ export function Carousel({
 }: CarouselProps) {
   const trackRef = useRef<HTMLDivElement>(null)
   const activeIndexRef = useRef(0)
+  const scrollEndTimerRef = useRef<number | null>(null)
   const [canScrollPrevious, setCanScrollPrevious] = useState(false)
   const [canScrollNext, setCanScrollNext] = useState(false)
+
+  const snapToNearestCard = useCallback(() => {
+    const track = trackRef.current
+    if (!track) return
+
+    const maxScrollLeft = Math.max(track.scrollWidth - track.clientWidth, 0)
+    const currentScrollLeft = Math.min(Math.max(track.scrollLeft, 0), maxScrollLeft)
+    const cardPositions = getCardPositions(track)
+    if (cardPositions.length === 0) return
+
+    const nearestIndex = cardPositions.reduce((closestIndex, position, index) => {
+      const closestDistance = Math.abs(cardPositions[closestIndex] - currentScrollLeft)
+      return Math.abs(position - currentScrollLeft) < closestDistance ? index : closestIndex
+    }, 0)
+    const targetPosition = Math.min(Math.max(cardPositions[nearestIndex], 0), maxScrollLeft)
+
+    if (Math.abs(track.scrollLeft - targetPosition) > 1) {
+      track.scrollTo({ left: targetPosition, behavior: 'auto' })
+    }
+
+    if (nearestIndex !== activeIndexRef.current) {
+      activeIndexRef.current = nearestIndex
+      onActiveIndexChange?.(nearestIndex)
+    }
+  }, [onActiveIndexChange])
 
   const updateScrollBounds = useCallback(() => {
     const track = trackRef.current
@@ -62,16 +88,38 @@ export function Carousel({
     activeIndexRef.current = 0
     onActiveIndexChange?.(0)
     updateScrollBounds()
-    track.addEventListener('scroll', updateScrollBounds, { passive: true })
+    const supportsScrollEnd = 'onscrollend' in track
+    const handleScroll = () => {
+      updateScrollBounds()
+      if (supportsScrollEnd) return
+
+      if (scrollEndTimerRef.current !== null) {
+        window.clearTimeout(scrollEndTimerRef.current)
+      }
+      scrollEndTimerRef.current = window.setTimeout(snapToNearestCard, 180)
+    }
+    const handleScrollEnd = () => snapToNearestCard()
+
+    track.addEventListener('scroll', handleScroll, { passive: true })
+    if (supportsScrollEnd) {
+      track.addEventListener('scrollend', handleScrollEnd)
+    }
 
     const resizeObserver = typeof ResizeObserver !== 'undefined' ? new ResizeObserver(updateScrollBounds) : null
     resizeObserver?.observe(track)
 
     return () => {
-      track.removeEventListener('scroll', updateScrollBounds)
+      track.removeEventListener('scroll', handleScroll)
+      if (supportsScrollEnd) {
+        track.removeEventListener('scrollend', handleScrollEnd)
+      }
+      if (scrollEndTimerRef.current !== null) {
+        window.clearTimeout(scrollEndTimerRef.current)
+        scrollEndTimerRef.current = null
+      }
       resizeObserver?.disconnect()
     }
-  }, [count, onActiveIndexChange, updateScrollBounds])
+  }, [count, onActiveIndexChange, snapToNearestCard, updateScrollBounds])
 
   const scrollByCard = (direction: number) => {
     const track = trackRef.current
