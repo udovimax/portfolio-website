@@ -364,11 +364,11 @@ textarea:focus-visible {
   display: grid;
   gap: 0.85rem;
   max-width: 42rem;
-  padding: clamp(1.25rem, 3vw, 2rem);
-  border: 1px solid rgba(158, 201, 255, 0.48);
-  border-radius: 1.25rem;
-  background: linear-gradient(135deg, rgba(24, 39, 55, 0.78), rgba(10, 13, 18, 0.72));
-  box-shadow: 0 1.25rem 3rem rgba(0, 0, 0, 0.18);
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
 }
 
 .music-wip-card h2,
@@ -922,7 +922,7 @@ textarea:focus-visible {
   scrollbar-width: none;
   overscroll-behavior-x: contain;
   overscroll-behavior-y: auto;
-  scroll-snap-stop: normal;
+  scroll-snap-stop: always;
   touch-action: pan-x pan-y;
 }
 

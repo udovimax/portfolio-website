@@ -88,10 +88,8 @@ export function Carousel({
     activeIndexRef.current = 0
     onActiveIndexChange?.(0)
     updateScrollBounds()
-    const supportsScrollEnd = 'onscrollend' in track
     const handleScroll = () => {
       updateScrollBounds()
-      if (supportsScrollEnd) return
 
       if (scrollEndTimerRef.current !== null) {
         window.clearTimeout(scrollEndTimerRef.current)
@@ -101,18 +99,14 @@ export function Carousel({
     const handleScrollEnd = () => snapToNearestCard()
 
     track.addEventListener('scroll', handleScroll, { passive: true })
-    if (supportsScrollEnd) {
-      track.addEventListener('scrollend', handleScrollEnd)
-    }
+    track.addEventListener('scrollend', handleScrollEnd)
 
     const resizeObserver = typeof ResizeObserver !== 'undefined' ? new ResizeObserver(updateScrollBounds) : null
     resizeObserver?.observe(track)
 
     return () => {
       track.removeEventListener('scroll', handleScroll)
-      if (supportsScrollEnd) {
-        track.removeEventListener('scrollend', handleScrollEnd)
-      }
+      track.removeEventListener('scrollend', handleScrollEnd)
       if (scrollEndTimerRef.current !== null) {
         window.clearTimeout(scrollEndTimerRef.current)
         scrollEndTimerRef.current = null
@@ -142,7 +136,7 @@ export function Carousel({
 
     track.scrollTo({
       left: targetPosition,
-      behavior: 'smooth',
+      behavior: 'auto',
     })
   }
 
