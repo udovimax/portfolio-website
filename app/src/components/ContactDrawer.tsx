@@ -51,6 +51,7 @@ export function ContactDrawer({ isOpen, endpointEmail, subject, paypal, paypalQr
             role="dialog"
             aria-modal="true"
             aria-labelledby="contact-drawer-title"
+            tabIndex={0}
             className="contact-drawer fixed right-0 top-0 z-[60] h-dvh w-[min(100vw,30rem)] overflow-y-auto border-l border-white/20 bg-black/90 p-5 shadow-2xl backdrop-blur-2xl sm:p-8"
             initial={{ x: '100%' }}
             animate={{ x: 0 }}
