@@ -5,7 +5,7 @@
       "title": "Uni-Verse",
       "description": "Game audio composition and sound design showcase.",
       "duration": "03:54",
-      "poster": "/media/images/instagram/film-17.webp",
+      "poster": "/media/video/posters/universe.jpg",
       "src": "/media/video/uni-verse.mp4",
       "captions": "/media/captions/video-universe.vtt"
     },
@@ -14,7 +14,7 @@
       "title": "Gimmick! Music and SFX",
       "description": "8-bit inspired composition study.",
       "duration": "03:11",
-      "poster": "/media/images/instagram/film-3.webp",
+      "poster": "/media/video/posters/gimmick.jpg",
       "src": "/media/video/gimmick-music-sfx.mp4",
       "captions": "/media/captions/video-gimmick.vtt"
     },
@@ -23,7 +23,7 @@
       "title": "Global Warming",
       "description": "Climate awareness film score.",
       "duration": "04:27",
-      "poster": "/media/images/instagram/film-34.jpg",
+      "poster": "/media/video/posters/climate.jpg",
       "src": "/media/video/global-warming.mp4",
       "captions": "/media/captions/video-climate.vtt"
     }

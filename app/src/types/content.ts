@@ -1,4 +1,4 @@
-export type NavSection = 'home' | 'work' | 'about'
+export type NavSection = 'home' | 'music' | 'projects' | 'video' | 'about'
 
 export interface AboutTimelineItem {
   year: string
@@ -109,6 +109,8 @@ export interface SocialsContent {
   instagram: string
   linkedin: string
   bandlab: string
+  paypal: string
+  paypalQr?: string
   instagramPosts?: string[]
   instagramHighlight?: string
   soundcloud: string

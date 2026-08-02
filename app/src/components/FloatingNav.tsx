@@ -10,7 +10,9 @@ interface FloatingNavProps {
 
 const links: Array<{ id: NavSection; label: string }> = [
   { id: 'home', label: 'Home' },
-  { id: 'work', label: 'Work' },
+  { id: 'music', label: 'Music' },
+  { id: 'projects', label: 'Projects' },
+  { id: 'video', label: 'Video' },
   { id: 'about', label: 'About' },
 ]
 

@@ -586,6 +586,41 @@ textarea:focus-visible {
   font-size: 1.05rem;
 }
 
+.contact-donate {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 7rem;
+  gap: 1rem;
+  align-items: center;
+  margin-top: 1.5rem;
+  padding: 0.9rem;
+  border: 1px solid rgba(158, 201, 255, 0.28);
+  border-radius: 1.25rem;
+  background: rgba(158, 201, 255, 0.06);
+}
+
+.contact-donate-copy > p:not(.section-heading) {
+  margin: 0.35rem 0 0.75rem;
+  color: var(--text-muted);
+  font-size: 0.8rem;
+  line-height: 1.45;
+}
+
+.contact-donate-link {
+  color: var(--accent);
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  text-decoration: underline;
+  text-underline-offset: 0.25rem;
+  text-transform: uppercase;
+}
+
+.contact-donate-qr {
+  width: 7rem;
+  height: 7rem;
+  border-radius: 0.8rem;
+  object-fit: cover;
+}
+
 .contact-drawer-form {
   display: grid;
   gap: 0.65rem;
@@ -918,7 +953,7 @@ textarea:focus-visible {
   position: relative;
   z-index: 1;
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 0.75rem;
   padding: clamp(0.75rem, 2vw, 1.25rem);
 }
@@ -1021,19 +1056,54 @@ textarea:focus-visible {
   text-transform: uppercase;
 }
 
+.hero-more-link {
+  display: inline-flex;
+  margin-top: 1.15rem;
+  align-items: center;
+  border: 1px solid rgba(158, 201, 255, 0.6);
+  border-radius: 999px;
+  padding: 0.62rem 1rem;
+  color: var(--text-main);
+  font-size: 0.72rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.hero-more-link:hover,
+.hero-more-link:focus-visible {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: rgba(158, 201, 255, 0.1);
+}
+
+.home-cv-inline {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem 1rem;
+  margin-top: 0.9rem;
+}
+
+.home-cv-text-link {
+  color: rgba(247, 244, 239, 0.68);
+  font-size: 0.7rem;
+  letter-spacing: 0.13em;
+  text-decoration: underline;
+  text-decoration-color: rgba(158, 201, 255, 0.55);
+  text-underline-offset: 0.32rem;
+  text-transform: uppercase;
+}
+
+.home-cv-text-link:hover,
+.home-cv-text-link:focus-visible {
+  color: var(--accent);
+  text-decoration-color: currentColor;
+}
+
 .about-cv-links {
   display: flex;
   flex-wrap: wrap;
   gap: 0.65rem;
   margin-top: 1.25rem;
-}
-
-.home-cv-links {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: flex-end;
-  gap: 0.65rem;
-  margin-top: 1rem;
 }
 
 .about-cv-link:hover,

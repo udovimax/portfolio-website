@@ -1,7 +1,7 @@
 import { lazy, Suspense, useEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from 'react'
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
 import { Howl, Howler } from 'howler'
-import { FaEnvelope, FaInstagram, FaLinkedin, FaSoundcloud, FaSpotify } from 'react-icons/fa'
+import { FaEnvelope, FaInstagram, FaLinkedin, FaPaypal, FaSoundcloud, FaSpotify } from 'react-icons/fa'
 import { SiBandlab } from 'react-icons/si'
 import { Carousel } from './components/Carousel'
 import { ContactDrawer } from './components/ContactDrawer'
@@ -15,7 +15,7 @@ import { useLenis } from './hooks/useLenis'
 import { assetUrl, useSiteContent } from './hooks/useSiteContent'
 import type { ArchiveVideo, NavSection, ProjectItem, Track, VideoItem } from './types/content'
 
-const pageIds: NavSection[] = ['home', 'work', 'about']
+const pageIds: NavSection[] = ['home', 'music', 'projects', 'video', 'about']
 
 const VideoModal = lazy(() =>
   import('./components/MediaModals').then((module) => ({ default: module.VideoModal })),
@@ -27,8 +27,10 @@ const ProjectModal = lazy(() =>
 function getPageFromHash(): NavSection {
   const hash = window.location.hash.replace(/^#\/?/, '')
   const legacyPageMap: Record<string, NavSection> = {
-    music: 'work',
-    projects: 'work',
+    work: 'music',
+    music: 'music',
+    projects: 'projects',
+    video: 'video',
     contact: 'about',
   }
   const page = legacyPageMap[hash] ?? hash
@@ -162,8 +164,10 @@ function HeroImageBand() {
 }
 
 const nextPage: Record<NavSection, NavSection> = {
-  home: 'work',
-  work: 'about',
+  home: 'music',
+  music: 'projects',
+  projects: 'video',
+  video: 'about',
   about: 'home',
 }
 
@@ -243,12 +247,12 @@ function ScrollGuide({ currentPage }: { currentPage: NavSection }) {
     ? `Next / ${nextPage[currentPage]}`
     : currentPage === 'home'
       ? 'Continue / explore'
-      : currentPage === 'work'
-        ? 'Continue / work'
-        : 'Continue / story'
+      : currentPage === 'about'
+        ? 'Continue / story'
+        : `Continue / ${currentPage}`
   const destinationLabel = atPageEnd
     ? `Open ${nextPage[currentPage]} page`
-    : `Continue through ${currentPage === 'home' ? 'the introduction' : currentPage === 'work' ? 'the selected work' : 'the story'}`
+    : `Continue through ${currentPage === 'home' ? 'the introduction' : currentPage === 'about' ? 'the story' : currentPage}`
 
   return (
     <aside className={`scroll-guide scroll-guide-${currentPage}`} aria-label="Page scroll guide">
@@ -572,6 +576,12 @@ function App() {
         icon: <SiBandlab aria-hidden="true" />,
       },
       {
+        id: 'paypal',
+        href: content.socials.paypal,
+        label: 'Support Max on PayPal',
+        icon: <FaPaypal aria-hidden="true" />,
+      },
+      {
         id: 'soundcloud',
         href: content.socials.soundcloud,
         label: 'SoundCloud',
@@ -640,6 +650,16 @@ function App() {
         {currentPage === 'home' ? (
           <section id="home" className="hero-section section-shell pt-28">
           <WordReveal text={content?.about.name ?? ''} />
+          {content?.about.cv ? (
+            <div className="home-cv-inline" aria-label="Download CV versions">
+              <a className="home-cv-text-link magnetic-btn" href={assetUrl(content.about.cv.professional)} download>
+                Professional CV
+              </a>
+              <a className="home-cv-text-link magnetic-btn" href={assetUrl(content.about.cv.ats)} download>
+                ATS CV
+              </a>
+            </div>
+          ) : null}
           <div className="hero-intro-grid mt-14">
             <div className="hero-copy">
               <div className="hero-role-stack space-y-3 text-2xl text-white/75 sm:text-4xl">
@@ -663,6 +683,15 @@ function App() {
               >
                 {content?.about.intro}
               </motion.p>
+              <motion.a
+                href="#about"
+                className="hero-more-link magnetic-btn"
+                initial={shouldReduceMotion ? false : { opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.55, delay: 0.78, ease: [0.22, 1, 0.36, 1] }}
+              >
+                More
+              </motion.a>
             </div>
           </div>
           <Reveal className="mt-10" delay={0.12}>
@@ -672,7 +701,25 @@ function App() {
             <Reveal className="mt-10" delay={0.16}>
               <div className="home-ambient-panel home-journey-panel">
                 <div className="home-journey-actions">
-                  <a href="#work" className="home-journey-link home-journey-link-primary magnetic-btn">
+                  <a href="#music" className="home-journey-link home-journey-link-primary magnetic-btn">
+                    <LazyBackgroundVideo
+                      src={content.archive.videos[0]?.loop ?? content.archive.videos[1].loop}
+                      poster={content.archive.videos[0]?.poster ?? content.archive.videos[1].poster}
+                      className="home-journey-video"
+                    />
+                    <div className="home-journey-scrim" aria-hidden="true" />
+                    <motion.span
+                      className="home-journey-copy"
+                      initial={shouldReduceMotion ? false : { opacity: 0, y: 14 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.2, duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
+                    >
+                      <span className="section-heading">Work / 01</span>
+                      <strong>Music</strong>
+                      <span>Listen to the work</span>
+                    </motion.span>
+                  </a>
+                  <a href="#projects" className="home-journey-link magnetic-btn">
                     <LazyBackgroundVideo
                       src={content.archive.videos[1].loop}
                       poster={content.archive.videos[1].poster}
@@ -685,15 +732,15 @@ function App() {
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: 0.2, duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
                     >
-                      <span className="section-heading">View my projects</span>
-                      <strong>Music / Projects / Video</strong>
-                      <span>Explore the work</span>
+                      <span className="section-heading">Work / 02</span>
+                      <strong>Projects</strong>
+                      <span>Explore selected projects</span>
                     </motion.span>
                   </a>
-                  <a href="#about" className="home-journey-link magnetic-btn">
+                  <a href="#video" className="home-journey-link magnetic-btn">
                     <LazyBackgroundVideo
-                      src={(content.archive.videos[2] ?? content.archive.videos[1]).loop}
-                      poster={(content.archive.videos[2] ?? content.archive.videos[1]).poster}
+                      src={content.archive.videos[2]?.loop ?? content.archive.videos[0]?.loop ?? content.archive.videos[1].loop}
+                      poster={content.archive.videos[2]?.poster ?? content.archive.videos[0]?.poster ?? content.archive.videos[1].poster}
                       className="home-journey-video"
                     />
                     <div className="home-journey-scrim" aria-hidden="true" />
@@ -701,40 +748,23 @@ function App() {
                       className="home-journey-copy"
                       initial={shouldReduceMotion ? false : { opacity: 0, y: 14 }}
                       animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: 0.3, duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
+                      transition={{ delay: 0.4, duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
                     >
-                      <span className="section-heading">Get to know me</span>
-                      <strong>About / Contact</strong>
-                      <span>Read the story and say hello</span>
+                      <span className="section-heading">Work / 03</span>
+                      <strong>Video</strong>
+                      <span>Watch the films</span>
                     </motion.span>
                   </a>
                 </div>
               </div>
             </Reveal>
           ) : null}
-          {content?.about.cv ? (
-            <Reveal className="home-cv-links" delay={0.2}>
-              <a
-                className="about-cv-link magnetic-btn"
-                href={assetUrl(content.about.cv.professional)}
-                download
-              >
-                Download professional CV
-              </a>
-              <a
-                className="about-cv-link magnetic-btn"
-                href={assetUrl(content.about.cv.ats)}
-                download
-              >
-                Download ATS CV
-              </a>
-            </Reveal>
-          ) : null}
           </section>
         ) : null}
 
-        {currentPage === 'work' ? (
-          <section id="work" className="work-section section-shell">
+        {currentPage === 'music' || currentPage === 'projects' || currentPage === 'video' ? (
+          <section id={currentPage} className="work-section section-shell">
+          {currentPage === 'music' ? (
           <details className="work-accordion" open>
             <summary className="work-accordion-summary">
               <span className="work-accordion-summary-copy">
@@ -824,7 +854,9 @@ function App() {
           )}
             </div>
           </details>
+          ) : null}
 
+          {currentPage === 'projects' ? (
           <details className="work-accordion">
             <summary className="work-accordion-summary">
               <span className="work-accordion-summary-copy">
@@ -877,7 +909,9 @@ function App() {
           </Reveal>
             </div>
           </details>
+          ) : null}
 
+          {currentPage === 'video' ? (
           <details className="work-accordion">
             <summary className="work-accordion-summary">
               <span className="work-accordion-summary-copy">
@@ -895,6 +929,7 @@ function App() {
           ) : null}
             </div>
           </details>
+          ) : null}
         </section>
         ) : null}
 
@@ -1053,98 +1088,6 @@ function App() {
           </section>
         ) : null}
 
-        {currentPage === 'about' ? (
-          <section id="contact" className="contact-section section-shell pb-12">
-          <Reveal className="section-heading mb-8 inline-flex rounded-full border border-white/20 bg-black/45 px-4 py-2 backdrop-blur-md">
-            Contact
-          </Reveal>
-          <Reveal delay={0.1}>
-            <div className="grid gap-8 lg:grid-cols-2">
-              <GlassCard image={assetUrl('media/images/max/photo-6.jpg')}>
-              <PageTitle className="text-4xl text-white" delay={0.14}>
-                Start a Collaboration
-              </PageTitle>
-              <p className="mt-2 text-white/70">
-                Reach out for games, films, artist partnerships, and live performance concepts.
-              </p>
-              <form
-                action={`https://formsubmit.co/${content?.socials.formsubmit.endpointEmail ?? ''}`}
-                method="POST"
-                className="mt-6 space-y-4"
-              >
-                <input type="hidden" name="_subject" value={content?.socials.formsubmit.subject ?? 'New contact'} />
-                <input type="hidden" name="_captcha" value="false" />
-                <input type="hidden" name="_template" value="table" />
-                <input type="hidden" name="_next" value={`${window.location.origin}${window.location.pathname}#contact`} />
-                <label className="block text-sm text-white/85" htmlFor="name">
-                  Name
-                </label>
-                <input
-                  id="name"
-                  name="name"
-                  required
-                  className="w-full rounded-xl border border-white/25 bg-black/40 px-4 py-3 text-white"
-                />
-                <label className="block text-sm text-white/85" htmlFor="email">
-                  Email
-                </label>
-                <input
-                  id="email"
-                  name="email"
-                  type="email"
-                  required
-                  className="w-full rounded-xl border border-white/25 bg-black/40 px-4 py-3 text-white"
-                />
-                <label className="block text-sm text-white/85" htmlFor="message">
-                  Message
-                </label>
-                <textarea
-                  id="message"
-                  name="message"
-                  required
-                  rows={5}
-                  className="w-full rounded-xl border border-white/25 bg-black/40 px-4 py-3 text-white"
-                />
-                <input
-                  type="text"
-                  name="_honey"
-                  className="hidden"
-                  tabIndex={-1}
-                  autoComplete="off"
-                  aria-hidden="true"
-                />
-                <button
-                  type="submit"
-                  className="magnetic-btn rounded-full bg-cyan-300 px-6 py-3 font-medium text-black"
-                >
-                  Send Message
-                </button>
-              </form>
-              </GlassCard>
-
-              <GlassCard image={assetUrl('media/images/max/photo-2.jpg')}>
-              <h3 className="text-2xl text-white">Connect</h3>
-              <p className="mt-2 text-white/70">{content?.socials.email}</p>
-              <ul className="mt-5 grid grid-cols-2 gap-3">
-                {socialLinks.map((social) => (
-                  <li key={social.id}>
-                    <a
-                      href={social.href}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="magnetic-btn flex items-center gap-2 rounded-xl border border-white/20 bg-white/5 px-4 py-3 text-white/85 hover:text-white"
-                    >
-                      {social.icon}
-                      <span>{social.label}</span>
-                    </a>
-                  </li>
-                ))}
-              </ul>
-              </GlassCard>
-            </div>
-          </Reveal>
-          </section>
-        ) : null}
           </motion.div>
         </AnimatePresence>
       </main>
@@ -1154,6 +1097,8 @@ function App() {
           isOpen={contactOpen}
           endpointEmail={content.socials.formsubmit.endpointEmail}
           subject={content.socials.formsubmit.subject}
+          paypal={content.socials.paypal}
+          paypalQr={content.socials.paypalQr ? assetUrl(content.socials.paypalQr) : undefined}
           onClose={() => setContactOpen(false)}
         />
       ) : null}
@@ -1168,7 +1113,9 @@ function App() {
         <div className="footer-topline">
           <p className="footer-brand text-2xl font-semibold text-white sm:text-4xl">MAX UDOVICHENKO</p>
           <nav className="footer-journeys" aria-label="Explore Max Udovichenko">
-            <a href="#work" className="footer-text-link magnetic-btn">View my projects</a>
+            <a href="#music" className="footer-text-link magnetic-btn">Music</a>
+            <a href="#projects" className="footer-text-link magnetic-btn">Projects</a>
+            <a href="#video" className="footer-text-link magnetic-btn">Video</a>
             <a href="#about" className="footer-text-link magnetic-btn">Get to know me</a>
           </nav>
         </div>
