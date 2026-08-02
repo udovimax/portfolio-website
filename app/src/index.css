@@ -62,7 +62,7 @@ body,
 
 html {
   scroll-behavior: smooth;
-  background: var(--page-bg-deep);
+  background: var(--page-bg-deep) url('./assets/images/site-background.jpg') center / cover fixed;
 }
 
 body {
