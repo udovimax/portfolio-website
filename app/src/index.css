@@ -109,7 +109,7 @@ body::after {
   inset: 0;
   z-index: -1;
   content: '';
-  background-image: linear-gradient(rgba(255, 255, 255, 0.025) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.025) 1px, transparent 1px);
+  background-image: linear-gradient(rgba(255, 255, 255, 0.025) 1px, transparent 1px), repeating-linear-gradient(90deg, transparent 0 71px, rgba(255, 255, 255, 0.025) 71px 72px);
   background-size: 72px 72px;
   mask-image: linear-gradient(to bottom, black, transparent 70%);
   pointer-events: none;
