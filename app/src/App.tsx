@@ -763,6 +763,7 @@ function App() {
 
         {currentPage === 'music' || currentPage === 'projects' || currentPage === 'video' ? (
           <section id={currentPage} className="work-section section-shell work-page-section">
+          <div className="work-page-stage">
           <AnimatePresence initial={false} mode="sync">
             <motion.div
               key={workBackground ?? currentPage}
@@ -860,24 +861,6 @@ function App() {
             </div>
           )}
 
-          {content?.music.worksInProgress?.length ? (
-            <Reveal className="music-wip-section" delay={0.14}>
-              <div className="music-wip-heading">
-                <p className="section-heading">Works in progress</p>
-                <p>New material in development.</p>
-              </div>
-              <div className="music-wip-list">
-                {content.music.worksInProgress.map((item) => (
-                  <article className="music-wip-card" key={item.id}>
-                    <p className="section-heading">{item.kicker}</p>
-                    <h2>{item.title}</h2>
-                    <p>{item.description}</p>
-                    <span>{item.status}</span>
-                  </article>
-                ))}
-              </div>
-            </Reveal>
-          ) : null}
             </div>
           ) : null}
 
@@ -946,6 +929,27 @@ function App() {
             </div>
           ) : null}
           </div>
+          </div>
+          {currentPage === 'music' && content?.music.worksInProgress?.length ? (
+            <div className="work-page-followup">
+              <Reveal className="music-wip-section" delay={0.14}>
+                <div className="music-wip-heading">
+                  <p className="section-heading">Works in progress</p>
+                  <p>New material in development.</p>
+                </div>
+                <div className="music-wip-list">
+                  {content.music.worksInProgress.map((item) => (
+                    <article className="music-wip-card" key={item.id}>
+                      <p className="section-heading">{item.kicker}</p>
+                      <h2>{item.title}</h2>
+                      <p>{item.description}</p>
+                      <span>{item.status}</span>
+                    </article>
+                  ))}
+                </div>
+              </Reveal>
+            </div>
+          ) : null}
         </section>
         ) : null}
 

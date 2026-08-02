@@ -190,6 +190,14 @@ textarea:focus-visible {
   background: var(--page-bg-deep);
 }
 
+.work-page-stage {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  min-height: max(34rem, calc(100svh - 7rem));
+  background: var(--page-bg-deep);
+}
+
 .work-page-background {
   position: absolute;
   inset: -5%;
@@ -207,8 +215,13 @@ textarea:focus-visible {
   position: relative;
   z-index: 1;
   display: grid;
-  min-height: inherit;
+  min-height: 100%;
   gap: 1rem;
+}
+
+.work-page-followup {
+  position: relative;
+  z-index: 1;
 }
 
 .work-page-panel {
