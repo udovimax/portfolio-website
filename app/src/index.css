@@ -1079,8 +1079,10 @@ textarea:focus-visible {
 .home-cv-inline {
   display: flex;
   flex-wrap: wrap;
+  justify-content: center;
   gap: 0.35rem 1rem;
   margin-top: 0.9rem;
+  text-align: center;
 }
 
 .home-cv-text-link {
