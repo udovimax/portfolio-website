@@ -1,7 +1,7 @@
 import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from 'react'
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
 import { Howl, Howler } from 'howler'
-import { FaEnvelope, FaInstagram, FaLinkedin, FaPaypal, FaSoundcloud, FaSpotify } from 'react-icons/fa'
+import { FaBandcamp, FaEnvelope, FaInstagram, FaLinkedin, FaPaypal, FaSoundcloud, FaSpotify } from 'react-icons/fa'
 import { SiBandlab } from 'react-icons/si'
 import { Carousel } from './components/Carousel'
 import { ContactDrawer } from './components/ContactDrawer'
@@ -600,6 +600,12 @@ function App() {
         label: 'SoundCloud',
         icon: <FaSoundcloud aria-hidden="true" />,
       },
+      {
+        id: 'bandcamp',
+        href: content.socials.bandcamp,
+        label: 'Bandcamp',
+        icon: <FaBandcamp aria-hidden="true" />,
+      },
     ]
   }, [content])
 
@@ -745,7 +751,7 @@ function App() {
                       transition={{ delay: 0.2, duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
                     >
                       <span className="section-heading">Projects / 02</span>
-                      <strong>Explore selected projects</strong>
+                      <strong>Explore curated projects</strong>
                     </motion.span>
                   </a>
                   <a href="#video" className="home-journey-link magnetic-btn">
@@ -1044,7 +1050,7 @@ function App() {
             <details className="experience-accordion" open>
               <summary className="experience-accordion-summary">
                 <span>
-                  <span className="section-heading">Selected timeline</span>
+                  <span className="section-heading">Curated timeline</span>
                   <strong>Experience</strong>
                 </span>
                 <span className="experience-accordion-toggle" aria-hidden="true" />

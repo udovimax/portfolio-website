@@ -122,6 +122,7 @@ export interface SocialsContent {
   paypalQr?: string
   instagramPosts?: string[]
   soundcloud: string
+  bandcamp: string
   formsubmit: {
     endpointEmail: string
     subject: string
