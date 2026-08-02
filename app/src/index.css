@@ -69,7 +69,7 @@ body {
   font-family: 'Inter', 'Helvetica Neue', Helvetica, Arial, sans-serif;
   color: var(--text-main);
   background:
-    linear-gradient(180deg, rgba(8, 10, 14, 0.58), rgba(8, 10, 14, 0.92)),
+    linear-gradient(180deg, rgba(8, 10, 14, 0.46), rgba(8, 10, 14, 0.82)),
     radial-gradient(90rem 55rem at 8% -12%, rgba(83, 128, 190, 0.42), transparent 62%),
     linear-gradient(165deg, var(--page-bg) 0%, var(--page-bg-deep) 64%, #050609 100%);
   text-rendering: optimizeLegibility;
@@ -94,8 +94,8 @@ body::before {
   inset: 0;
   z-index: -2;
   content: '';
-  background: linear-gradient(180deg, rgba(12, 16, 24, 0.22), rgba(6, 8, 12, 0.6)), url('./assets/images/site-background.jpg') center / cover;
-  opacity: 0.62;
+  background: linear-gradient(180deg, rgba(12, 16, 24, 0.14), rgba(6, 8, 12, 0.42)), url('./assets/images/site-background.jpg') center / cover;
+  opacity: 0.68;
   animation: atmosphere-drift 20s ease-in-out infinite alternate;
   pointer-events: none;
 }
@@ -742,12 +742,20 @@ textarea:focus-visible {
 }
 
 .footer-site {
-  background: rgba(5, 6, 9, 0.94);
+  background: rgba(9, 12, 17, 0.9);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
 }
 
 .footer-brand {
   letter-spacing: -0.025em;
+}
+
+.footer-topline {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem 1.25rem;
 }
 
 .footer-copyright {
@@ -759,17 +767,12 @@ textarea:focus-visible {
 }
 
 .footer-connect {
-  display: grid;
-  justify-items: center;
-  gap: 0.3rem;
-  margin: 0.75rem auto 0;
-}
-
-.footer-connect-label {
-  color: var(--accent);
-  font-size: 0.62rem;
-  letter-spacing: 0.22em;
-  text-transform: uppercase;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.2rem 0.75rem;
+  margin: 0.65rem auto 0;
 }
 
 .footer-email {
@@ -787,7 +790,7 @@ textarea:focus-visible {
 
 .footer-socials {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   justify-content: center;
   gap: 0.15rem 0.45rem;
 }
@@ -991,7 +994,7 @@ textarea:focus-visible {
   flex-wrap: wrap;
   justify-content: center;
   gap: 0.35rem 1.25rem;
-  margin: 0.65rem auto 0;
+  margin: 0;
 }
 
 .footer-text-link {

@@ -1125,17 +1125,15 @@ function App() {
         transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
         className="footer-site border-t border-white/10 px-4 py-5 text-center sm:px-6 sm:py-6"
       >
-        <p className="footer-brand text-2xl font-semibold text-white sm:text-4xl">MAX UDOVICHENKO</p>
-        <nav className="footer-journeys" aria-label="Explore Max Udovichenko">
-          <a href="#work" className="footer-text-link magnetic-btn">View my projects</a>
-          <a href="#about" className="footer-text-link magnetic-btn">Get to know me</a>
-        </nav>
-        <p className="footer-copyright">
-          Copyright {new Date().getFullYear()} Max Udovichenko
-        </p>
+        <div className="footer-topline">
+          <p className="footer-brand text-2xl font-semibold text-white sm:text-4xl">MAX UDOVICHENKO</p>
+          <nav className="footer-journeys" aria-label="Explore Max Udovichenko">
+            <a href="#work" className="footer-text-link magnetic-btn">View my projects</a>
+            <a href="#about" className="footer-text-link magnetic-btn">Get to know me</a>
+          </nav>
+        </div>
         {content?.socials ? (
           <div className="footer-connect">
-            <p className="footer-connect-label">Connect</p>
             <a className="footer-email magnetic-btn" href={`mailto:${content.socials.email}`}>
               <FaEnvelope aria-hidden="true" />
               <span>{content.socials.email}</span>
@@ -1157,6 +1155,9 @@ function App() {
             </nav>
           </div>
         ) : null}
+        <p className="footer-copyright">
+          Copyright {new Date().getFullYear()} Max Udovichenko
+        </p>
       </motion.footer>
 
       <Player
