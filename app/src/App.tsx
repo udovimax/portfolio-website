@@ -955,9 +955,6 @@ function App() {
 
         {currentPage === 'about' ? (
           <section id="about" className="about-section section-shell">
-          <Reveal className="section-heading mb-8 inline-flex rounded-full border border-white/20 bg-black/45 px-4 py-2 backdrop-blur-md">
-            About
-          </Reveal>
           <Reveal delay={0.1}>
             <div className="max-w-4xl">
               <div>
