@@ -1936,7 +1936,19 @@ textarea:focus {
 .player-shell {
   right: max(0.75rem, env(safe-area-inset-right));
   bottom: max(0.75rem, env(safe-area-inset-bottom));
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
   transition: width 240ms ease, height 240ms ease, padding 240ms ease, background 180ms ease, box-shadow 180ms ease, border-color 180ms ease;
+}
+
+.player-shell:active {
+  cursor: grabbing;
+}
+
+.player-shell button,
+.player-shell input {
+  user-select: auto;
 }
 
 .player-reopen {
@@ -2015,6 +2027,11 @@ textarea:focus {
   overflow: hidden;
   border-radius: 1.25rem;
   padding: 0.35rem;
+}
+
+.player-shell-minimized .player-action,
+.player-shell-minimized .player-transport-action {
+  font-size: 0.68rem;
 }
 
 .player-shell-minimized:hover,

@@ -1,4 +1,4 @@
-import { useMemo, useState, type CSSProperties, type MouseEvent } from 'react'
+import { useMemo, useRef, useState, type CSSProperties, type MouseEvent } from 'react'
 import { motion } from 'framer-motion'
 import {
   FaBackward,
@@ -53,6 +53,8 @@ export function Player({
   const [visible, setVisible] = useState(true)
   const [minimized, setMinimized] = useState(true)
   const [controlsRevealed, setControlsRevealed] = useState(false)
+  const dragConstraintsRef = useRef<HTMLDivElement>(null)
+  const isDraggingRef = useRef(false)
 
   const energy = useMemo(() => {
     if (!visualizerData.length) {
@@ -73,6 +75,10 @@ export function Player({
   } as CSSProperties
 
   const handleCardClick = (event: MouseEvent<HTMLElement>) => {
+    if (isDraggingRef.current) {
+      return
+    }
+
     const target = event.target
     if (target instanceof Element && target.closest('button, input, a')) {
       return
@@ -101,16 +107,35 @@ export function Player({
   }
 
   return (
-    <motion.aside
-      initial={{ y: 80, opacity: 0 }}
-      animate={{ y: 0, opacity: 1 }}
-      transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-      className={`player-shell group fixed z-50 w-[min(18rem,calc(100vw-1.5rem))] rounded-3xl border border-white/20 p-3 backdrop-blur-2xl ${minimized ? 'player-shell-minimized' : ''} ${controlsRevealed ? 'player-controls-revealed' : ''}`}
-      style={playerStyle}
-      aria-label="Music player"
-      onClick={handleCardClick}
-      onMouseLeave={() => setControlsRevealed(false)}
-    >
+    <>
+      <div ref={dragConstraintsRef} className="player-drag-constraints fixed inset-0 pointer-events-none" aria-hidden="true" />
+      <motion.aside
+        initial={{ y: 80, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+        drag
+        dragConstraints={dragConstraintsRef}
+        dragElastic={0.04}
+        dragMomentum={false}
+        onDragStart={() => {
+          isDraggingRef.current = true
+        }}
+        onDragEnd={(_, info) => {
+          if (Math.abs(info.offset.x) < 4 && Math.abs(info.offset.y) < 4) {
+            isDraggingRef.current = false
+            return
+          }
+
+          window.setTimeout(() => {
+            isDraggingRef.current = false
+          }, 120)
+        }}
+        className={`player-shell group fixed z-50 w-[min(18rem,calc(100vw-1.5rem))] rounded-3xl border border-white/20 p-3 backdrop-blur-2xl ${minimized ? 'player-shell-minimized' : ''} ${controlsRevealed ? 'player-controls-revealed' : ''}`}
+        style={playerStyle}
+        aria-label="Music player"
+        onClick={handleCardClick}
+        onMouseLeave={() => setControlsRevealed(false)}
+      >
       {minimized ? (
         <div className="player-mini-square">
           <img
@@ -130,7 +155,7 @@ export function Player({
           <div className="player-actions absolute right-1.5 top-1.5 z-10 flex items-center gap-1">
             <button
               type="button"
-              className="player-action magnetic-btn rounded-full border border-white/30 bg-black/35 p-1.5 text-white hover:bg-black/60"
+              className="player-action magnetic-btn rounded-full border border-white/30 bg-black/35 p-1 text-white hover:bg-black/60"
               aria-label="Expand music player"
               onClick={() => setMinimized(false)}
             >
@@ -138,7 +163,7 @@ export function Player({
             </button>
             <button
               type="button"
-              className="player-action magnetic-btn rounded-full border border-white/30 bg-black/35 p-1.5 text-white hover:bg-black/60"
+              className="player-action magnetic-btn rounded-full border border-white/30 bg-black/35 p-1 text-white hover:bg-black/60"
               aria-label="Hide music player"
               onClick={() => setVisible(false)}
             >
@@ -148,7 +173,7 @@ export function Player({
           <div className="player-mini-controls flex items-center gap-1">
             <button
               type="button"
-              className="player-transport-action magnetic-btn rounded-full border border-white/30 p-2.5 text-white hover:bg-white/10"
+              className="player-transport-action magnetic-btn rounded-full border border-white/30 p-1.5 text-white hover:bg-white/10"
               onClick={onPrevious}
               aria-label="Previous track"
             >
@@ -156,7 +181,7 @@ export function Player({
             </button>
             <button
               type="button"
-              className="player-transport-action magnetic-btn rounded-full bg-cyan-300 p-3 text-black"
+              className="player-transport-action magnetic-btn rounded-full bg-cyan-300 p-2 text-black"
               onClick={onTogglePlay}
               aria-label={isPlaying ? 'Pause track' : 'Play track'}
             >
@@ -164,7 +189,7 @@ export function Player({
             </button>
             <button
               type="button"
-              className="player-transport-action magnetic-btn rounded-full border border-white/30 p-2.5 text-white hover:bg-white/10"
+              className="player-transport-action magnetic-btn rounded-full border border-white/30 p-1.5 text-white hover:bg-white/10"
               onClick={onNext}
               aria-label="Next track"
             >
@@ -289,6 +314,7 @@ export function Player({
           </div>
         </>
       )}
-    </motion.aside>
+      </motion.aside>
+    </>
   )
 }
