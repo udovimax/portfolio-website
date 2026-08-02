@@ -6,7 +6,6 @@ import { SiBandlab } from 'react-icons/si'
 import { Carousel } from './components/Carousel'
 import { ContactDrawer } from './components/ContactDrawer'
 import { FloatingNav } from './components/FloatingNav'
-import { GlassCard } from './components/GlassCard'
 import { InstagramEmbed } from './components/InstagramEmbed'
 import { LazyBackgroundVideo } from './components/LazyBackgroundVideo'
 import { MediaArchive } from './components/MediaArchive'
@@ -297,7 +296,7 @@ function App() {
   const workBackground = currentPage === 'music'
     ? libraryMode === 'local'
       ? tracks[musicSlideIndex]?.artwork
-      : 'media/images/max/photo-2.jpg'
+      : assetUrl('media/images/max/photo-2.jpg')
     : currentPage === 'projects'
       ? content?.projects.projects[projectSlideIndex]?.thumbnail
       : currentPage === 'video'
@@ -772,7 +771,7 @@ function App() {
               style={
                 {
                   backgroundImage: workBackground
-                    ? `linear-gradient(90deg, rgba(5, 8, 13, 0.94), rgba(5, 8, 13, 0.58) 48%, rgba(5, 8, 13, 0.78)), url("${assetUrl(workBackground)}")`
+                    ? `linear-gradient(90deg, rgba(5, 8, 13, 0.84), rgba(5, 8, 13, 0.38) 48%, rgba(5, 8, 13, 0.7)), url("${workBackground}")`
                     : undefined,
                 } as CSSProperties
               }
@@ -786,7 +785,6 @@ function App() {
           {currentPage === 'music' ? (
             <div className="work-page-panel">
               <Reveal className="work-page-heading" delay={0.05}>
-                <span className="section-heading">Work / 01</span>
                 <h1>Music</h1>
               </Reveal>
 
@@ -817,47 +815,36 @@ function App() {
             <Carousel
               label="Music"
               count={tracks.length}
-              className="work-carousel"
+              className="work-carousel work-immersive-carousel"
               onActiveIndexChange={handleMusicSlideChange}
             >
               {tracks.map((track, index) => (
-                <div className="carousel-item" key={track.id}>
-                  <GlassCard image={track.artwork} className="work-card h-full cursor-pointer">
-                    <div className="space-y-3">
-                      <img
-                        src={track.artwork}
-                        alt={`${track.title} artwork`}
-                        loading="lazy"
-                        decoding="async"
-                        className="content-image h-40 w-full rounded-2xl object-cover sm:h-44"
-                      />
-                      <div className="flex items-start justify-between gap-3">
-                        <div className="min-w-0">
-                          <p className="text-xs uppercase tracking-[0.2em] text-cyan-300">{track.year}</p>
-                          <h3 className="text-2xl text-white">{track.title}</h3>
-                          <p className="text-white/70">{track.description}</p>
-                        </div>
-                        <button
-                          type="button"
-                          className="magnetic-btn shrink-0 rounded-full border border-white/30 px-3 py-2 text-xs uppercase tracking-[0.2em] text-white"
-                          onClick={() => playSpecificTrack(index)}
-                          aria-label={`Play ${track.title}`}
-                        >
-                          Play
-                        </button>
-                      </div>
-                      <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1 text-xs text-white/60">
-                        <span>{track.duration}</span>
-                        <span className="min-w-0 text-right">{track.credits}</span>
-                      </div>
+                <div className="carousel-item work-full-bleed-slide" key={track.id}>
+                  <article className="work-full-bleed-copy">
+                    <p className="section-heading">{track.year}</p>
+                    <div>
+                      <h2>{track.title}</h2>
+                      <p>{track.description}</p>
                     </div>
-                  </GlassCard>
+                    <div className="work-full-bleed-meta">
+                      <span>{track.duration}</span>
+                      <span>{track.credits}</span>
+                    </div>
+                    <button
+                      type="button"
+                      className="magnetic-btn work-full-bleed-action"
+                      onClick={() => playSpecificTrack(index)}
+                      aria-label={`Play ${track.title}`}
+                    >
+                      Play track
+                    </button>
+                  </article>
                 </div>
               ))}
             </Carousel>
           ) : (
-            <GlassCard image={assetUrl('media/images/max/photo-2.jpg')}>
-              <h3 className="mb-3 text-xl text-white">{content?.music.soundcloud.title}</h3>
+            <div className="work-soundcloud-panel">
+              <h2>{content?.music.soundcloud.title}</h2>
               <div className="rounded-2xl border border-white/15 bg-black/40 p-2">
                 <iframe
                   title="Max Udovichenko SoundCloud Playlist"
@@ -869,7 +856,7 @@ function App() {
                   className="rounded-xl"
                 />
               </div>
-            </GlassCard>
+            </div>
           )}
             </div>
           ) : null}
@@ -877,49 +864,41 @@ function App() {
           {currentPage === 'projects' ? (
             <div className="work-page-panel">
               <Reveal className="work-page-heading" delay={0.05}>
-                <span className="section-heading">Work / 02</span>
                 <h1>Projects</h1>
               </Reveal>
           <Reveal delay={0.1}>
             <Carousel
               label="Projects"
               count={content?.projects.projects.length ?? 0}
-              className="work-carousel"
+              className="work-carousel work-immersive-carousel"
               onActiveIndexChange={handleProjectSlideChange}
             >
               {content?.projects.projects.map((project) => {
                 const linkedVideo = content.videos.videos.find((video) => video.id === project.videoId)
                 return (
-                  <div className="carousel-item" key={project.id}>
-                    <GlassCard image={project.thumbnail} className="work-card card-tilt h-full">
-                      <button
-                        type="button"
-                        className="block w-full text-left"
-                        onClick={() => setActiveProject(project)}
-                      >
-                        <img
-                          src={project.thumbnail}
-                          alt={`${project.title} thumbnail`}
-                          loading="lazy"
-                          decoding="async"
-                          className="content-image mb-3 h-40 w-full rounded-2xl object-cover sm:h-48"
-                        />
-                        <p className="text-xs uppercase tracking-[0.2em] text-cyan-300">
-                          {project.type} / {project.year}
-                        </p>
-                        <h3 className="text-2xl text-white sm:text-3xl">{project.title}</h3>
-                        <p className="mt-2 text-white/70">{project.description}</p>
-                      </button>
+                  <div className="carousel-item work-full-bleed-slide" key={project.id}>
+                    <article className="work-full-bleed-copy">
+                      <p className="section-heading">{project.type} / {project.year}</p>
+                      <div>
+                        <button
+                          type="button"
+                          className="work-full-bleed-title"
+                          onClick={() => setActiveProject(project)}
+                        >
+                          {project.title}
+                        </button>
+                        <p>{project.description}</p>
+                      </div>
                       {linkedVideo ? (
                         <button
                           type="button"
-                          className="magnetic-btn mt-4 rounded-full border border-white/30 px-4 py-2 text-sm text-white"
+                          className="magnetic-btn work-full-bleed-action"
                           onClick={() => setActiveVideo(linkedVideo)}
                         >
                           Watch cinematic video
                         </button>
                       ) : null}
-                    </GlassCard>
+                    </article>
                   </div>
                 )
               })}
@@ -931,7 +910,6 @@ function App() {
           {currentPage === 'video' ? (
             <div className="work-page-panel">
               <Reveal className="work-page-heading" delay={0.05}>
-                <span className="section-heading">Work / 03</span>
                 <h1>Video</h1>
               </Reveal>
           {content?.archive ? (
@@ -940,6 +918,7 @@ function App() {
               archive={content.archive}
               onOpenVideo={setActiveVideo}
               onActiveIndexChange={handleVideoSlideChange}
+              immersive
             />
             </Reveal>
           ) : null}

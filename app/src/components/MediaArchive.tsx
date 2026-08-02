@@ -7,42 +7,38 @@ interface MediaArchiveProps {
   archive: ArchiveContent
   onOpenVideo: (video: ArchiveVideo) => void
   onActiveIndexChange?: (index: number) => void
+  immersive?: boolean
 }
 
-export function MediaArchive({ archive, onOpenVideo, onActiveIndexChange }: MediaArchiveProps) {
+export function MediaArchive({ archive, onOpenVideo, onActiveIndexChange, immersive = false }: MediaArchiveProps) {
   return (
     <div className="media-archive">
       <div>
-        <div className="mb-5 flex items-end justify-between gap-4">
-          <div>
-            <p className="section-heading">Moving studies</p>
-            <h3 className="mt-2 text-3xl text-white sm:text-4xl">Highlight archive</h3>
-          </div>
-          <span className="text-xs uppercase tracking-[0.2em] text-white/45">GIF previews / lazy video</span>
-        </div>
         <Carousel
           label="Highlight archive"
           count={archive.videos.length}
           countLabel="clips"
-          className="archive-video-carousel"
+          className={`archive-video-carousel ${immersive ? 'work-immersive-carousel' : ''}`}
           onActiveIndexChange={onActiveIndexChange}
         >
           {archive.videos.map((video) => (
             <div className="carousel-item" key={video.id}>
-              <article className="archive-video-card">
-                <div className="archive-video-preview">
-                  <LazyBackgroundVideo
-                    src={video.loop}
-                    poster={video.poster}
-                    className="archive-video-preview-media"
-                  />
-                  <span className="archive-video-badge" aria-hidden="true">
-                    <FaPlay />
-                  </span>
-                  <span className="archive-video-duration">{video.duration}</span>
-                </div>
+              <article className={`archive-video-card ${immersive ? 'archive-video-card-immersive' : ''}`}>
+                {!immersive ? (
+                  <div className="archive-video-preview">
+                    <LazyBackgroundVideo
+                      src={video.loop}
+                      poster={video.poster}
+                      className="archive-video-preview-media"
+                    />
+                    <span className="archive-video-badge" aria-hidden="true">
+                      <FaPlay />
+                    </span>
+                    <span className="archive-video-duration">{video.duration}</span>
+                  </div>
+                ) : null}
                 <div className="archive-video-copy">
-                  <p className="section-heading">Instagram highlight</p>
+                  <p className="section-heading">Instagram highlight / {video.duration}</p>
                   <h4>{video.title}</h4>
                   <p>{video.description}</p>
                   <button type="button" className="magnetic-btn archive-open-button" onClick={() => onOpenVideo(video)}>
