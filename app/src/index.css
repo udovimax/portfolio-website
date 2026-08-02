@@ -65,7 +65,8 @@ html {
 
 body {
   overflow-x: hidden;
-  touch-action: pan-y;
+  /* Let nested horizontal carousels negotiate the gesture direction. */
+  touch-action: auto;
   font-family: 'Inter', 'Helvetica Neue', Helvetica, Arial, sans-serif;
   color: var(--text-main);
   background:
@@ -829,9 +830,10 @@ textarea:focus-visible {
   scroll-behavior: smooth;
   scroll-snap-type: x mandatory;
   scrollbar-width: none;
-  overscroll-behavior: none;
-  scroll-snap-stop: always;
-  touch-action: pan-x;
+  overscroll-behavior-x: contain;
+  overscroll-behavior-y: auto;
+  scroll-snap-stop: normal;
+  touch-action: pan-x pan-y;
 }
 
 .carousel-swipe-hint {

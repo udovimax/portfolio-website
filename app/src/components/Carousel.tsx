@@ -121,8 +121,8 @@ export function Carousel({
         <span className="carousel-count">{count} {countLabel}</span>
         {showSwipeHint ? (
           <span className="carousel-swipe-hint" aria-hidden="true">
-            <span>Swipe</span>
-            <FaArrowRight />
+            <span>{canScrollNext || !canScrollPrevious ? 'Swipe' : 'Back'}</span>
+            {canScrollNext || !canScrollPrevious ? <FaArrowRight /> : <FaArrowLeft />}
           </span>
         ) : null}
         <div className="flex items-center gap-2">
