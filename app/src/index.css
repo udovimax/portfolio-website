@@ -198,6 +198,10 @@ textarea:focus-visible {
   background: var(--page-bg-deep);
 }
 
+.work-page-stage-music .work-page-background {
+  top: clamp(9.5rem, 14vw, 13rem);
+}
+
 .work-page-background {
   position: absolute;
   inset: -5%;

@@ -763,7 +763,7 @@ function App() {
 
         {currentPage === 'music' || currentPage === 'projects' || currentPage === 'video' ? (
           <section id={currentPage} className="work-section section-shell work-page-section">
-          <div className="work-page-stage">
+          <div className={`work-page-stage ${currentPage === 'music' ? 'work-page-stage-music' : ''}`}>
           <AnimatePresence initial={false} mode="sync">
             <motion.div
               key={workBackground ?? currentPage}
