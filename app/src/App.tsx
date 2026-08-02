@@ -817,6 +817,7 @@ function App() {
               count={tracks.length}
               className="work-carousel work-immersive-carousel"
               onActiveIndexChange={handleMusicSlideChange}
+              showSwipeHint
             >
               {tracks.map((track, index) => (
                 <div className="carousel-item work-full-bleed-slide" key={track.id}>
@@ -872,6 +873,7 @@ function App() {
               count={content?.projects.projects.length ?? 0}
               className="work-carousel work-immersive-carousel"
               onActiveIndexChange={handleProjectSlideChange}
+              showSwipeHint
             >
               {content?.projects.projects.map((project) => {
                 const linkedVideo = content.videos.videos.find((video) => video.id === project.videoId)

@@ -20,6 +20,7 @@ export function MediaArchive({ archive, onOpenVideo, onActiveIndexChange, immers
           countLabel="clips"
           className={`archive-video-carousel ${immersive ? 'work-immersive-carousel' : ''}`}
           onActiveIndexChange={onActiveIndexChange}
+          showSwipeHint={immersive}
         >
           {archive.videos.map((video) => (
             <div className="carousel-item" key={video.id}>

@@ -7,6 +7,11 @@ interface CarouselProps extends PropsWithChildren {
   countLabel?: string
   className?: string
   onActiveIndexChange?: (index: number) => void
+  showSwipeHint?: boolean
+}
+
+function getCardPositions(track: HTMLDivElement) {
+  return Array.from(track.children).map((child) => (child as HTMLElement).offsetLeft)
 }
 
 export function Carousel({
@@ -15,6 +20,7 @@ export function Carousel({
   countLabel = 'works',
   className = '',
   onActiveIndexChange,
+  showSwipeHint = false,
   children,
 }: CarouselProps) {
   const trackRef = useRef<HTMLDivElement>(null)
@@ -33,9 +39,9 @@ export function Carousel({
     setCanScrollPrevious(currentScrollLeft > 1)
     setCanScrollNext(currentScrollLeft < maxScrollLeft - 1)
 
-    const cardPositions = Array.from(track.children).map(
-      (child) => (child as HTMLElement).getBoundingClientRect().left - track.getBoundingClientRect().left + track.scrollLeft,
-    )
+    const cardPositions = getCardPositions(track)
+    if (cardPositions.length === 0) return
+
     const nextActiveIndex = cardPositions.reduce((closestIndex, position, index) => {
       const closestDistance = Math.abs(cardPositions[closestIndex] - currentScrollLeft)
       return Math.abs(position - currentScrollLeft) < closestDistance ? index : closestIndex
@@ -74,18 +80,20 @@ export function Carousel({
     }
 
     const maxScrollLeft = Math.max(track.scrollWidth - track.clientWidth, 0)
-    const currentScrollLeft = Math.min(Math.max(track.scrollLeft, 0), maxScrollLeft)
-    const trackLeft = track.getBoundingClientRect().left
-    const cardPositions = Array.from(track.children)
-      .map((child) => (child as HTMLElement).getBoundingClientRect().left - trackLeft + track.scrollLeft)
-      .filter((position) => position >= 0 && position <= maxScrollLeft + 1)
+    const cardPositions = getCardPositions(track)
+    if (cardPositions.length === 0) return
 
-    const targetPosition = direction > 0
-      ? cardPositions.find((position) => position > currentScrollLeft + 4) ?? maxScrollLeft
-      : [...cardPositions].reverse().find((position) => position < currentScrollLeft - 4) ?? 0
+    const targetIndex = Math.min(
+      Math.max(activeIndexRef.current + (direction > 0 ? 1 : -1), 0),
+      cardPositions.length - 1,
+    )
+    const targetPosition = Math.min(Math.max(cardPositions[targetIndex], 0), maxScrollLeft)
+
+    activeIndexRef.current = targetIndex
+    onActiveIndexChange?.(targetIndex)
 
     track.scrollTo({
-      left: Math.min(Math.max(targetPosition, 0), maxScrollLeft),
+      left: targetPosition,
       behavior: 'smooth',
     })
   }
@@ -111,6 +119,12 @@ export function Carousel({
       </div>
       <div className="carousel-controls" role="group" aria-label={`${label} controls`}>
         <span className="carousel-count">{count} {countLabel}</span>
+        {showSwipeHint ? (
+          <span className="carousel-swipe-hint" aria-hidden="true">
+            <span>Swipe</span>
+            <FaArrowRight />
+          </span>
+        ) : null}
         <div className="flex items-center gap-2">
           <button
             type="button"
