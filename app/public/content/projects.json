@@ -25,6 +25,18 @@
       "links": [{ "label": "View Video", "url": "#video" }]
     },
     {
+      "id": "project-third-day",
+      "title": "Third Day",
+      "type": "Film Score",
+      "year": 2026,
+      "description": "Original score and sound design for a cinematic film collaboration.",
+      "technologies": ["Original Composition", "Film Scoring", "Sound Design"],
+      "thumbnail": "/media/video/posters/third-day.jpg",
+      "gallery": ["/media/video/posters/third-day.jpg"],
+      "videoId": "video-third-day",
+      "links": [{ "label": "View Video", "url": "#video" }]
+    },
+    {
       "id": "project-climate",
       "title": "Climate Change Awareness Film",
       "type": "Original Score",

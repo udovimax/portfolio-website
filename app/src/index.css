@@ -874,6 +874,13 @@ textarea:focus-visible {
   flex-basis: min(68%, 20rem);
 }
 
+/* Immersive work pages are one-slide-at-a-time at every viewport size. */
+.work-carousel.work-immersive-carousel .carousel-item,
+.archive-video-carousel.work-immersive-carousel .carousel-item {
+  flex-basis: 100%;
+  max-width: 100%;
+}
+
 .work-card {
   padding: 1.15rem;
 }

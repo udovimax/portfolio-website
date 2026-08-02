@@ -1,6 +1,15 @@
 {
   "videos": [
     {
+      "id": "video-gimmick",
+      "title": "Gimmick! Music and SFX",
+      "description": "8-bit inspired composition study.",
+      "duration": "03:11",
+      "poster": "/media/video/posters/gimmick.jpg",
+      "src": "/media/video/gimmick-music-sfx.mp4",
+      "captions": "/media/captions/video-gimmick.vtt"
+    },
+    {
       "id": "video-universe",
       "title": "Uni-Verse",
       "description": "Game audio composition and sound design showcase.",
@@ -10,13 +19,13 @@
       "captions": "/media/captions/video-universe.vtt"
     },
     {
-      "id": "video-gimmick",
-      "title": "Gimmick! Music and SFX",
-      "description": "8-bit inspired composition study.",
-      "duration": "03:11",
-      "poster": "/media/video/posters/gimmick.jpg",
-      "src": "/media/video/gimmick-music-sfx.mp4",
-      "captions": "/media/captions/video-gimmick.vtt"
+      "id": "video-third-day",
+      "title": "Third Day",
+      "description": "Original score and sound design for a cinematic film collaboration.",
+      "duration": "04:23",
+      "poster": "/media/video/posters/third-day.jpg",
+      "src": "/media/video/third-day.mp4",
+      "captions": "/media/captions/video-third-day.vtt"
     },
     {
       "id": "video-climate",
