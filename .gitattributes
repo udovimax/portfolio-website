@@ -5,3 +5,4 @@ app/public/media/audio/*.mp3 filter=lfs diff=lfs merge=lfs -text
 app/public/media/max-instagram/loops/*.mp4 filter=lfs diff=lfs merge=lfs -text
 app/public/media/max-instagram/gifs/*.gif filter=lfs diff=lfs merge=lfs -text
 app/public/media/max-instagram/full-videos/*.mp4 filter=lfs diff=lfs merge=lfs -text
+assets/source/more-photos/*.jpg filter=lfs diff=lfs merge=lfs -text

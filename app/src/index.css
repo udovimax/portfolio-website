@@ -1028,6 +1028,14 @@ textarea:focus-visible {
   margin-top: 1.25rem;
 }
 
+.home-cv-links {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0.65rem;
+  margin-top: 1rem;
+}
+
 .about-cv-link:hover,
 .about-cv-link:focus-visible {
   border-color: var(--accent);
