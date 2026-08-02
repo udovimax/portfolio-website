@@ -202,6 +202,10 @@ textarea:focus-visible {
   top: clamp(9.5rem, 14vw, 13rem);
 }
 
+.work-page-stage:not(.work-page-stage-music) .work-page-background {
+  top: clamp(5rem, 8vw, 8rem);
+}
+
 .work-page-background {
   position: absolute;
   inset: -5%;
