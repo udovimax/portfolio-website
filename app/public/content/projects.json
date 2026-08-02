@@ -7,8 +7,8 @@
       "year": 2026,
       "description": "Composed the music and designed sound effects for a game project developed at Kingston University.",
       "technologies": ["Composition", "Sound Design", "Interactive Audio"],
-      "thumbnail": "/media/images/film/000028740011.jpg",
-      "gallery": ["/media/images/film/000028740011.jpg", "/media/images/max/photo-1.jpg"],
+      "thumbnail": "/media/images/film/000006630009.jpg",
+      "gallery": ["/media/images/film/000006630009.jpg", "/media/images/max/photo-1.jpg"],
       "videoId": "video-universe",
       "links": [{ "label": "View Video", "url": "#videos" }]
     },
@@ -19,8 +19,8 @@
       "year": 2026,
       "description": "Original chiptune reimagining of music and SFX inspired by the cult NES title Gimmick!.",
       "technologies": ["Synthesis", "Sampling", "Sequencing"],
-      "thumbnail": "/media/images/film/000006630007.jpg",
-      "gallery": ["/media/images/film/000006630007.jpg", "/media/images/instagram/film-12.jpg"],
+      "thumbnail": "/media/images/film/000006630015.jpg",
+      "gallery": ["/media/images/film/000006630015.jpg", "/media/images/instagram/film-12.jpg"],
       "videoId": "video-gimmick",
       "links": [{ "label": "View Video", "url": "#videos" }]
     },
@@ -31,8 +31,8 @@
       "year": 2026,
       "description": "Composed original music for an awareness film on climate change.",
       "technologies": ["Story Scoring", "Atmospheric Design"],
-      "thumbnail": "/media/images/film/000028740001.jpg",
-      "gallery": ["/media/images/film/000028740001.jpg", "/media/images/instagram/film-45.jpg"],
+      "thumbnail": "/media/images/film/000028740004.jpg",
+      "gallery": ["/media/images/film/000028740004.jpg", "/media/images/instagram/film-45.jpg"],
       "videoId": "video-climate",
       "links": [{ "label": "View Video", "url": "#videos" }]
     }
