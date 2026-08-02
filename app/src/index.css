@@ -1011,7 +1011,6 @@ textarea:focus-visible {
 
 .about-cv-link {
   display: inline-flex;
-  margin-top: 1.25rem;
   align-items: center;
   border: 1px solid rgba(158, 201, 255, 0.6);
   border-radius: 999px;
@@ -1020,6 +1019,13 @@ textarea:focus-visible {
   font-size: 0.72rem;
   letter-spacing: 0.14em;
   text-transform: uppercase;
+}
+
+.about-cv-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+  margin-top: 1.25rem;
 }
 
 .about-cv-link:hover,

@@ -899,13 +899,22 @@ function App() {
                   ))}
                 </ul>
                 {content?.about.cv ? (
-                  <a
-                    className="about-cv-link magnetic-btn"
-                    href={assetUrl(content.about.cv)}
-                    download
-                  >
-                    Download CV
-                  </a>
+                  <div className="about-cv-links" aria-label="Download CV versions">
+                    <a
+                      className="about-cv-link magnetic-btn"
+                      href={assetUrl(content.about.cv.professional)}
+                      download
+                    >
+                      Professional CV
+                    </a>
+                    <a
+                      className="about-cv-link magnetic-btn"
+                      href={assetUrl(content.about.cv.ats)}
+                      download
+                    >
+                      ATS CV
+                    </a>
+                  </div>
                 ) : null}
               </div>
             </div>

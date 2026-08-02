@@ -11,7 +11,10 @@ export interface AboutTimelineItem {
 
 export interface AboutContent {
   name: string
-  cv?: string
+  cv?: {
+    ats: string
+    professional: string
+  }
   roles: string[]
   intro: string
   philosophy: string
