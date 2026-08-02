@@ -73,9 +73,9 @@ body {
   font-family: 'Inter', 'Helvetica Neue', Helvetica, Arial, sans-serif;
   color: var(--text-main);
   background:
-    linear-gradient(180deg, rgba(8, 10, 14, 0.46), rgba(8, 10, 14, 0.82)),
-    radial-gradient(90rem 55rem at 8% -12%, rgba(83, 128, 190, 0.42), transparent 62%),
-    linear-gradient(165deg, var(--page-bg) 0%, var(--page-bg-deep) 64%, #050609 100%);
+    linear-gradient(180deg, rgba(8, 10, 14, 0.2), rgba(8, 10, 14, 0.56)),
+    radial-gradient(90rem 55rem at 8% -12%, rgba(83, 128, 190, 0.28), transparent 62%),
+    linear-gradient(165deg, rgba(17, 20, 25, 0.72) 0%, rgba(8, 10, 14, 0.8) 64%, rgba(5, 6, 9, 0.9) 100%);
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -98,8 +98,8 @@ body::before {
   inset: 0;
   z-index: -2;
   content: '';
-  background: linear-gradient(180deg, rgba(12, 16, 24, 0.14), rgba(6, 8, 12, 0.42)), url('./assets/images/site-background.jpg') center / cover;
-  opacity: 0.68;
+  background: linear-gradient(180deg, rgba(12, 16, 24, 0.08), rgba(6, 8, 12, 0.28)), url('./assets/images/site-background.jpg') center / cover;
+  opacity: 0.82;
   animation: atmosphere-drift 20s ease-in-out infinite alternate;
   pointer-events: none;
 }
