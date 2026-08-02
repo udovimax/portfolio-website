@@ -26,6 +26,15 @@
       "src": "/media/audio/assignment-max-udovichenko-tape-master.mp3"
     }
   ],
+  "worksInProgress": [
+    {
+      "id": "second-album",
+      "kicker": "ALBUM / IN PROGRESS",
+      "title": "Second album coming soon",
+      "description": "A new body of work is taking shape. Demos will be added here as they are ready to share.",
+      "status": "Coming soon"
+    }
+  ],
   "soundcloud": {
     "title": "Official SoundCloud Playlist",
     "embedUrl": "https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/playlists/soundcloud%253Aplaylists%253A1828624572&color=%23cc9c89&auto_play=false&hide_related=false&show_comments=true&show_user=true&show_reposts=false&show_teaser=true"

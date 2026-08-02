@@ -39,10 +39,19 @@ export interface Track {
 
 export interface MusicContent {
   tracks: Track[]
+  worksInProgress?: MusicWorkInProgress[]
   soundcloud: {
     title: string
     embedUrl: string
   }
+}
+
+export interface MusicWorkInProgress {
+  id: string
+  kicker: string
+  title: string
+  description: string
+  status: string
 }
 
 export interface ProjectLink {

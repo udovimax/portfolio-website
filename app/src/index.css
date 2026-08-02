@@ -314,6 +314,67 @@ textarea:focus-visible {
   background: var(--accent);
 }
 
+.music-wip-section {
+  display: grid;
+  gap: 1rem;
+  margin-top: clamp(2.5rem, 8vw, 5rem);
+  padding-top: 1.5rem;
+  border-top: 1px solid rgba(247, 244, 239, 0.2);
+}
+
+.music-wip-heading {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  color: rgba(247, 244, 239, 0.64);
+}
+
+.music-wip-heading p {
+  margin: 0;
+}
+
+.music-wip-list {
+  display: grid;
+  gap: 1rem;
+}
+
+.music-wip-card {
+  display: grid;
+  gap: 0.85rem;
+  max-width: 42rem;
+  padding: clamp(1.25rem, 3vw, 2rem);
+  border: 1px solid rgba(158, 201, 255, 0.48);
+  border-radius: 1.25rem;
+  background: linear-gradient(135deg, rgba(24, 39, 55, 0.78), rgba(10, 13, 18, 0.72));
+  box-shadow: 0 1.25rem 3rem rgba(0, 0, 0, 0.18);
+}
+
+.music-wip-card h2,
+.music-wip-card p {
+  margin: 0;
+}
+
+.music-wip-card h2 {
+  font-family: 'Space Grotesk', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  font-size: clamp(1.75rem, 4vw, 3.4rem);
+  letter-spacing: -0.04em;
+  line-height: 1;
+}
+
+.music-wip-card > p:not(.section-heading) {
+  max-width: 34rem;
+  color: rgba(247, 244, 239, 0.78);
+  line-height: 1.5;
+}
+
+.music-wip-card > span {
+  color: var(--accent);
+  font-size: 0.7rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
 .work-soundcloud-panel {
   display: grid;
   gap: 1rem;
