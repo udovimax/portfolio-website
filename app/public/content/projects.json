@@ -25,18 +25,6 @@
       "links": [{ "label": "View Video", "url": "#videos" }]
     },
     {
-      "id": "project-third-day",
-      "title": "Third Day",
-      "type": "Short Film Score",
-      "year": 2026,
-      "description": "Composed an original score for a short narrative film directed by Arikta Verma.",
-      "technologies": ["Film Scoring", "Arrangement", "Mixing"],
-      "thumbnail": "/media/images/instagram/film-1.jpg",
-      "gallery": ["/media/images/instagram/film-1.jpg", "/media/images/instagram/film-6.jpg"],
-      "videoId": "video-third-day",
-      "links": [{ "label": "View Video", "url": "#videos" }]
-    },
-    {
       "id": "project-climate",
       "title": "Climate Change Awareness Film",
       "type": "Original Score",

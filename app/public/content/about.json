@@ -1,5 +1,6 @@
 {
   "name": "Max Udovichenko",
+  "cv": "/media/cv/Maksim-Udovichenko-CV.pdf",
   "roles": ["Artist", "Producer", "Creative"],
   "intro": "I am a third-year Music Technology student at Kingston University London, composing original music and designing sound for games and films. My work spans ambient scoring, sound design, and 5.1 composition.",
   "philosophy": "I build emotional worlds through texture, rhythm, and space. Every project starts with narrative, then becomes sound.",
@@ -38,10 +39,16 @@
     }
   ],
   "skills": [
-    "Sound design for interactive media",
-    "Original composition and arrangement",
-    "Mixing and mastering",
-    "5.1 surround composition",
-    "Analog tape mastering"
+    "Ableton",
+    "Analogue synthesisers",
+    "Guitar",
+    "Bass",
+    "Piano",
+    "Original composition",
+    "Arrangement",
+    "Sound design for games and films",
+    "Mixing",
+    "5.1 composition",
+    "Music production"
   ]
 }

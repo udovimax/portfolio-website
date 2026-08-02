@@ -898,6 +898,15 @@ function App() {
                     </li>
                   ))}
                 </ul>
+                {content?.about.cv ? (
+                  <a
+                    className="about-cv-link magnetic-btn"
+                    href={assetUrl(content.about.cv)}
+                    download
+                  >
+                    Download CV
+                  </a>
+                ) : null}
               </div>
             </div>
           </Reveal>
