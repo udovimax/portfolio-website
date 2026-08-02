@@ -1,4 +1,4 @@
-import { lazy, Suspense, useEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from 'react'
+import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from 'react'
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
 import { Howl, Howler } from 'howler'
 import { FaEnvelope, FaInstagram, FaLinkedin, FaPaypal, FaSoundcloud, FaSpotify } from 'react-icons/fa'
@@ -13,7 +13,7 @@ import { MediaArchive } from './components/MediaArchive'
 import { Player } from './components/Player'
 import { useLenis } from './hooks/useLenis'
 import { assetUrl, useSiteContent } from './hooks/useSiteContent'
-import type { ArchiveVideo, NavSection, ProjectItem, Track, VideoItem } from './types/content'
+import type { NavSection, ProjectItem, Track, VideoItem } from './types/content'
 
 const pageIds: NavSection[] = ['home', 'music', 'projects', 'video', 'about']
 
@@ -70,23 +70,6 @@ function Reveal({ children, className = '', delay = 0, amount = 0.2, y = 24 }: R
     >
       {children}
     </motion.div>
-  )
-}
-
-function WorkSummaryVideo({ video }: { video?: ArchiveVideo }) {
-  if (!video) {
-    return null
-  }
-
-  return (
-    <span className="work-accordion-summary-media" aria-hidden="true">
-      <LazyBackgroundVideo
-        src={video.loop}
-        poster={video.poster}
-        className="work-accordion-summary-video"
-      />
-      <span className="work-accordion-summary-scrim" />
-    </span>
   )
 }
 
@@ -285,6 +268,9 @@ function App() {
   )
 
   const [trackIndex, setTrackIndex] = useState(0)
+  const [musicSlideIndex, setMusicSlideIndex] = useState(0)
+  const [projectSlideIndex, setProjectSlideIndex] = useState(0)
+  const [videoSlideIndex, setVideoSlideIndex] = useState(0)
   const [isPlaying, setIsPlaying] = useState(false)
   const [currentTime, setCurrentTime] = useState(0)
   const [duration, setDuration] = useState(0)
@@ -303,6 +289,20 @@ function App() {
 
   const tracks = content?.music.tracks ?? []
   const activeTrack: Track | null = tracks[trackIndex] ?? null
+
+  const handleMusicSlideChange = useCallback((index: number) => setMusicSlideIndex(index), [])
+  const handleProjectSlideChange = useCallback((index: number) => setProjectSlideIndex(index), [])
+  const handleVideoSlideChange = useCallback((index: number) => setVideoSlideIndex(index), [])
+
+  const workBackground = currentPage === 'music'
+    ? libraryMode === 'local'
+      ? tracks[musicSlideIndex]?.artwork
+      : 'media/images/max/photo-2.jpg'
+    : currentPage === 'projects'
+      ? content?.projects.projects[projectSlideIndex]?.thumbnail
+      : currentPage === 'video'
+        ? content?.archive.videos[videoSlideIndex]?.poster
+        : undefined
 
   useEffect(() => {
     initialVolumeRef.current = volume
@@ -763,18 +763,32 @@ function App() {
         ) : null}
 
         {currentPage === 'music' || currentPage === 'projects' || currentPage === 'video' ? (
-          <section id={currentPage} className="work-section section-shell">
+          <section id={currentPage} className="work-section section-shell work-page-section">
+          <AnimatePresence initial={false} mode="sync">
+            <motion.div
+              key={workBackground ?? currentPage}
+              className="work-page-background"
+              aria-hidden="true"
+              style={
+                {
+                  backgroundImage: workBackground
+                    ? `linear-gradient(90deg, rgba(5, 8, 13, 0.94), rgba(5, 8, 13, 0.58) 48%, rgba(5, 8, 13, 0.78)), url("${assetUrl(workBackground)}")`
+                    : undefined,
+                } as CSSProperties
+              }
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: shouldReduceMotion ? 0 : 0.55, ease: 'easeInOut' }}
+            />
+          </AnimatePresence>
+          <div className="work-page-content">
           {currentPage === 'music' ? (
-          <details className="work-accordion" open>
-            <summary className="work-accordion-summary">
-              <span className="work-accordion-summary-copy">
+            <div className="work-page-panel">
+              <Reveal className="work-page-heading" delay={0.05}>
                 <span className="section-heading">Work / 01</span>
-                <strong>Music</strong>
-              </span>
-              <span className="work-accordion-toggle" aria-hidden="true" />
-              <WorkSummaryVideo video={content?.archive?.videos[0]} />
-            </summary>
-            <div className="work-accordion-body">
+                <h1>Music</h1>
+              </Reveal>
 
           <Reveal className="mb-8 flex justify-end" delay={0.08}>
             <div className="inline-flex rounded-full border border-white/20 bg-white/5 p-1">
@@ -800,7 +814,12 @@ function App() {
           </Reveal>
 
           {libraryMode === 'local' ? (
-            <Carousel label="Music" count={tracks.length} className="work-carousel">
+            <Carousel
+              label="Music"
+              count={tracks.length}
+              className="work-carousel"
+              onActiveIndexChange={handleMusicSlideChange}
+            >
               {tracks.map((track, index) => (
                 <div className="carousel-item" key={track.id}>
                   <GlassCard image={track.artwork} className="work-card h-full cursor-pointer">
@@ -853,22 +872,21 @@ function App() {
             </GlassCard>
           )}
             </div>
-          </details>
           ) : null}
 
           {currentPage === 'projects' ? (
-          <details className="work-accordion">
-            <summary className="work-accordion-summary">
-              <span className="work-accordion-summary-copy">
+            <div className="work-page-panel">
+              <Reveal className="work-page-heading" delay={0.05}>
                 <span className="section-heading">Work / 02</span>
-                <strong>Projects</strong>
-              </span>
-              <span className="work-accordion-toggle" aria-hidden="true" />
-              <WorkSummaryVideo video={content?.archive?.videos[1] ?? content?.archive?.videos[0]} />
-            </summary>
-            <div className="work-accordion-body">
+                <h1>Projects</h1>
+              </Reveal>
           <Reveal delay={0.1}>
-            <Carousel label="Projects" count={content?.projects.projects.length ?? 0} className="work-carousel">
+            <Carousel
+              label="Projects"
+              count={content?.projects.projects.length ?? 0}
+              className="work-carousel"
+              onActiveIndexChange={handleProjectSlideChange}
+            >
               {content?.projects.projects.map((project) => {
                 const linkedVideo = content.videos.videos.find((video) => video.id === project.videoId)
                 return (
@@ -908,28 +926,26 @@ function App() {
             </Carousel>
           </Reveal>
             </div>
-          </details>
           ) : null}
 
           {currentPage === 'video' ? (
-          <details className="work-accordion">
-            <summary className="work-accordion-summary">
-              <span className="work-accordion-summary-copy">
+            <div className="work-page-panel">
+              <Reveal className="work-page-heading" delay={0.05}>
                 <span className="section-heading">Work / 03</span>
-                <strong>Video</strong>
-              </span>
-              <span className="work-accordion-toggle" aria-hidden="true" />
-              <WorkSummaryVideo video={content?.archive?.videos[2] ?? content?.archive?.videos[0]} />
-            </summary>
-            <div className="work-accordion-body">
+                <h1>Video</h1>
+              </Reveal>
           {content?.archive ? (
             <Reveal delay={0.12}>
-            <MediaArchive archive={content.archive} onOpenVideo={setActiveVideo} />
+            <MediaArchive
+              archive={content.archive}
+              onOpenVideo={setActiveVideo}
+              onActiveIndexChange={handleVideoSlideChange}
+            />
             </Reveal>
           ) : null}
             </div>
-          </details>
           ) : null}
+          </div>
         </section>
         ) : null}
 

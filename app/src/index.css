@@ -181,6 +181,52 @@ textarea:focus-visible {
   gap: 1rem;
 }
 
+.work-page-section {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  min-height: min(48rem, 100vh);
+}
+
+.work-page-background {
+  position: absolute;
+  inset: -5%;
+  z-index: 0;
+  background-position: center;
+  background-size: cover;
+  filter: saturate(0.72) contrast(1.05) blur(10px);
+  opacity: 0.72;
+  transform: scale(1.05);
+  transition: background-image 550ms ease;
+  pointer-events: none;
+}
+
+.work-page-content {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  gap: 1rem;
+}
+
+.work-page-panel {
+  min-width: 0;
+}
+
+.work-page-heading {
+  display: grid;
+  gap: 0.4rem;
+  margin-bottom: 2rem;
+}
+
+.work-page-heading h1 {
+  margin: 0;
+  color: var(--text-main);
+  font-size: clamp(3rem, 8vw, 6rem);
+  font-weight: 400;
+  letter-spacing: -0.045em;
+  line-height: 0.95;
+}
+
 .work-accordion {
   min-width: 0;
   max-width: 100%;

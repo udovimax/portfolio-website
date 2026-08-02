@@ -6,9 +6,10 @@ import type { ArchiveContent, ArchiveVideo } from '../types/content'
 interface MediaArchiveProps {
   archive: ArchiveContent
   onOpenVideo: (video: ArchiveVideo) => void
+  onActiveIndexChange?: (index: number) => void
 }
 
-export function MediaArchive({ archive, onOpenVideo }: MediaArchiveProps) {
+export function MediaArchive({ archive, onOpenVideo, onActiveIndexChange }: MediaArchiveProps) {
   return (
     <div className="media-archive">
       <div>
@@ -19,7 +20,13 @@ export function MediaArchive({ archive, onOpenVideo }: MediaArchiveProps) {
           </div>
           <span className="text-xs uppercase tracking-[0.2em] text-white/45">GIF previews / lazy video</span>
         </div>
-        <Carousel label="Highlight archive" count={archive.videos.length} countLabel="clips" className="archive-video-carousel">
+        <Carousel
+          label="Highlight archive"
+          count={archive.videos.length}
+          countLabel="clips"
+          className="archive-video-carousel"
+          onActiveIndexChange={onActiveIndexChange}
+        >
           {archive.videos.map((video) => (
             <div className="carousel-item" key={video.id}>
               <article className="archive-video-card">

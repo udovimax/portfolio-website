@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type KeyboardEvent, type PropsWithChildren } from 'react'
+import { useCallback, useEffect, useRef, useState, type KeyboardEvent, type PropsWithChildren } from 'react'
 import { FaArrowLeft, FaArrowRight } from 'react-icons/fa'
 
 interface CarouselProps extends PropsWithChildren {
@@ -6,14 +6,23 @@ interface CarouselProps extends PropsWithChildren {
   count: number
   countLabel?: string
   className?: string
+  onActiveIndexChange?: (index: number) => void
 }
 
-export function Carousel({ label, count, countLabel = 'works', className = '', children }: CarouselProps) {
+export function Carousel({
+  label,
+  count,
+  countLabel = 'works',
+  className = '',
+  onActiveIndexChange,
+  children,
+}: CarouselProps) {
   const trackRef = useRef<HTMLDivElement>(null)
+  const activeIndexRef = useRef(0)
   const [canScrollPrevious, setCanScrollPrevious] = useState(false)
   const [canScrollNext, setCanScrollNext] = useState(false)
 
-  const updateScrollBounds = () => {
+  const updateScrollBounds = useCallback(() => {
     const track = trackRef.current
     if (!track) {
       return
@@ -23,7 +32,20 @@ export function Carousel({ label, count, countLabel = 'works', className = '', c
     const currentScrollLeft = Math.min(Math.max(track.scrollLeft, 0), maxScrollLeft)
     setCanScrollPrevious(currentScrollLeft > 1)
     setCanScrollNext(currentScrollLeft < maxScrollLeft - 1)
-  }
+
+    const cardPositions = Array.from(track.children).map(
+      (child) => (child as HTMLElement).getBoundingClientRect().left - track.getBoundingClientRect().left + track.scrollLeft,
+    )
+    const nextActiveIndex = cardPositions.reduce((closestIndex, position, index) => {
+      const closestDistance = Math.abs(cardPositions[closestIndex] - currentScrollLeft)
+      return Math.abs(position - currentScrollLeft) < closestDistance ? index : closestIndex
+    }, 0)
+
+    if (nextActiveIndex !== activeIndexRef.current) {
+      activeIndexRef.current = nextActiveIndex
+      onActiveIndexChange?.(nextActiveIndex)
+    }
+  }, [onActiveIndexChange])
 
   useEffect(() => {
     const track = trackRef.current
@@ -31,6 +53,8 @@ export function Carousel({ label, count, countLabel = 'works', className = '', c
       return
     }
 
+    activeIndexRef.current = 0
+    onActiveIndexChange?.(0)
     updateScrollBounds()
     track.addEventListener('scroll', updateScrollBounds, { passive: true })
 
@@ -41,7 +65,7 @@ export function Carousel({ label, count, countLabel = 'works', className = '', c
       track.removeEventListener('scroll', updateScrollBounds)
       resizeObserver?.disconnect()
     }
-  }, [count])
+  }, [count, onActiveIndexChange, updateScrollBounds])
 
   const scrollByCard = (direction: number) => {
     const track = trackRef.current
