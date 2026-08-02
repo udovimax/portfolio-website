@@ -1008,14 +1008,14 @@ function App() {
                 {content?.about.cv ? (
                   <div className="about-cv-links" aria-label="Download CV versions">
                     <a
-                      className="about-cv-link magnetic-btn"
+                      className="about-cv-text-link magnetic-btn"
                       href={assetUrl(content.about.cv.professional)}
                       download
                     >
                       Professional CV
                     </a>
                     <a
-                      className="about-cv-link magnetic-btn"
+                      className="about-cv-text-link magnetic-btn"
                       href={assetUrl(content.about.cv.ats)}
                       download
                     >
@@ -1033,7 +1033,7 @@ function App() {
                       href={content.socials.paypal}
                       target="_blank"
                       rel="noreferrer"
-                      className="about-cv-link magnetic-btn"
+                      className="about-donate-link magnetic-btn"
                     >
                       Donate via PayPal
                     </a>
