@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://udovimax.github.io/portfolio-website/sitemap.xml

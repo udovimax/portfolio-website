@@ -1,0 +1,57 @@
+{
+  "name": "Max Udovichenko",
+  "cv": {
+    "ats": "/media/cv/Maksim-Udovichenko-CV-ATS.pdf",
+    "professional": "/media/cv/Maksim-Udovichenko-CV-Professional.pdf"
+  },
+  "roles": ["Artist", "Producer", "Creative"],
+  "intro": "I am a third-year Music Technology student at Kingston University London, composing original music and designing sound for games and films. My work spans ambient scoring, sound design, and 5.1 composition.",
+  "philosophy": "I build emotional worlds through texture, rhythm, and space. Every project starts with narrative, then becomes sound.",
+  "timeline": [
+    {
+      "year": "2024",
+      "title": "Kingston University London",
+      "description": "BA (Hons) Music Technology. Focus on synthesis, sequencing, and interactive audio systems.",
+      "kicker": "Study / foundation",
+      "image": "/media/images/max/photo-6.jpg",
+      "accent": "#9ec9ff"
+    },
+    {
+      "year": "2025",
+      "title": "Film and Game Collaboration",
+      "description": "Scored student films and designed game audio environments for independent creators.",
+      "kicker": "Collaboration / score",
+      "image": "/media/images/film/000006630020.jpg",
+      "accent": "#e4ad95"
+    },
+    {
+      "year": "2026",
+      "title": "Spatial Mixing Development",
+      "description": "Expanded multichannel practice through 5.1 composition and analog studio workflows.",
+      "kicker": "Practice / space",
+      "image": "/media/images/film/000006630015.jpg",
+      "accent": "#7debd4"
+    },
+    {
+      "year": "2027",
+      "title": "Graduation Target",
+      "description": "Expected completion of BA (Hons) with portfolio centered on narrative music and interactive sound design.",
+      "kicker": "Next horizon",
+      "image": "/media/images/film/CNV000032.jpg",
+      "accent": "#d5b8ff"
+    }
+  ],
+  "skills": [
+    "Ableton",
+    "Analogue synthesisers",
+    "Guitar",
+    "Bass",
+    "Piano",
+    "Original composition",
+    "Arrangement",
+    "Sound design for games and films",
+    "Mixing",
+    "5.1 composition",
+    "Music production"
+  ]
+}

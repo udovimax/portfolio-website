@@ -1,0 +1,52 @@
+{
+  "projects": [
+    {
+      "id": "project-gimmick",
+      "title": "Gimmick! Reimagining",
+      "type": "8-bit Coursework",
+      "year": 2026,
+      "description": "Original chiptune reimagining of music and SFX inspired by the cult NES title Gimmick!.",
+      "technologies": ["Synthesis", "Sampling", "Sequencing"],
+      "thumbnail": "/media/video/posters/gimmick.jpg",
+      "gallery": ["/media/video/posters/gimmick.jpg"],
+      "videoId": "video-gimmick",
+      "links": [{ "label": "View Video", "url": "#video" }]
+    },
+    {
+      "id": "project-universe",
+      "title": "Uni-Verse",
+      "type": "Student Game",
+      "year": 2026,
+      "description": "Composed the music and designed sound effects for a game project developed at Kingston University.",
+      "technologies": ["Composition", "Sound Design", "Interactive Audio"],
+      "thumbnail": "/media/video/posters/universe.jpg",
+      "gallery": ["/media/video/posters/universe.jpg"],
+      "videoId": "video-universe",
+      "links": [{ "label": "View Video", "url": "#video" }]
+    },
+    {
+      "id": "project-third-day",
+      "title": "Third Day",
+      "type": "Film Score",
+      "year": 2026,
+      "description": "Original score and sound design for a cinematic film collaboration.",
+      "technologies": ["Original Composition", "Film Scoring", "Sound Design"],
+      "thumbnail": "/media/video/posters/third-day.jpg",
+      "gallery": ["/media/video/posters/third-day.jpg"],
+      "videoId": "video-third-day",
+      "links": [{ "label": "View Video", "url": "#video" }]
+    },
+    {
+      "id": "project-climate",
+      "title": "Climate Change Awareness Film",
+      "type": "Original Score",
+      "year": 2026,
+      "description": "Composed original music for an awareness film on climate change.",
+      "technologies": ["Story Scoring", "Atmospheric Design"],
+      "thumbnail": "/media/video/posters/climate.jpg",
+      "gallery": ["/media/video/posters/climate.jpg"],
+      "videoId": "video-climate",
+      "links": [{ "label": "View Video", "url": "#video" }]
+    }
+  ]
+}
