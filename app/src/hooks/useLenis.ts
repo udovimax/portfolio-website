@@ -1,9 +1,18 @@
 import { useEffect } from 'react'
 import Lenis from 'lenis'
 
+function hasCoarsePointer() {
+  return (
+    typeof window !== 'undefined' &&
+    (window.matchMedia('(pointer: coarse)').matches || 'ontouchstart' in window)
+  )
+}
+
 export function useLenis(enabled: boolean) {
   useEffect(() => {
-    if (!enabled) {
+    // Native touch scrolling is more predictable on phones, especially when a
+    // page contains nested carousels, drawers, and a draggable player.
+    if (!enabled || hasCoarsePointer()) {
       return
     }
 

@@ -1961,6 +1961,15 @@ textarea:focus {
   transition: width 240ms ease, height 240ms ease, padding 240ms ease, background 180ms ease, box-shadow 180ms ease, border-color 180ms ease;
 }
 
+/* Let a vertical swipe continue the page when it starts on the player. Desktop
+   pointer dragging remains unchanged; horizontal player movement is still
+   available to touch users without hijacking vertical page scrolling. */
+@media (pointer: coarse) {
+  .player-shell {
+    touch-action: pan-y !important;
+  }
+}
+
 .player-shell:active {
   cursor: grabbing;
 }
