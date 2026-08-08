@@ -1,3 +1,10 @@
+/*
+ * Global visual system for the portfolio.
+ *
+ * This file intentionally contains the cross-page tokens, responsive layout rules, carousel/player
+ * interaction styles, and reduced-motion fallbacks. Feature behavior belongs in components; when adding
+ * selectors, keep them scoped to a component class and preserve the no-horizontal-overflow contract.
+ */
 @import 'tailwindcss';
 
 @font-face {

@@ -1,3 +1,12 @@
+/**
+ * Purpose: Provide the shared bounded horizontal carousel interaction.
+ *
+ * Responsibilities: Measure card offsets, clamp navigation to real children, snap after touch/trackpad
+ * scrolling, expose keyboard/button controls, and optionally auto-advance.
+ *
+ * Constraints: This component owns horizontal scrolling only. Keep page vertical scrolling outside the
+ * track, preserve disabled bounds and reduced-motion behavior, and use it for new horizontal collections.
+ */
 import { useCallback, useEffect, useRef, useState, type KeyboardEvent, type PropsWithChildren } from 'react'
 import { useReducedMotion } from 'framer-motion'
 import { FaArrowLeft, FaArrowRight } from 'react-icons/fa'

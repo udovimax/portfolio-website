@@ -1,3 +1,12 @@
+/**
+ * Purpose: Load the content-driven site data and normalize public asset paths.
+ *
+ * Responsibilities: Fetch all JSON records in parallel, resolve media URLs against Vite’s base path,
+ * and expose loading/error state to the composition root.
+ *
+ * Constraints: Keep this as the canonical content loader. JSON path values must remain public-root
+ * paths; do not move content fetching into individual UI components.
+ */
 import { useEffect, useState } from 'react'
 import type {
   AboutContent,

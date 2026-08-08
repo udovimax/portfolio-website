@@ -1,3 +1,4 @@
+/** Runtime contracts for the public/content JSON files and the supported hash pages. */
 export type NavSection = 'home' | 'music' | 'projects' | 'video' | 'about'
 
 export interface AboutTimelineItem {

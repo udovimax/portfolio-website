@@ -1,3 +1,14 @@
+/**
+ * Purpose: Compose the portfolio pages and coordinate global interactive state.
+ *
+ * Responsibilities:
+ * - Resolve the hash-based page state and render page-specific content.
+ * - Load JSON content, own Howler playback/analyser state, and pass callbacks to controls.
+ * - Mount the navigation, contact drawer, player, scroll guide, and lazy media modals.
+ *
+ * Constraints: Keep routine copy/media in public/content JSON. Player owns presentation only;
+ * audio creation and analyser wiring remain here so playback persists across page changes.
+ */
 import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from 'react'
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
 import { Howl, Howler } from 'howler'

@@ -1,3 +1,12 @@
+/**
+ * Purpose: Render the persistent floating music player and expose its controls.
+ *
+ * Responsibilities: Render minimized/expanded states, artwork, progress/volume controls, visualizer
+ * bars, drag behavior, and accessible show/hide/transport actions.
+ *
+ * Constraints: Do not create or own Howl instances here. App owns playback state and callbacks; this
+ * component must remain safe to mount across hash-page changes and must not block page scrolling.
+ */
 import { useMemo, useRef, useState, type CSSProperties, type MouseEvent } from 'react'
 import { motion } from 'framer-motion'
 import {
