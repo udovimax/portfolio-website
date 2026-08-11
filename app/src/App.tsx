@@ -642,6 +642,23 @@ function App() {
         activePage={currentPage}
         contactOpen={contactOpen}
         onContactOpenChange={setContactOpen}
+        player={
+          <Player
+            track={activeTrack}
+            isPlaying={isPlaying}
+            currentTime={currentTime}
+            duration={duration}
+            volume={volume}
+            audioError={audioError}
+            visualizerData={visualizerData}
+            onTogglePlay={togglePlay}
+            onPrevious={goPrevious}
+            onNext={goNext}
+            onSeek={seekTo}
+            onVolumeChange={setVolume}
+            placement="nav"
+          />
+        }
       />
       <ScrollGuide currentPage={currentPage} />
 
@@ -1169,21 +1186,6 @@ function App() {
           Copyright {new Date().getFullYear()} Max Udovichenko
         </p>
       </motion.footer>
-
-      <Player
-        track={activeTrack}
-        isPlaying={isPlaying}
-        currentTime={currentTime}
-        duration={duration}
-        volume={volume}
-        audioError={audioError}
-        visualizerData={visualizerData}
-        onTogglePlay={togglePlay}
-        onPrevious={goPrevious}
-        onNext={goNext}
-        onSeek={seekTo}
-        onVolumeChange={setVolume}
-      />
 
       {activeVideo ? (
         <Suspense fallback={null}>

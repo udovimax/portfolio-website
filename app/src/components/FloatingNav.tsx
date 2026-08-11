@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import type { NavSection } from '../types/content'
 
@@ -6,6 +6,7 @@ interface FloatingNavProps {
   activePage: NavSection
   contactOpen: boolean
   onContactOpenChange: (open: boolean) => void
+  player?: ReactNode
 }
 
 const links: Array<{ id: NavSection; label: string }> = [
@@ -16,7 +17,7 @@ const links: Array<{ id: NavSection; label: string }> = [
   { id: 'about', label: 'About' },
 ]
 
-export function FloatingNav({ activePage, contactOpen, onContactOpenChange }: FloatingNavProps) {
+export function FloatingNav({ activePage, contactOpen, onContactOpenChange, player }: FloatingNavProps) {
   const [menuOpen, setMenuOpen] = useState(false)
   const menuTriggerRef = useRef<HTMLButtonElement>(null)
   const menuPanelRef = useRef<HTMLElement>(null)
@@ -161,9 +162,13 @@ export function FloatingNav({ activePage, contactOpen, onContactOpenChange }: Fl
           <span>{menuOpen ? 'Close' : 'Menu'}</span>
         </button>
 
-        <a href="#home" className="site-nav-title" onClick={() => setMenuOpen(false)}>
-          MAX UDOVICHENKO
-        </a>
+        <div className="site-nav-player">
+          {player ?? (
+            <a href="#home" className="site-nav-title" onClick={() => setMenuOpen(false)}>
+              MAX UDOVICHENKO
+            </a>
+          )}
+        </div>
 
         <button
           type="button"

@@ -1,14 +1,15 @@
 /**
- * Purpose: Render the persistent floating music player and expose its controls.
+ * Purpose: Render the persistent music player and expose its controls.
  *
- * Responsibilities: Render minimized/expanded states, artwork, progress/volume controls, visualizer
- * bars, drag behavior, and accessible show/hide/transport actions.
+ * Responsibilities: Render the navigation dynamic-island player, plus the legacy floating variant,
+ * with artwork, progress/volume controls, visualizer bars, and accessible transport actions.
  *
  * Constraints: Do not create or own Howl instances here. App owns playback state and callbacks; this
- * component must remain safe to mount across hash-page changes and must not block page scrolling.
+ * component must remain safe to mount across hash-page changes. The navigation variant must not
+ * become a competing touch surface for vertical page scrolling.
  */
 import { useMemo, useRef, useState, type CSSProperties, type MouseEvent } from 'react'
-import { motion } from 'framer-motion'
+import { AnimatePresence, motion } from 'framer-motion'
 import {
   FaBackward,
   FaExpand,
@@ -33,6 +34,7 @@ interface PlayerProps {
   onNext: () => void
   onSeek: (value: number) => void
   onVolumeChange: (value: number) => void
+  placement?: 'floating' | 'nav'
 }
 
 function formatTime(value: number) {
@@ -58,9 +60,10 @@ export function Player({
   onNext,
   onSeek,
   onVolumeChange,
+  placement = 'floating',
 }: PlayerProps) {
-  const [visible, setVisible] = useState(true)
-  const [minimized, setMinimized] = useState(true)
+  const [visible, setVisible] = useState(placement === 'floating')
+  const [minimized, setMinimized] = useState(placement === 'floating')
   const [controlsRevealed, setControlsRevealed] = useState(false)
   const dragConstraintsRef = useRef<HTMLDivElement>(null)
   const isDraggingRef = useRef(false)
@@ -102,53 +105,38 @@ export function Player({
     return null
   }
 
-  if (!visible) {
-    return (
-      <button
-        type="button"
-        className="player-reopen fixed right-4 z-50 border border-white/25 bg-black/75 text-white shadow-2xl backdrop-blur-xl transition hover:border-white/50 hover:bg-black"
-        onClick={() => setVisible(true)}
-        aria-label="Show music player"
-      >
-        <img src={track.artwork} alt="" />
-        <span className="player-reopen-icon" aria-hidden="true">
-          <FaExpand />
-        </span>
-      </button>
-    )
-  }
+  const progress = duration > 0 ? Math.min(100, Math.max(0, (currentTime / duration) * 100)) : 0
 
-  return (
-    <>
-      <div ref={dragConstraintsRef} className="player-drag-constraints fixed inset-0 pointer-events-none" aria-hidden="true" />
-      <motion.aside
-        initial={{ y: 80, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-        drag={isCoarsePointer ? 'x' : true}
-        dragDirectionLock={isCoarsePointer}
-        dragConstraints={dragConstraintsRef}
-        dragElastic={0.04}
-        dragMomentum={false}
-        onDragStart={() => {
-          isDraggingRef.current = true
-        }}
-        onDragEnd={(_, info) => {
-          if (Math.abs(info.offset.x) < 4 && Math.abs(info.offset.y) < 4) {
-            isDraggingRef.current = false
-            return
-          }
+  const playerPanel = (
+    <motion.aside
+      id={placement === 'nav' ? 'nav-player-panel' : undefined}
+      initial={{ y: placement === 'nav' ? -8 : 80, opacity: 0, scale: placement === 'nav' ? 0.98 : 1 }}
+      animate={{ y: 0, opacity: 1, scale: 1 }}
+      transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+      drag={placement === 'nav' ? false : isCoarsePointer ? 'x' : true}
+      dragDirectionLock={placement === 'nav' ? false : isCoarsePointer}
+      dragConstraints={placement === 'nav' ? undefined : dragConstraintsRef}
+      dragElastic={0.04}
+      dragMomentum={false}
+      onDragStart={() => {
+        isDraggingRef.current = true
+      }}
+      onDragEnd={(_, info) => {
+        if (Math.abs(info.offset.x) < 4 && Math.abs(info.offset.y) < 4) {
+          isDraggingRef.current = false
+          return
+        }
 
-          window.setTimeout(() => {
-            isDraggingRef.current = false
-          }, 120)
-        }}
-        className={`player-shell group fixed z-50 w-[min(18rem,calc(100vw-1.5rem))] rounded-3xl border border-white/20 p-3 backdrop-blur-2xl ${minimized ? 'player-shell-minimized' : ''} ${controlsRevealed ? 'player-controls-revealed' : ''}`}
-        style={playerStyle}
-        aria-label="Music player"
-        onClick={handleCardClick}
-        onMouseLeave={() => setControlsRevealed(false)}
-      >
+        window.setTimeout(() => {
+          isDraggingRef.current = false
+        }, 120)
+      }}
+      className={`player-shell group z-50 w-[min(18rem,calc(100vw-1.5rem))] rounded-3xl border border-white/20 p-3 backdrop-blur-2xl ${minimized ? 'player-shell-minimized' : ''} ${controlsRevealed ? 'player-controls-revealed' : ''} ${placement === 'nav' ? 'player-shell-nav' : ''}`}
+      style={playerStyle}
+      aria-label="Music player"
+      onClick={handleCardClick}
+      onMouseLeave={() => setControlsRevealed(false)}
+    >
       {minimized ? (
         <div className="player-mini-square">
           <img
@@ -327,7 +315,52 @@ export function Player({
           </div>
         </>
       )}
-      </motion.aside>
+    </motion.aside>
+  )
+
+  if (placement === 'nav') {
+    return (
+      <div className="nav-player-slot">
+        <button
+          type="button"
+          className="site-nav-player-trigger"
+          aria-expanded={visible}
+          aria-controls="nav-player-panel"
+          aria-label={visible ? 'Close music player' : `Open music player for ${track.title}`}
+          onClick={() => setVisible((value) => !value)}
+        >
+          <span className="site-nav-title">MAX UDOVICHENKO</span>
+          <span className="site-nav-player-progress" aria-hidden="true">
+            <span style={{ width: `${progress}%` }} />
+          </span>
+        </button>
+        <AnimatePresence>
+          {visible ? <div className="site-nav-player-popover">{playerPanel}</div> : null}
+        </AnimatePresence>
+      </div>
+    )
+  }
+
+  if (!visible) {
+    return (
+      <button
+        type="button"
+        className="player-reopen fixed right-4 z-50 border border-white/25 bg-black/75 text-white shadow-2xl backdrop-blur-xl transition hover:border-white/50 hover:bg-black"
+        onClick={() => setVisible(true)}
+        aria-label="Show music player"
+      >
+        <img src={track.artwork} alt="" />
+        <span className="player-reopen-icon" aria-hidden="true">
+          <FaExpand />
+        </span>
+      </button>
+    )
+  }
+
+  return (
+    <>
+      <div ref={dragConstraintsRef} className="player-drag-constraints fixed inset-0 pointer-events-none" aria-hidden="true" />
+      {playerPanel}
     </>
   )
 }
