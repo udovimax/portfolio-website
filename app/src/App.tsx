@@ -1147,7 +1147,6 @@ function App() {
             <a href="#music" className="footer-text-link magnetic-btn">Music</a>
             <a href="#projects" className="footer-text-link magnetic-btn">Projects</a>
             <a href="#video" className="footer-text-link magnetic-btn">Video</a>
-            <a href="#about" className="footer-text-link magnetic-btn">Get to know me</a>
           </nav>
         </div>
         {content?.socials ? (

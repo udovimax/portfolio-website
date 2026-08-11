@@ -10,6 +10,7 @@
  */
 import { useEffect, useMemo, useRef, useState, type CSSProperties, type MouseEvent } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
+import { createPortal } from 'react-dom'
 import {
   FaBackward,
   FaExpand,
@@ -79,7 +80,7 @@ export function Player({
 
     const closeOnOutsidePointer = (event: PointerEvent) => {
       const target = event.target
-      if (target instanceof Element && target.closest('.site-nav-player')) {
+      if (target instanceof Element && target.closest('.site-nav-player, .site-nav-player-popover')) {
         return
       }
       setVisible(false)
@@ -346,8 +347,28 @@ export function Player({
   )
 
   if (placement === 'nav') {
+    const navPlayerPopover = typeof document !== 'undefined'
+      ? createPortal(
+        <AnimatePresence>
+          {visible ? (
+            <motion.div
+              className="site-nav-player-popover"
+              initial={{ opacity: 0, y: -8, scale: 0.97 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: -8, scale: 0.97 }}
+              transition={{ duration: 0.24, ease: [0.22, 1, 0.36, 1] }}
+            >
+              {playerPanel}
+            </motion.div>
+          ) : null}
+        </AnimatePresence>,
+        document.body,
+      )
+      : null
+
     return (
-      <div className="nav-player-slot">
+      <>
+        <div className="nav-player-slot">
         <button
           type="button"
           className="site-nav-player-trigger"
@@ -366,7 +387,11 @@ export function Player({
                 className="site-nav-player-hint"
                 initial={{ opacity: 0, y: 3 }}
                 animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: 3 }}
+                exit={{
+                  opacity: 0,
+                  y: 3,
+                  transition: { duration: 0.72, ease: [0.22, 1, 0.36, 1] },
+                }}
                 transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
               >
                 <span>Click me</span>
@@ -375,20 +400,9 @@ export function Player({
             ) : null}
           </AnimatePresence>
         </button>
-        <AnimatePresence>
-          {visible ? (
-            <motion.div
-              className="site-nav-player-popover"
-              initial={{ opacity: 0, y: -8, scale: 0.97 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: -8, scale: 0.97 }}
-              transition={{ duration: 0.24, ease: [0.22, 1, 0.36, 1] }}
-            >
-              {playerPanel}
-            </motion.div>
-          ) : null}
-        </AnimatePresence>
-      </div>
+        </div>
+        {navPlayerPopover}
+      </>
     )
   }
 

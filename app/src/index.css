@@ -1145,6 +1145,7 @@ textarea:focus-visible {
   top: 4.35rem;
   right: 0;
   left: 0;
+  z-index: 60;
   display: flex;
   justify-content: center;
   width: auto;
