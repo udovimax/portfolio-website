@@ -1152,6 +1152,12 @@ textarea:focus-visible {
   pointer-events: none;
 }
 
+.site-nav-player-popover-content {
+  display: flex;
+  width: fit-content;
+  pointer-events: auto;
+}
+
 .player-shell-nav {
   position: relative;
   right: auto;

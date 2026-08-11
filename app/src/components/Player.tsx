@@ -349,19 +349,21 @@ export function Player({
   if (placement === 'nav') {
     const navPlayerPopover = typeof document !== 'undefined'
       ? createPortal(
-        <AnimatePresence>
-          {visible ? (
-            <motion.div
-              className="site-nav-player-popover"
-              initial={{ opacity: 0, y: -8, scale: 0.97 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: -8, scale: 0.97 }}
-              transition={{ duration: 0.24, ease: [0.22, 1, 0.36, 1] }}
-            >
-              {playerPanel}
-            </motion.div>
-          ) : null}
-        </AnimatePresence>,
+        <div className="site-nav-player-popover">
+          <AnimatePresence>
+            {visible ? (
+              <motion.div
+                className="site-nav-player-popover-content"
+                initial={{ opacity: 0, y: -8, scale: 0.97 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: -8, scale: 0.97 }}
+                transition={{ duration: 0.24, ease: [0.22, 1, 0.36, 1] }}
+              >
+                {playerPanel}
+              </motion.div>
+            ) : null}
+          </AnimatePresence>
+        </div>,
         document.body,
       )
       : null
