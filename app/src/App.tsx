@@ -9,16 +9,14 @@
  * Constraints: Keep routine copy/media in public/content JSON. Player owns presentation only;
  * audio creation and analyser wiring remain here so playback persists across page changes.
  */
-import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from 'react'
+import { lazy, Suspense, useEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from 'react'
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
 import { Howl, Howler } from 'howler'
 import { FaBandcamp, FaEnvelope, FaInstagram, FaLinkedin, FaPaypal, FaSoundcloud, FaSpotify } from 'react-icons/fa'
 import { SiBandlab } from 'react-icons/si'
-import { Carousel } from './components/Carousel'
 import { ContactDrawer } from './components/ContactDrawer'
 import { FloatingNav } from './components/FloatingNav'
 import { InstagramEmbed } from './components/InstagramEmbed'
-import { LazyBackgroundVideo } from './components/LazyBackgroundVideo'
 import { MediaArchive } from './components/MediaArchive'
 import { Player } from './components/Player'
 import { useLenis } from './hooks/useLenis'
@@ -58,18 +56,15 @@ const heroImageCycle = [
   { src: 'media/images/film/CNV000032.jpg', alt: '35mm clouds against a blue sky', position: 'center 50%' },
 ]
 
-const skillBackgrounds = [
-  'media/images/film/000006630020.jpg',
+const filmPhotoBackgrounds = [
   'media/images/film/000006630015.jpg',
-  'media/images/max/photo-1.jpg',
-  'media/images/max/photo-4.jpg',
-  'media/images/max/photo-6.jpg',
-  'media/images/film/000028740011.jpg',
-  'media/images/instagram/film-25.webp',
-  'media/images/film/000028740004.jpg',
-  'media/images/instagram/film-31.jpg',
+  'media/images/film/000006630009.jpg',
+  'media/images/film/000006630020.jpg',
   'media/images/film/000006630007.jpg',
-  'media/images/instagram/film-40.jpg',
+  'media/images/film/000028740001.jpg',
+  'media/images/film/000028740011.jpg',
+  'media/images/film/000028740004.jpg',
+  'media/images/film/CNV000032.jpg',
 ]
 
 interface RevealProps {
@@ -292,9 +287,6 @@ function App() {
   )
 
   const [trackIndex, setTrackIndex] = useState(0)
-  const [musicSlideIndex, setMusicSlideIndex] = useState(0)
-  const [projectSlideIndex, setProjectSlideIndex] = useState(0)
-  const [videoSlideIndex, setVideoSlideIndex] = useState(0)
   const [isPlaying, setIsPlaying] = useState(false)
   const [currentTime, setCurrentTime] = useState(0)
   const [duration, setDuration] = useState(0)
@@ -313,20 +305,6 @@ function App() {
 
   const tracks = content?.music.tracks ?? []
   const activeTrack: Track | null = tracks[trackIndex] ?? null
-
-  const handleMusicSlideChange = useCallback((index: number) => setMusicSlideIndex(index), [])
-  const handleProjectSlideChange = useCallback((index: number) => setProjectSlideIndex(index), [])
-  const handleVideoSlideChange = useCallback((index: number) => setVideoSlideIndex(index), [])
-
-  const workBackground = currentPage === 'music'
-    ? libraryMode === 'local'
-      ? tracks[musicSlideIndex]?.artwork
-      : assetUrl('media/images/max/photo-2.jpg')
-    : currentPage === 'projects'
-      ? content?.projects.projects[projectSlideIndex]?.thumbnail
-      : currentPage === 'video'
-        ? content?.archive.videos[videoSlideIndex]?.poster
-        : undefined
 
   useEffect(() => {
     initialVolumeRef.current = volume
@@ -731,12 +709,12 @@ function App() {
             <Reveal className="mt-10" delay={0.16}>
               <div className="home-ambient-panel home-journey-panel">
                 <div className="home-journey-actions">
-                  <a href="#music" className="home-journey-link home-journey-link-primary magnetic-btn">
-                    <LazyBackgroundVideo
-                      src={content.archive.videos[0]?.loop ?? content.archive.videos[1].loop}
-                      poster={content.archive.videos[0]?.poster ?? content.archive.videos[1].poster}
-                      className="home-journey-video"
-                    />
+                  <a
+                    href="#music"
+                    className="home-journey-link home-journey-link-primary magnetic-btn"
+                    style={{ '--journey-art': `url("${assetUrl(filmPhotoBackgrounds[0])}")` } as CSSProperties}
+                  >
+                    <span className="home-journey-image" aria-hidden="true" />
                     <div className="home-journey-scrim" aria-hidden="true" />
                     <motion.span
                       className="home-journey-copy"
@@ -748,12 +726,12 @@ function App() {
                       <strong>Listen to the work</strong>
                     </motion.span>
                   </a>
-                  <a href="#projects" className="home-journey-link magnetic-btn">
-                    <LazyBackgroundVideo
-                      src={content.archive.videos[1].loop}
-                      poster={content.archive.videos[1].poster}
-                      className="home-journey-video"
-                    />
+                  <a
+                    href="#projects"
+                    className="home-journey-link magnetic-btn"
+                    style={{ '--journey-art': `url("${assetUrl(filmPhotoBackgrounds[1])}")` } as CSSProperties}
+                  >
+                    <span className="home-journey-image" aria-hidden="true" />
                     <div className="home-journey-scrim" aria-hidden="true" />
                     <motion.span
                       className="home-journey-copy"
@@ -765,12 +743,12 @@ function App() {
                       <strong>Explore curated projects</strong>
                     </motion.span>
                   </a>
-                  <a href="#video" className="home-journey-link magnetic-btn">
-                    <LazyBackgroundVideo
-                      src={content.archive.videos[2]?.loop ?? content.archive.videos[0]?.loop ?? content.archive.videos[1].loop}
-                      poster={content.archive.videos[2]?.poster ?? content.archive.videos[0]?.poster ?? content.archive.videos[1].poster}
-                      className="home-journey-video"
-                    />
+                  <a
+                    href="#video"
+                    className="home-journey-link magnetic-btn"
+                    style={{ '--journey-art': `url("${assetUrl(filmPhotoBackgrounds[2])}")` } as CSSProperties}
+                  >
+                    <span className="home-journey-image" aria-hidden="true" />
                     <div className="home-journey-scrim" aria-hidden="true" />
                     <motion.span
                       className="home-journey-copy"
@@ -786,30 +764,40 @@ function App() {
               </div>
             </Reveal>
           ) : null}
+          {content?.music.worksInProgress?.length ? (
+            <Reveal className="home-wip-section" delay={0.18}>
+              <div className="home-wip-heading">
+                <p className="section-heading">Works in progress</p>
+                <p>New material in development.</p>
+              </div>
+              <div className="home-wip-list">
+                {content.music.worksInProgress.map((item) => (
+                  <article
+                    className="home-wip-card"
+                    key={item.id}
+                    style={{ '--wip-art': `url("${assetUrl(filmPhotoBackgrounds[3])}")` } as CSSProperties}
+                  >
+                    <span className="home-wip-image" aria-hidden="true" />
+                    <div>
+                      <p className="section-heading">{item.kicker}</p>
+                      <h2>{item.title}</h2>
+                      <p>{item.description}</p>
+                      <span>{item.status}</span>
+                    </div>
+                  </article>
+                ))}
+              </div>
+            </Reveal>
+          ) : null}
+          <Reveal className="photo-credit-wrap" delay={0.2}>
+            <p className="photo-credit">All photographs on this website are Max’s 35mm film photographs.</p>
+          </Reveal>
           </section>
         ) : null}
 
         {currentPage === 'music' || currentPage === 'projects' || currentPage === 'video' ? (
           <section id={currentPage} className="work-section section-shell work-page-section">
-          <div className={`work-page-stage ${currentPage === 'music' ? 'work-page-stage-music' : ''}`}>
-          <AnimatePresence initial={false} mode="sync">
-            <motion.div
-              key={workBackground ?? currentPage}
-              className="work-page-background"
-              aria-hidden="true"
-              style={
-                {
-                  backgroundImage: workBackground
-                    ? `linear-gradient(90deg, rgba(5, 8, 13, 0.84), rgba(5, 8, 13, 0.38) 48%, rgba(5, 8, 13, 0.7)), url("${workBackground}")`
-                    : undefined,
-                } as CSSProperties
-              }
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: shouldReduceMotion ? 0 : 0.55, ease: 'easeInOut' }}
-            />
-          </AnimatePresence>
+          <div className="work-page-stage">
           <div className="work-page-content">
           {currentPage === 'music' ? (
             <div className="work-page-panel">
@@ -841,41 +829,39 @@ function App() {
           </Reveal>
 
           {libraryMode === 'local' ? (
-            <Carousel
-              label="Music"
-              count={tracks.length}
-              className="work-carousel work-immersive-carousel"
-              onActiveIndexChange={handleMusicSlideChange}
-              showSwipeHint
-            >
+            <div className="work-list work-list-music" aria-label="Music works">
               {tracks.map((track, index) => (
-                <div className="carousel-item work-full-bleed-slide" key={track.id}>
-                  <article className="work-full-bleed-copy">
-                    <p className="section-heading">{track.year}</p>
-                    <div>
+                <Reveal key={track.id} delay={0.08 + index * 0.05}>
+                  <article
+                    className="work-list-item"
+                    style={{ '--work-art': `url("${assetUrl(filmPhotoBackgrounds[index % filmPhotoBackgrounds.length])}")` } as CSSProperties}
+                  >
+                    <span className="work-list-image" aria-hidden="true" />
+                    <div className="work-list-copy">
+                      <p className="section-heading">Music / {String(index + 1).padStart(2, '0')}</p>
                       <h2>{track.title}</h2>
                       <p>{track.description}</p>
+                      <div className="work-full-bleed-meta">
+                        <span>{track.year} · {track.duration}</span>
+                        <span>{track.credits}</span>
+                      </div>
+                      <button
+                        type="button"
+                        className="magnetic-btn work-full-bleed-action"
+                        onClick={() => playSpecificTrack(index)}
+                        aria-label={`Play ${track.title}`}
+                      >
+                        Play track
+                      </button>
                     </div>
-                    <div className="work-full-bleed-meta">
-                      <span>{track.duration}</span>
-                      <span>{track.credits}</span>
-                    </div>
-                    <button
-                      type="button"
-                      className="magnetic-btn work-full-bleed-action"
-                      onClick={() => playSpecificTrack(index)}
-                      aria-label={`Play ${track.title}`}
-                    >
-                      Play track
-                    </button>
                   </article>
-                </div>
+                </Reveal>
               ))}
-            </Carousel>
+            </div>
           ) : (
             <div className="work-soundcloud-panel">
               <h2>{content?.music.soundcloud.title}</h2>
-              <div className="rounded-2xl border border-white/15 bg-black/40 p-2">
+              <div className="soundcloud-embed-frame rounded-2xl border border-white/15 p-2">
                 <iframe
                   title="Max Udovichenko SoundCloud Playlist"
                   src={content?.music.soundcloud.embedUrl}
@@ -897,21 +883,18 @@ function App() {
               <Reveal className="work-page-heading" delay={0.05}>
                 <h1>Projects</h1>
               </Reveal>
-          <Reveal delay={0.1}>
-            <Carousel
-              label="Projects"
-              count={content?.projects.projects.length ?? 0}
-              className="work-carousel work-immersive-carousel"
-              onActiveIndexChange={handleProjectSlideChange}
-              showSwipeHint
-            >
-              {content?.projects.projects.map((project) => {
+          <div className="work-list work-list-projects">
+              {content?.projects.projects.map((project, index) => {
                 const linkedVideo = content.videos.videos.find((video) => video.id === project.videoId)
                 return (
-                  <div className="carousel-item work-full-bleed-slide" key={project.id}>
-                    <article className="work-full-bleed-copy">
-                      <p className="section-heading">{project.type} / {project.year}</p>
-                      <div>
+                  <Reveal key={project.id} delay={0.08 + index * 0.05}>
+                    <article
+                      className="work-list-item"
+                      style={{ '--work-art': `url("${assetUrl(filmPhotoBackgrounds[(index + 2) % filmPhotoBackgrounds.length])}")` } as CSSProperties}
+                    >
+                      <span className="work-list-image" aria-hidden="true" />
+                      <div className="work-list-copy">
+                        <p className="section-heading">Projects / {String(index + 1).padStart(2, '0')}</p>
                         <button
                           type="button"
                           className="work-full-bleed-title"
@@ -920,22 +903,24 @@ function App() {
                           {project.title}
                         </button>
                         <p>{project.description}</p>
+                        <div className="work-full-bleed-meta">
+                          <span>{project.type} · {project.year}</span>
+                        </div>
+                        {linkedVideo ? (
+                          <button
+                            type="button"
+                            className="magnetic-btn work-full-bleed-action"
+                            onClick={() => setActiveVideo(linkedVideo)}
+                          >
+                            Watch cinematic video
+                          </button>
+                        ) : null}
                       </div>
-                      {linkedVideo ? (
-                        <button
-                          type="button"
-                          className="magnetic-btn work-full-bleed-action"
-                          onClick={() => setActiveVideo(linkedVideo)}
-                        >
-                          Watch cinematic video
-                        </button>
-                      ) : null}
                     </article>
-                  </div>
+                  </Reveal>
                 )
               })}
-            </Carousel>
-          </Reveal>
+          </div>
             </div>
           ) : null}
 
@@ -949,8 +934,6 @@ function App() {
             <MediaArchive
               archive={content.archive}
               onOpenVideo={setActiveVideo}
-              onActiveIndexChange={handleVideoSlideChange}
-              immersive
             />
             </Reveal>
           ) : null}
@@ -958,26 +941,6 @@ function App() {
           ) : null}
           </div>
           </div>
-          {currentPage === 'music' && content?.music.worksInProgress?.length ? (
-            <div className="work-page-followup">
-              <Reveal className="music-wip-section" delay={0.14}>
-                <div className="music-wip-heading">
-                  <p className="section-heading">Works in progress</p>
-                  <p>New material in development.</p>
-                </div>
-                <div className="music-wip-list">
-                  {content.music.worksInProgress.map((item) => (
-                    <article className="music-wip-card" key={item.id}>
-                      <p className="section-heading">{item.kicker}</p>
-                      <h2>{item.title}</h2>
-                      <p>{item.description}</p>
-                      <span>{item.status}</span>
-                    </article>
-                  ))}
-                </div>
-              </Reveal>
-            </div>
-          ) : null}
         </section>
         ) : null}
 
@@ -991,33 +954,21 @@ function App() {
                 </PageTitle>
                 <p className="mt-4 max-w-3xl text-lg text-white/75">{content?.about.philosophy}</p>
                 {content?.about.skills.length ? (
-                  <Carousel
-                    label="Skills"
-                    count={content.about.skills.length}
-                    countLabel="skills"
-                    className="skills-carousel mt-8"
-                    showSwipeHint
-                    autoAdvanceMs={4200}
-                  >
+                  <div className="skills-list mt-8" aria-label="Skills">
                     {content.about.skills.map((skill, index) => (
-                      <div
-                        className="carousel-item skills-carousel-item"
-                        key={skill}
-                        style={
-                          {
-                            '--skill-art': `url("${assetUrl(skillBackgrounds[index % skillBackgrounds.length])}")`,
-                          } as CSSProperties
-                        }
-                      >
-                        <article className="skills-carousel-slide">
+                      <Reveal key={skill} delay={0.05 + index * 0.03}>
+                        <article
+                          className="skills-list-item"
+                          style={{ '--skill-art': `url("${assetUrl(filmPhotoBackgrounds[index % filmPhotoBackgrounds.length])}")` } as CSSProperties}
+                        >
                           <span className="skills-carousel-index" aria-hidden="true">
                             {String(index + 1).padStart(2, '0')}
                           </span>
                           <h2>{skill}</h2>
                         </article>
-                      </div>
+                      </Reveal>
                     ))}
-                  </Carousel>
+                  </div>
                 ) : null}
                 {content?.about.cv ? (
                   <div className="about-cv-links" aria-label="Download CV versions">
@@ -1131,18 +1082,13 @@ function App() {
               </a>
             </div>
             {content?.socials.instagramPosts?.length ? (
-              <Carousel
-                label="Instagram posts"
-                count={content.socials.instagramPosts.length}
-                countLabel="posts"
-                className="instagram-posts-carousel"
-              >
+              <div className="instagram-posts-list" aria-label="Instagram posts">
                 {content.socials.instagramPosts.map((permalink) => (
-                  <div className="carousel-item" key={permalink}>
+                  <div className="instagram-post-item" key={permalink}>
                     <InstagramEmbed permalink={permalink} label={`Instagram post ${permalink}`} />
                   </div>
                 ))}
-              </Carousel>
+              </div>
             ) : (
               <InstagramEmbed
                 permalink={content?.socials.instagram ?? 'https://www.instagram.com/udaaaww/'}

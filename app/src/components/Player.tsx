@@ -64,6 +64,9 @@ export function Player({
   const [controlsRevealed, setControlsRevealed] = useState(false)
   const dragConstraintsRef = useRef<HTMLDivElement>(null)
   const isDraggingRef = useRef(false)
+  const isCoarsePointer = typeof window !== 'undefined' && (
+    window.matchMedia('(pointer: coarse)').matches || 'ontouchstart' in window
+  )
 
   const energy = useMemo(() => {
     if (!visualizerData.length) {
@@ -122,7 +125,8 @@ export function Player({
         initial={{ y: 80, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-        drag
+        drag={isCoarsePointer ? 'x' : true}
+        dragDirectionLock={isCoarsePointer}
         dragConstraints={dragConstraintsRef}
         dragElastic={0.04}
         dragMomentum={false}

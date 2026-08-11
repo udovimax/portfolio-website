@@ -1,57 +1,50 @@
+/**
+ * Purpose: Present the video archive as a readable, vertically bounded list.
+ *
+ * Responsibilities: Render lightweight poster/loop previews and open the selected video modal.
+ * Constraints: Keep video playback lazy and muted; the list must not create a horizontal scroll
+ * surface because the work pages are intentionally touch-first and informative.
+ */
 import { FaPlay } from 'react-icons/fa'
-import { Carousel } from './Carousel'
+import type { CSSProperties } from 'react'
 import { LazyBackgroundVideo } from './LazyBackgroundVideo'
 import type { ArchiveContent, ArchiveVideo } from '../types/content'
 
 interface MediaArchiveProps {
   archive: ArchiveContent
   onOpenVideo: (video: ArchiveVideo) => void
-  onActiveIndexChange?: (index: number) => void
-  immersive?: boolean
 }
 
-export function MediaArchive({ archive, onOpenVideo, onActiveIndexChange, immersive = false }: MediaArchiveProps) {
+export function MediaArchive({ archive, onOpenVideo }: MediaArchiveProps) {
   return (
-    <div className="media-archive">
-      <div>
-        <Carousel
-          label="Highlight archive"
-          count={archive.videos.length}
-          countLabel="clips"
-          className={`archive-video-carousel ${immersive ? 'work-immersive-carousel' : ''}`}
-          onActiveIndexChange={onActiveIndexChange}
-          showSwipeHint={immersive}
+    <div className="media-archive-list" aria-label="Video archive">
+      {archive.videos.map((video, index) => (
+        <article
+          className="archive-video-list-item"
+          key={video.id}
+          style={{ '--archive-art': `url("${video.poster}")` } as CSSProperties}
         >
-          {archive.videos.map((video) => (
-            <div className="carousel-item" key={video.id}>
-              <article className={`archive-video-card ${immersive ? 'archive-video-card-immersive' : ''}`}>
-                {!immersive ? (
-                  <div className="archive-video-preview">
-                    <LazyBackgroundVideo
-                      src={video.loop}
-                      poster={video.poster}
-                      className="archive-video-preview-media"
-                    />
-                    <span className="archive-video-badge" aria-hidden="true">
-                      <FaPlay />
-                    </span>
-                    <span className="archive-video-duration">{video.duration}</span>
-                  </div>
-                ) : null}
-                <div className="archive-video-copy">
-                  <p className="section-heading">Instagram highlight / {video.duration}</p>
-                  <h4>{video.title}</h4>
-                  <p>{video.description}</p>
-                  <button type="button" className="magnetic-btn archive-open-button" onClick={() => onOpenVideo(video)}>
-                    Open video
-                  </button>
-                </div>
-              </article>
-            </div>
-          ))}
-        </Carousel>
-      </div>
-
+          <div className="archive-video-list-image">
+            <LazyBackgroundVideo
+              src={video.loop}
+              poster={video.poster}
+              className="archive-video-preview-media"
+            />
+            <span className="archive-video-badge" aria-hidden="true">
+              <FaPlay />
+            </span>
+            <span className="archive-video-duration">{video.duration}</span>
+          </div>
+          <div className="archive-video-copy">
+            <p className="section-heading">Video / {String(index + 1).padStart(2, '0')}</p>
+            <h2>{video.title}</h2>
+            <p>{video.description}</p>
+            <button type="button" className="magnetic-btn archive-open-button" onClick={() => onOpenVideo(video)}>
+              Open video
+            </button>
+          </div>
+        </article>
+      ))}
     </div>
   )
 }
