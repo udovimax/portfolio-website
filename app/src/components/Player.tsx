@@ -8,7 +8,7 @@
  * component must remain safe to mount across hash-page changes. The navigation variant must not
  * become a competing touch surface for vertical page scrolling.
  */
-import { useMemo, useRef, useState, type CSSProperties, type MouseEvent } from 'react'
+import { useEffect, useMemo, useRef, useState, type CSSProperties, type MouseEvent } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import {
   FaBackward,
@@ -65,11 +65,38 @@ export function Player({
   const [visible, setVisible] = useState(placement === 'floating')
   const [minimized, setMinimized] = useState(placement === 'floating')
   const [controlsRevealed, setControlsRevealed] = useState(false)
+  const [showNavHint, setShowNavHint] = useState(placement === 'nav')
   const dragConstraintsRef = useRef<HTMLDivElement>(null)
   const isDraggingRef = useRef(false)
   const isCoarsePointer = typeof window !== 'undefined' && (
     window.matchMedia('(pointer: coarse)').matches || 'ontouchstart' in window
   )
+
+  useEffect(() => {
+    if (placement !== 'nav' || !visible) {
+      return
+    }
+
+    const closeOnOutsidePointer = (event: PointerEvent) => {
+      const target = event.target
+      if (target instanceof Element && target.closest('.site-nav-player')) {
+        return
+      }
+      setVisible(false)
+    }
+
+    document.addEventListener('pointerdown', closeOnOutsidePointer, true)
+    return () => document.removeEventListener('pointerdown', closeOnOutsidePointer, true)
+  }, [placement, visible])
+
+  useEffect(() => {
+    if (placement !== 'nav') {
+      return
+    }
+
+    const timer = window.setTimeout(() => setShowNavHint(false), 3000)
+    return () => window.clearTimeout(timer)
+  }, [placement])
 
   const energy = useMemo(() => {
     if (!visualizerData.length) {
@@ -335,7 +362,36 @@ export function Player({
           </span>
         </button>
         <AnimatePresence>
-          {visible ? <div className="site-nav-player-popover">{playerPanel}</div> : null}
+          {showNavHint && !visible ? (
+            <motion.button
+              type="button"
+              className="site-nav-player-hint"
+              initial={{ opacity: 0, y: -4 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -4 }}
+              transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+              onClick={() => {
+                setShowNavHint(false)
+                setVisible(true)
+              }}
+            >
+              <span>Click me</span>
+              <span className="site-nav-player-hint-arrow" aria-hidden="true" />
+            </motion.button>
+          ) : null}
+        </AnimatePresence>
+        <AnimatePresence>
+          {visible ? (
+            <motion.div
+              className="site-nav-player-popover"
+              initial={{ opacity: 0, y: -8, scale: 0.97 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: -8, scale: 0.97 }}
+              transition={{ duration: 0.24, ease: [0.22, 1, 0.36, 1] }}
+            >
+              {playerPanel}
+            </motion.div>
+          ) : null}
         </AnimatePresence>
       </div>
     )

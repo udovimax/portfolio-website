@@ -376,6 +376,7 @@ textarea:focus-visible {
 .work-page-heading {
   display: grid;
   gap: 0.4rem;
+  padding-top: clamp(0.75rem, 2vw, 1.35rem);
   margin-bottom: 2rem;
 }
 
@@ -1104,23 +1105,59 @@ textarea:focus-visible {
   transition: width 180ms linear;
 }
 
-.site-nav-player-popover {
+.site-nav-player-hint {
   position: absolute;
-  top: calc(100% + 0.75rem);
-  left: 50%;
-  width: max-content;
-  transform: translateX(-50%);
+  top: calc(100% + 0.55rem);
+  right: 0;
+  left: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.38rem;
+  border: 0;
+  padding: 0.2rem 0.35rem;
+  color: var(--accent);
+  background: transparent;
+  font-size: 0.56rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.site-nav-player-hint-arrow {
+  width: 0.42rem;
+  height: 0.42rem;
+  border-right: 1px solid currentColor;
+  border-bottom: 1px solid currentColor;
+  transform: rotate(45deg) translateY(-0.1rem);
+}
+
+.site-nav-player-hint:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+.site-nav-player-popover {
+  position: fixed;
+  top: 4.35rem;
+  right: 0;
+  left: 0;
+  display: flex;
+  justify-content: center;
+  width: auto;
+  pointer-events: none;
 }
 
 .player-shell-nav {
   position: relative;
   right: auto;
   bottom: auto;
-  width: min(22rem, calc(100vw - 2rem)) !important;
+  width: min(20rem, calc(100vw - 2.75rem)) !important;
   max-height: calc(100dvh - 6rem);
   overflow-y: auto;
   cursor: default;
   touch-action: auto;
+  pointer-events: auto;
 }
 
 .site-nav-button {
@@ -2760,6 +2797,10 @@ textarea:focus {
     width: min(7rem, 26vw);
   }
 
+  .site-nav-player-popover {
+    top: 4.1rem;
+  }
+
   .site-nav-button {
     min-height: 1.95rem;
     gap: 0.35rem;
@@ -2854,6 +2895,12 @@ textarea:focus {
   }
 }
 
+@media (min-width: 640px) {
+  .site-nav-player-hint {
+    display: none;
+  }
+}
+
 @media (max-width: 767px) {
   .section-shell {
     padding-top: 3.75rem;
@@ -2891,18 +2938,45 @@ textarea:focus {
   }
 
   .hero-intro-grid {
-    grid-template-columns: minmax(0, 1fr);
-    gap: 2rem;
+    grid-template-columns: minmax(0, 1fr) minmax(8.5rem, 12rem);
+    align-items: start;
+    column-gap: 1rem;
+    row-gap: 1.5rem;
+  }
+
+  .hero-copy {
+    display: contents;
+  }
+
+  .hero-copy > .hero-role-stack {
+    grid-column: 1;
+    grid-row: 1;
+    align-self: start;
+  }
+
+  .hero-copy > p {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    margin-top: 0 !important;
+  }
+
+  .hero-copy > .hero-more-link {
+    grid-column: 1 / -1;
+    grid-row: 3;
+    margin-top: 0;
   }
 
   .hero-image-band-wrap {
+    grid-column: 2;
+    grid-row: 1;
     width: 100%;
+    align-self: start;
   }
 
   .hero-image-band {
-    width: min(100%, 26rem);
-    margin-inline: auto;
-    min-height: 12rem;
+    width: 100%;
+    margin-inline: 0;
+    min-height: 14rem;
     border-radius: 1.1rem;
   }
 
