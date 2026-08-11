@@ -360,26 +360,21 @@ export function Player({
           <span className="site-nav-player-progress" aria-hidden="true">
             <span style={{ width: `${progress}%` }} />
           </span>
+          <AnimatePresence>
+            {showNavHint && !visible ? (
+              <motion.span
+                className="site-nav-player-hint"
+                initial={{ opacity: 0, y: 3 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 3 }}
+                transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+              >
+                <span>Click me</span>
+                <span className="site-nav-player-hint-arrow" aria-hidden="true" />
+              </motion.span>
+            ) : null}
+          </AnimatePresence>
         </button>
-        <AnimatePresence>
-          {showNavHint && !visible ? (
-            <motion.button
-              type="button"
-              className="site-nav-player-hint"
-              initial={{ opacity: 0, y: -4 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -4 }}
-              transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
-              onClick={() => {
-                setShowNavHint(false)
-                setVisible(true)
-              }}
-            >
-              <span>Click me</span>
-              <span className="site-nav-player-hint-arrow" aria-hidden="true" />
-            </motion.button>
-          ) : null}
-        </AnimatePresence>
         <AnimatePresence>
           {visible ? (
             <motion.div

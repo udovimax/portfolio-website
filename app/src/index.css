@@ -1106,18 +1106,12 @@ textarea:focus-visible {
 }
 
 .site-nav-player-hint {
-  position: absolute;
-  top: calc(100% + 0.55rem);
-  right: 0;
-  left: 0;
-  display: inline-flex;
+  display: flex;
   align-items: center;
   justify-content: center;
   gap: 0.38rem;
-  border: 0;
-  padding: 0.2rem 0.35rem;
+  padding: 0.05rem 0.35rem 0;
   color: var(--accent);
-  background: transparent;
   font-size: 0.56rem;
   letter-spacing: 0.18em;
   text-transform: uppercase;
@@ -1129,12 +1123,21 @@ textarea:focus-visible {
   height: 0.42rem;
   border-right: 1px solid currentColor;
   border-bottom: 1px solid currentColor;
-  transform: rotate(45deg) translateY(-0.1rem);
+  transform: rotate(225deg) translate(-0.08rem, -0.08rem);
+  animation: player-hint-nudge 1.2s ease-in-out infinite;
 }
 
-.site-nav-player-hint:focus-visible {
-  outline: 2px solid var(--accent);
-  outline-offset: 3px;
+@keyframes player-hint-nudge {
+  0%,
+  100% {
+    opacity: 0.65;
+    transform: rotate(225deg) translate(-0.08rem, -0.08rem);
+  }
+
+  50% {
+    opacity: 1;
+    transform: rotate(225deg) translate(-0.08rem, 0.08rem);
+  }
 }
 
 .site-nav-player-popover {
