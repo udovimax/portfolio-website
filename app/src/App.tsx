@@ -970,40 +970,6 @@ function App() {
                     ))}
                   </div>
                 ) : null}
-                {content?.about.cv ? (
-                  <div className="about-cv-links" aria-label="Download CV versions">
-                    <a
-                      className="about-cv-text-link magnetic-btn"
-                      href={assetUrl(content.about.cv.professional)}
-                      download
-                    >
-                      Professional CV
-                    </a>
-                    <a
-                      className="about-cv-text-link magnetic-btn"
-                      href={assetUrl(content.about.cv.ats)}
-                      download
-                    >
-                      ATS CV
-                    </a>
-                  </div>
-                ) : null}
-                {content?.socials.paypal ? (
-                  <div className="about-support-link">
-                    <span>
-                      <span className="section-heading">Support Max</span>
-                      <strong>Help fund future music and visual work</strong>
-                    </span>
-                    <a
-                      href={content.socials.paypal}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="about-donate-link magnetic-btn"
-                    >
-                      Donate via PayPal
-                    </a>
-                  </div>
-                ) : null}
               </div>
             </div>
           </Reveal>
@@ -1095,6 +1061,43 @@ function App() {
                 label="Max Udovichenko Instagram profile"
               />
             )}
+          </Reveal>
+
+          <Reveal className="about-resources" delay={0.12}>
+            {content?.about.cv ? (
+              <div className="about-cv-links" aria-label="Download CV versions">
+                <a
+                  className="about-cv-text-link magnetic-btn"
+                  href={assetUrl(content.about.cv.professional)}
+                  download
+                >
+                  Professional CV
+                </a>
+                <a
+                  className="about-cv-text-link magnetic-btn"
+                  href={assetUrl(content.about.cv.ats)}
+                  download
+                >
+                  ATS CV
+                </a>
+              </div>
+            ) : null}
+            {content?.socials.paypal ? (
+              <div className="about-support-link">
+                <span>
+                  <span className="section-heading">Support Max</span>
+                  <strong>Help fund future music and visual work</strong>
+                </span>
+                <a
+                  href={content.socials.paypal}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="about-donate-link magnetic-btn"
+                >
+                  Donate via PayPal
+                </a>
+              </div>
+            ) : null}
           </Reveal>
           </section>
         ) : null}
