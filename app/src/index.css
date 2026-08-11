@@ -1526,6 +1526,10 @@ textarea:focus-visible {
 
 .hero-intro-grid {
   width: min(76rem, 100%);
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(16rem, 26rem);
+  align-items: center;
+  gap: clamp(2rem, 6vw, 5.5rem);
 }
 
 .hero-copy {
@@ -1540,8 +1544,9 @@ textarea:focus-visible {
 
 .hero-image-band {
   position: relative;
-  width: 100%;
-  min-height: clamp(13rem, 27vw, 24rem);
+  width: min(100%, 26rem);
+  min-height: clamp(13rem, 24vw, 20rem);
+  margin-inline: auto 0;
   overflow: hidden;
   border: 1px solid rgba(247, 244, 239, 0.2);
   border-radius: 1.5rem;
@@ -2752,7 +2757,18 @@ textarea:focus {
     margin-inline: 0;
   }
 
+  .hero-intro-grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 2rem;
+  }
+
+  .hero-image-band-wrap {
+    width: 100%;
+  }
+
   .hero-image-band {
+    width: min(100%, 26rem);
+    margin-inline: auto;
     min-height: 12rem;
     border-radius: 1.1rem;
   }

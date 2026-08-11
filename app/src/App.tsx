@@ -701,10 +701,10 @@ function App() {
                 More
               </motion.a>
             </div>
+            <Reveal className="hero-image-band-wrap" delay={0.12}>
+              <HeroImageBand />
+            </Reveal>
           </div>
-          <Reveal className="mt-10" delay={0.12}>
-            <HeroImageBand />
-          </Reveal>
           {content?.archive?.videos[1] ? (
             <Reveal className="mt-10" delay={0.16}>
               <div className="home-ambient-panel home-journey-panel">
