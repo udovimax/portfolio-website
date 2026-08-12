@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react'
+import { createPortal } from 'react-dom'
 import { AnimatePresence, motion } from 'framer-motion'
 
 interface ContactDrawerProps {
@@ -33,14 +34,18 @@ export function ContactDrawer({ isOpen, endpointEmail, subject, paypal, paypalQr
     }
   }, [isOpen, onClose])
 
-  return (
+  if (typeof document === 'undefined') {
+    return null
+  }
+
+  return createPortal(
     <AnimatePresence>
       {isOpen ? (
-        <>
+        <div className="contact-drawer-layer">
           <motion.button
             type="button"
             aria-label="Close contact panel"
-            className="contact-drawer-backdrop fixed inset-0 z-[55]"
+            className="contact-drawer-backdrop fixed inset-0"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -53,7 +58,7 @@ export function ContactDrawer({ isOpen, endpointEmail, subject, paypal, paypalQr
             aria-labelledby="contact-drawer-title"
             tabIndex={0}
             data-lenis-prevent
-            className="contact-drawer fixed right-0 top-0 z-[60] h-dvh w-[min(100vw,30rem)] overflow-y-auto border-l border-white/20 bg-black/90 p-5 shadow-2xl backdrop-blur-2xl sm:p-8"
+            className="contact-drawer fixed right-0 top-0 h-dvh w-[min(100vw,30rem)] overflow-y-auto border-l border-white/20 bg-black/90 p-5 shadow-2xl backdrop-blur-2xl sm:p-8"
             initial={{ x: '100%' }}
             animate={{ x: 0 }}
             exit={{ x: '100%' }}
@@ -112,9 +117,9 @@ export function ContactDrawer({ isOpen, endpointEmail, subject, paypal, paypalQr
               <input type="hidden" name="_template" value="table" />
               <input type="hidden" name="_next" value={`${window.location.origin}${window.location.pathname}#about`} />
               <label htmlFor="drawer-name">Name</label>
-              <input id="drawer-name" name="name" required />
+              <input id="drawer-name" name="name" type="text" autoComplete="name" required />
               <label htmlFor="drawer-email">Email</label>
-              <input id="drawer-email" name="email" type="email" required />
+              <input id="drawer-email" name="email" type="email" autoComplete="email" required />
               <label htmlFor="drawer-message">Message</label>
               <textarea id="drawer-message" name="message" rows={6} required />
               <input
@@ -130,8 +135,9 @@ export function ContactDrawer({ isOpen, endpointEmail, subject, paypal, paypalQr
               </button>
             </form>
           </motion.aside>
-        </>
+        </div>
       ) : null}
-    </AnimatePresence>
+    </AnimatePresence>,
+    document.body,
   )
 }

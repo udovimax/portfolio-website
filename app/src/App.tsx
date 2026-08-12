@@ -97,7 +97,7 @@ function WordReveal({ text }: { text: string }) {
 
   return (
     <motion.h1
-      className="hero-title text-balance text-6xl font-bold leading-[0.9] sm:text-8xl md:text-9xl"
+      className="hero-title page-heading text-balance text-6xl font-bold leading-[0.9] sm:text-8xl md:text-9xl"
       aria-label={text}
     >
       {text.split(' ').map((word, index) => (
@@ -121,7 +121,7 @@ function PageTitle({ children, className = '', delay = 0 }: { children: ReactNod
 
   return (
     <motion.h2
-      className={className}
+      className={`page-heading ${className}`}
       initial={shouldReduceMotion ? false : { opacity: 0, y: 22 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.7, delay, ease: [0.22, 1, 0.36, 1] }}
@@ -819,7 +819,7 @@ function App() {
           {currentPage === 'music' ? (
             <div className="work-page-panel">
               <Reveal className="work-page-heading" delay={0.05}>
-                <h1>Music</h1>
+                <h1 className="page-heading">Music</h1>
               </Reveal>
 
           <Reveal className="mb-8 flex justify-end" delay={0.08}>
@@ -898,7 +898,7 @@ function App() {
           {currentPage === 'projects' ? (
             <div className="work-page-panel">
               <Reveal className="work-page-heading" delay={0.05}>
-                <h1>Projects</h1>
+                <h1 className="page-heading">Projects</h1>
               </Reveal>
           <div className="work-list work-list-projects">
               {content?.projects.projects.map((project, index) => {
@@ -944,7 +944,7 @@ function App() {
           {currentPage === 'video' ? (
             <div className="work-page-panel">
               <Reveal className="work-page-heading" delay={0.05}>
-                <h1>Video</h1>
+                <h1 className="page-heading">Video</h1>
               </Reveal>
           {content?.archive ? (
             <Reveal delay={0.12}>

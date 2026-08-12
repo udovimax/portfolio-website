@@ -330,11 +330,19 @@ textarea:focus-visible {
 }
 
 .section-heading {
-  color: var(--accent);
+  color: #d6ffff;
   font-size: 0.68rem;
   font-weight: 500;
   letter-spacing: 0.28em;
   text-transform: uppercase;
+}
+
+.page-heading {
+  background: linear-gradient(90deg, #cdffd8, #94b9ff);
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent !important;
+  -webkit-text-fill-color: transparent;
 }
 
 .work-section {
@@ -1273,6 +1281,17 @@ textarea:focus-visible {
   border: 0;
   background: rgba(3, 5, 8, 0.64);
   backdrop-filter: blur(3px);
+}
+
+.contact-drawer-layer {
+  position: fixed;
+  inset: 0;
+  z-index: 70;
+  pointer-events: none;
+}
+
+.contact-drawer-layer > * {
+  pointer-events: auto;
 }
 
 .contact-drawer {
