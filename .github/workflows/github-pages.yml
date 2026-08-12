@@ -8,6 +8,7 @@ on:
 
 permissions:
   contents: read
+  actions: read
   pages: write
   id-token: write
 
@@ -21,8 +22,18 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      # Git LFS bandwidth is currently exhausted. The latest successful Pages
+      # artifact already contains the complete optimized media bundle, so use
+      # it as the media base while rebuilding the application shell. This keeps
+      # code-only fixes deployable without replacing media with LFS pointers.
+      - name: Restore existing media artifact
+        uses: actions/download-artifact@v4
         with:
-          lfs: true
+          artifact-ids: 9122155669
+          path: previous-pages
+          github-token: ${{ github.token }}
+          repository: ${{ github.repository }}
 
       - name: Setup Node
         uses: actions/setup-node@v4
@@ -45,6 +56,12 @@ jobs:
 
       - name: Build
         run: npm run build
+
+      - name: Restore optimized media
+        run: |
+          tar -xf ../previous-pages/artifact.tar -C ../previous-pages
+          rm -rf dist/media
+          cp -a ../previous-pages/media dist/media
 
       - name: SPA fallback
         run: cp dist/index.html dist/404.html

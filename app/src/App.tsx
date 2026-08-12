@@ -9,7 +9,7 @@
  * Constraints: Keep routine copy/media in public/content JSON. Player owns presentation only;
  * audio creation and analyser wiring remain here so playback persists across page changes.
  */
-import { lazy, Suspense, useEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from 'react'
+import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from 'react'
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
 import { Howl, Howler } from 'howler'
 import { FaBandcamp, FaEnvelope, FaInstagram, FaLinkedin, FaPaypal, FaSoundcloud, FaSpotify } from 'react-icons/fa'
@@ -305,6 +305,7 @@ function App() {
 
   const tracks = content?.music.tracks ?? []
   const activeTrack: Track | null = tracks[trackIndex] ?? null
+  const closeContact = useCallback(() => setContactOpen(false), [])
 
   useEffect(() => {
     initialVolumeRef.current = volume
@@ -1130,7 +1131,7 @@ function App() {
           subject={content.socials.formsubmit.subject}
           paypal={content.socials.paypal}
           paypalQr={content.socials.paypalQr ? assetUrl(content.socials.paypalQr) : undefined}
-          onClose={() => setContactOpen(false)}
+          onClose={closeContact}
         />
       ) : null}
 

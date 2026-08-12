@@ -13,13 +13,14 @@ interface ContactDrawerProps {
 
 export function ContactDrawer({ isOpen, endpointEmail, subject, paypal, paypalQr, onClose }: ContactDrawerProps) {
   const closeButtonRef = useRef<HTMLButtonElement>(null)
+  const firstFieldRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
     if (!isOpen) {
       return
     }
 
-    const focusFrame = window.requestAnimationFrame(() => closeButtonRef.current?.focus())
+    const focusFrame = window.requestAnimationFrame(() => firstFieldRef.current?.focus())
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
         event.preventDefault()
@@ -117,7 +118,14 @@ export function ContactDrawer({ isOpen, endpointEmail, subject, paypal, paypalQr
               <input type="hidden" name="_template" value="table" />
               <input type="hidden" name="_next" value={`${window.location.origin}${window.location.pathname}#about`} />
               <label htmlFor="drawer-name">Name</label>
-              <input id="drawer-name" name="name" type="text" autoComplete="name" required />
+              <input
+                id="drawer-name"
+                ref={firstFieldRef}
+                name="name"
+                type="text"
+                autoComplete="name"
+                required
+              />
               <label htmlFor="drawer-email">Email</label>
               <input id="drawer-email" name="email" type="email" autoComplete="email" required />
               <label htmlFor="drawer-message">Message</label>
