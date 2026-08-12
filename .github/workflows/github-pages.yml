@@ -60,7 +60,6 @@ jobs:
 
       - name: Restore optimized media
         run: |
-          tar -xf ../previous-pages/artifact.tar -C ../previous-pages
           rm -rf dist/media
           cp -a ../previous-pages/media dist/media
 
