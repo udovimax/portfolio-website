@@ -60,8 +60,7 @@ jobs:
 
       - name: Restore optimized media
         run: |
-          rm -rf dist/media
-          cp -a ../previous-pages/github-pages/media dist/media
+          tar -xf ../previous-pages/github-pages/artifact.tar -C dist
 
       - name: SPA fallback
         run: cp dist/index.html dist/404.html
