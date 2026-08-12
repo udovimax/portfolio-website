@@ -12,7 +12,6 @@ interface ContactDrawerProps {
 }
 
 export function ContactDrawer({ isOpen, endpointEmail, subject, paypal, paypalQr, onClose }: ContactDrawerProps) {
-  const closeButtonRef = useRef<HTMLButtonElement>(null)
   const firstFieldRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
@@ -72,7 +71,6 @@ export function ContactDrawer({ isOpen, endpointEmail, subject, paypal, paypalQr
               </div>
               <button
                 type="button"
-                ref={closeButtonRef}
                 className="contact-drawer-close magnetic-btn"
                 onClick={onClose}
                 aria-label="Close contact panel"
@@ -124,6 +122,7 @@ export function ContactDrawer({ isOpen, endpointEmail, subject, paypal, paypalQr
                 name="name"
                 type="text"
                 autoComplete="name"
+                autoFocus={isOpen}
                 required
               />
               <label htmlFor="drawer-email">Email</label>
