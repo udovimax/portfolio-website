@@ -8,16 +8,28 @@ interface ContactDrawerProps {
   subject: string
   paypal: string
   paypalQr?: string
+  googleSheetsEndpoint?: string
+  initialInterest?: string
   onClose: () => void
 }
 
-export function ContactDrawer({ isOpen, endpointEmail, subject, paypal, paypalQr, onClose }: ContactDrawerProps) {
+export function ContactDrawer({
+  isOpen,
+  endpointEmail,
+  subject,
+  paypal,
+  paypalQr,
+  googleSheetsEndpoint,
+  initialInterest = '',
+  onClose,
+}: ContactDrawerProps) {
   const firstFieldRef = useRef<HTMLInputElement>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isSubmitted, setIsSubmitted] = useState(false)
   const [showThankYou, setShowThankYou] = useState(false)
   const [isSupportExpanded, setIsSupportExpanded] = useState(false)
   const [submitError, setSubmitError] = useState<string | null>(null)
+  const [interest, setInterest] = useState(initialInterest)
 
   const formAction = `https://formsubmit.co/${endpointEmail}`
 
@@ -28,8 +40,11 @@ export function ContactDrawer({ isOpen, endpointEmail, subject, paypal, paypalQr
       setShowThankYou(false)
       setIsSupportExpanded(false)
       setSubmitError(null)
+      setInterest('')
       return
     }
+
+    setInterest(initialInterest)
 
     const isTouchDevice = window.matchMedia('(pointer: coarse)').matches || 'ontouchstart' in window
     const focusFrame = isTouchDevice
@@ -49,7 +64,7 @@ export function ContactDrawer({ isOpen, endpointEmail, subject, paypal, paypalQr
       }
       document.removeEventListener('keydown', onKeyDown)
     }
-  }, [isOpen, onClose])
+  }, [initialInterest, isOpen, onClose])
 
   useEffect(() => {
     if (!showThankYou) {
@@ -76,11 +91,24 @@ export function ContactDrawer({ isOpen, endpointEmail, subject, paypal, paypalQr
     try {
       // FormSubmit accepts a regular FormData POST. no-cors keeps the drawer
       // in place while the external service receives the message.
-      await fetch(formAction, {
+      const formData = new FormData(form)
+      const emailSubmission = fetch(formAction, {
         method: 'POST',
-        body: new FormData(form),
+        body: formData,
         mode: 'no-cors',
       })
+      if (googleSheetsEndpoint) {
+        const sheetData = new FormData(form)
+        void fetch(googleSheetsEndpoint, {
+            method: 'POST',
+            body: sheetData,
+            mode: 'no-cors',
+          }).catch(() => undefined)
+      }
+
+      // Email delivery remains authoritative. A missing Sheet must never make
+      // a real enquiry look unsuccessful to the visitor.
+      await emailSubmission
     } catch {
       setIsSubmitting(false)
       setSubmitError('The message could not be sent. Please try again or email Max directly.')
@@ -216,6 +244,18 @@ export function ContactDrawer({ isOpen, endpointEmail, subject, paypal, paypalQr
               <input id="drawer-email" name="email" type="email" autoComplete="email" required />
               <label htmlFor="drawer-message">Message</label>
               <textarea id="drawer-message" name="message" rows={6} required />
+              <label htmlFor="drawer-interest">I’m interested in</label>
+              <select
+                id="drawer-interest"
+                name="interest"
+                value={interest}
+                onChange={(event) => setInterest(event.target.value)}
+              >
+                <option value="">General enquiry</option>
+                <option value="Producer / engineer / sound designer">Producer / engineer / sound designer</option>
+                <option value="Artist / music collaboration">Artist / music collaboration</option>
+                <option value="Research / photography">Research / photography</option>
+              </select>
               <input
                 type="text"
                 name="_honey"

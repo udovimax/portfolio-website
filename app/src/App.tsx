@@ -292,6 +292,7 @@ function App() {
   const [activeVideo, setActiveVideo] = useState<VideoItem | null>(null)
   const [activeProject, setActiveProject] = useState<ProjectItem | null>(null)
   const [contactOpen, setContactOpen] = useState(false)
+  const [contactInterest, setContactInterest] = useState('')
   const [videoResumePoints, setVideoResumePoints] = useState<Record<string, number>>({})
 
   const howlRef = useRef<Howl | null>(null)
@@ -302,6 +303,17 @@ function App() {
   const tracks = content?.music.tracks ?? []
   const activeTrack: Track | null = tracks[trackIndex] ?? null
   const closeContact = useCallback(() => setContactOpen(false), [])
+  const openContact = useCallback((interest = '') => {
+    setContactInterest(interest)
+    setContactOpen(true)
+  }, [])
+  const handleContactOpenChange = useCallback((open: boolean) => {
+    if (open) {
+      openContact()
+    } else {
+      closeContact()
+    }
+  }, [closeContact, openContact])
 
   useEffect(() => {
     initialVolumeRef.current = volume
@@ -638,7 +650,7 @@ function App() {
       <FloatingNav
         activePage={currentPage}
         contactOpen={contactOpen}
-        onContactOpenChange={setContactOpen}
+        onContactOpenChange={handleContactOpenChange}
         player={
           <Player
             track={activeTrack}
@@ -778,6 +790,34 @@ function App() {
               </div>
             </Reveal>
           ) : null}
+          <Reveal className="home-funnel-section" delay={0.17}>
+            <div className="home-funnel-heading">
+              <p className="section-heading">Find your way in</p>
+              <h2>What brings you here?</h2>
+              <p>Choose a route into Max’s work, whether you want to book, listen, or explore the practice.</p>
+            </div>
+            <div className="home-funnel-grid">
+              <button
+                type="button"
+                className="home-funnel-card magnetic-btn"
+                onClick={() => openContact('Producer / engineer / sound designer')}
+              >
+                <span className="section-heading">Work with Max / 01</span>
+                <strong>Producer, engineer, sound designer</strong>
+                <span>Book a session or discuss a brief</span>
+              </button>
+              <a href="#music" className="home-funnel-card magnetic-btn">
+                <span className="section-heading">Hear Max / 02</span>
+                <strong>Artist and music maker</strong>
+                <span>Listen to original music and spatial work</span>
+              </a>
+              <a href="#about" className="home-funnel-card magnetic-btn">
+                <span className="section-heading">Explore the practice / 03</span>
+                <strong>Researcher and photographer</strong>
+                <span>Find the story, skills, experience, and 35mm work</span>
+              </a>
+            </div>
+          </Reveal>
           {content?.music.worksInProgress?.length ? (
             <Reveal className="home-wip-section" delay={0.18}>
               <div className="home-wip-heading">
@@ -1127,6 +1167,8 @@ function App() {
           subject={content.socials.formsubmit.subject}
           paypal={content.socials.paypal}
           paypalQr={content.socials.paypalQr ? assetUrl(content.socials.paypalQr) : undefined}
+          googleSheetsEndpoint={content.socials.googleSheetsEndpoint}
+          initialInterest={contactInterest}
           onClose={closeContact}
         />
       ) : null}

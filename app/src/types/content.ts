@@ -128,6 +128,7 @@ export interface SocialsContent {
     endpointEmail: string
     subject: string
   }
+  googleSheetsEndpoint?: string
 }
 
 export interface SiteContent {

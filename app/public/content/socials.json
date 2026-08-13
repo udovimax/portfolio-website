@@ -16,5 +16,6 @@
   "formsubmit": {
     "endpointEmail": "maxudovichenko.prod+websitecoms@gmail.com",
     "subject": "New portfolio contact"
-  }
+  },
+  "googleSheetsEndpoint": ""
 }

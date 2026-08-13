@@ -1458,12 +1458,28 @@ textarea:focus-visible {
 .contact-drawer-form input:not([type='hidden']):not([type='text']),
 .contact-drawer-form input[type='email'],
 .contact-drawer-form input#drawer-name,
-.contact-drawer-form textarea {
+.contact-drawer-form textarea,
+.contact-drawer-form select {
   width: 100%;
   border: 1px solid rgba(247, 244, 239, 0.22);
   border-radius: 0.8rem;
   background: rgba(255, 255, 255, 0.045);
   padding: 0.85rem 0.9rem;
+  color: var(--text-main);
+}
+
+.contact-drawer-form select {
+  appearance: none;
+  background-image: linear-gradient(45deg, transparent 50%, rgba(247, 244, 239, 0.8) 50%),
+    linear-gradient(135deg, rgba(247, 244, 239, 0.8) 50%, transparent 50%);
+  background-position: calc(100% - 1.1rem) 50%, calc(100% - 0.75rem) 50%;
+  background-repeat: no-repeat;
+  background-size: 0.35rem 0.35rem, 0.35rem 0.35rem;
+  padding-right: 2.5rem;
+}
+
+.contact-drawer-form option {
+  background: #090c10;
   color: var(--text-main);
 }
 
@@ -1897,6 +1913,107 @@ textarea:focus-visible {
 .home-journey-link:focus-visible .home-journey-image {
   filter: saturate(0.94) contrast(1.08);
   transform: scale(1.1);
+}
+
+.home-funnel-section {
+  display: grid;
+  gap: 1.5rem;
+  margin-top: clamp(3rem, 7vw, 6rem);
+}
+
+.home-funnel-heading {
+  display: grid;
+  gap: 0.65rem;
+  max-width: 42rem;
+}
+
+.home-funnel-heading h2 {
+  margin: 0;
+  color: var(--text-main);
+  font-family: 'Space Grotesk', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  font-size: clamp(1.8rem, 4vw, 3.5rem);
+  font-weight: 400;
+  letter-spacing: -0.04em;
+}
+
+.home-funnel-heading > p:last-child {
+  max-width: 34rem;
+  margin: 0;
+  color: var(--text-muted);
+  line-height: 1.55;
+}
+
+.home-funnel-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+.home-funnel-card {
+  position: relative;
+  isolation: isolate;
+  display: grid;
+  align-content: space-between;
+  gap: 1.5rem;
+  min-height: 12rem;
+  border: 1px solid rgba(158, 201, 255, 0.28);
+  border-radius: 1.25rem;
+  padding: 1.25rem;
+  overflow: hidden;
+  background: linear-gradient(135deg, rgba(205, 255, 216, 0.08), rgba(148, 185, 255, 0.04));
+  color: var(--text-main);
+  text-align: left;
+  transition: border-color 240ms ease, background-color 240ms ease, transform 240ms ease;
+}
+
+.home-funnel-card::before {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  content: '';
+  background: var(--funnel-art, url('/media/images/film/000006630020.jpg')) center / cover no-repeat;
+  filter: saturate(0.7) contrast(1.05);
+  opacity: 0.24;
+  transition: transform 700ms ease, opacity 240ms ease;
+}
+
+.home-funnel-card:hover,
+.home-funnel-card:focus-visible {
+  border-color: var(--accent);
+  background-color: rgba(158, 201, 255, 0.1);
+  transform: translateY(-3px);
+}
+
+.home-funnel-card:hover::before,
+.home-funnel-card:focus-visible::before {
+  opacity: 0.4;
+  transform: scale(1.06);
+}
+
+.home-funnel-card strong {
+  max-width: 18rem;
+  color: var(--text-main);
+  font-family: 'Space Grotesk', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  font-size: clamp(1.25rem, 2.2vw, 1.8rem);
+  font-weight: 400;
+  letter-spacing: -0.03em;
+  line-height: 1.05;
+}
+
+.home-funnel-card > span:last-child {
+  color: var(--text-muted);
+  font-size: 0.88rem;
+  line-height: 1.4;
+}
+
+@media (max-width: 760px) {
+  .home-funnel-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .home-funnel-card {
+    min-height: 9rem;
+  }
 }
 
 .home-journey-link strong {
