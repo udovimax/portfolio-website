@@ -46,14 +46,10 @@ function getPageFromHash(): NavSection {
 }
 
 const heroImageCycle = [
-  { src: 'media/images/max/photo-6.jpg', alt: 'Max Udovichenko in a mirror', position: 'center 38%' },
-  { src: 'media/images/max/photo-2.jpg', alt: 'Max Udovichenko reaching toward the camera', position: 'center 45%' },
-  { src: 'media/images/instagram/film-1.jpg', alt: 'Max Udovichenko beside a red telephone box', position: 'center 42%' },
-  { src: 'media/images/instagram/film-40.jpg', alt: 'A warm portrait of Max Udovichenko', position: 'center 34%' },
-  { src: 'media/images/film/000006630015.jpg', alt: '35mm mountain landscape at dusk', position: 'center 48%' },
-  { src: 'media/images/film/000006630009.jpg', alt: '35mm mountain range in mist', position: 'center 46%' },
-  { src: 'media/images/film/000006630020.jpg', alt: 'Graffiti-lined city street on film', position: 'center 48%' },
-  { src: 'media/images/film/CNV000032.jpg', alt: '35mm clouds against a blue sky', position: 'center 50%' },
+  { src: 'media/images/max-face/face-01.webp', alt: 'Portrait of Max Udovichenko', position: 'center center' },
+  { src: 'media/images/max-face/face-02.webp', alt: 'Max Udovichenko taking a mirror portrait', position: 'center center' },
+  { src: 'media/images/max-face/face-03.webp', alt: 'Max Udovichenko reaching toward the camera', position: 'center center' },
+  { src: 'media/images/max-face/face-04.webp', alt: 'Max Udovichenko playing bass', position: 'center center' },
 ]
 
 const filmPhotoBackgrounds = [
