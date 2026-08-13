@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState, type FormEvent } from 'react'
 import { createPortal } from 'react-dom'
 import { AnimatePresence, motion } from 'framer-motion'
 
@@ -13,9 +13,21 @@ interface ContactDrawerProps {
 
 export function ContactDrawer({ isOpen, endpointEmail, subject, paypal, paypalQr, onClose }: ContactDrawerProps) {
   const firstFieldRef = useRef<HTMLInputElement>(null)
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [isSubmitted, setIsSubmitted] = useState(false)
+  const [showThankYou, setShowThankYou] = useState(false)
+  const [isSupportExpanded, setIsSupportExpanded] = useState(false)
+  const [submitError, setSubmitError] = useState<string | null>(null)
+
+  const formAction = `https://formsubmit.co/${endpointEmail}`
 
   useEffect(() => {
     if (!isOpen) {
+      setIsSubmitting(false)
+      setIsSubmitted(false)
+      setShowThankYou(false)
+      setIsSupportExpanded(false)
+      setSubmitError(null)
       return
     }
 
@@ -38,6 +50,51 @@ export function ContactDrawer({ isOpen, endpointEmail, subject, paypal, paypalQr
       document.removeEventListener('keydown', onKeyDown)
     }
   }, [isOpen, onClose])
+
+  useEffect(() => {
+    if (!showThankYou) {
+      return
+    }
+
+    const fadeTimer = window.setTimeout(() => {
+      setShowThankYou(false)
+      setIsSupportExpanded(true)
+    }, 3600)
+    return () => window.clearTimeout(fadeTimer)
+  }, [showThankYou])
+
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault()
+    if (isSubmitting || isSubmitted) {
+      return
+    }
+
+    setIsSubmitting(true)
+    setSubmitError(null)
+    const form = event.currentTarget
+
+    try {
+      // FormSubmit accepts a regular FormData POST. no-cors keeps the drawer
+      // in place while the external service receives the message.
+      await fetch(formAction, {
+        method: 'POST',
+        body: new FormData(form),
+        mode: 'no-cors',
+      })
+    } catch {
+      setIsSubmitting(false)
+      setSubmitError('The message could not be sent. Please try again or email Max directly.')
+      return
+    }
+
+    {
+      form.reset()
+      setIsSubmitting(false)
+      setIsSubmitted(true)
+      setShowThankYou(true)
+      setIsSupportExpanded(false)
+    }
+  }
 
   if (typeof document === 'undefined') {
     return null
@@ -89,7 +146,11 @@ export function ContactDrawer({ isOpen, endpointEmail, subject, paypal, paypalQr
             <p className="contact-drawer-intro">
               Reach out for games, films, artist partnerships, and live performance concepts.
             </p>
-            <div className="contact-donate">
+            <motion.div
+              layout
+              className={`contact-donate${isSupportExpanded ? ' contact-donate-expanded' : ''}`}
+              transition={{ layout: { duration: 0.65, ease: [0.22, 1, 0.36, 1] } }}
+            >
               <div className="contact-donate-copy">
                 <p className="section-heading">Support / PayPal</p>
                 <h3>Support Max's work</h3>
@@ -112,16 +173,36 @@ export function ContactDrawer({ isOpen, endpointEmail, subject, paypal, paypalQr
                   decoding="async"
                 />
               ) : null}
-            </div>
-            <form
-              action={`https://formsubmit.co/${endpointEmail}`}
-              method="POST"
-              className="contact-drawer-form"
-            >
+            </motion.div>
+            <AnimatePresence mode="wait" initial={false}>
+              {showThankYou ? (
+                <motion.div
+                  key="thank-you"
+                  className="contact-drawer-thank-you"
+                  initial={{ opacity: 0, y: 12 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
+                  role="status"
+                  aria-live="polite"
+                >
+                  <p className="section-heading">Message received</p>
+                  <h3>Thank you for reaching out.</h3>
+                  <p>Max will read your message and respond as soon as he can.</p>
+                </motion.div>
+              ) : isSubmitted ? null : (
+                <motion.form
+                  key="contact-form"
+                  onSubmit={handleSubmit}
+                  className="contact-drawer-form"
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  transition={{ duration: 0.35 }}
+                >
               <input type="hidden" name="_subject" value={subject} />
               <input type="hidden" name="_captcha" value="false" />
               <input type="hidden" name="_template" value="table" />
-              <input type="hidden" name="_next" value={`${window.location.origin}${window.location.pathname}#about`} />
               <label htmlFor="drawer-name">Name</label>
               <input
                 id="drawer-name"
@@ -143,10 +224,13 @@ export function ContactDrawer({ isOpen, endpointEmail, subject, paypal, paypalQr
                 autoComplete="off"
                 aria-hidden="true"
               />
-              <button type="submit" className="contact-drawer-submit magnetic-btn">
-                Send message
+                  <button type="submit" className="contact-drawer-submit magnetic-btn" disabled={isSubmitting}>
+                {isSubmitting ? 'Sending…' : 'Send message'}
               </button>
-            </form>
+                  {submitError ? <p className="contact-drawer-error" role="alert">{submitError}</p> : null}
+                </motion.form>
+              )}
+            </AnimatePresence>
           </motion.aside>
         </div>
       ) : null}

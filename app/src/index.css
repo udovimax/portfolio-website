@@ -1376,6 +1376,13 @@ textarea:focus-visible {
   border: 1px solid rgba(158, 201, 255, 0.28);
   border-radius: 1.25rem;
   background: rgba(158, 201, 255, 0.06);
+  transition: background-color 650ms ease, border-color 650ms ease, box-shadow 650ms ease;
+}
+
+.contact-donate-expanded {
+  border-color: rgba(205, 255, 216, 0.62);
+  background: linear-gradient(135deg, rgba(205, 255, 216, 0.14), rgba(148, 185, 255, 0.12));
+  box-shadow: 0 1rem 3rem rgba(148, 185, 255, 0.12);
 }
 
 .contact-donate-copy > p:not(.section-heading) {
@@ -1413,6 +1420,31 @@ textarea:focus-visible {
   display: grid;
   gap: 0.65rem;
   margin-top: 2rem;
+}
+
+.contact-drawer-thank-you {
+  display: grid;
+  gap: 0.55rem;
+  margin-top: 2rem;
+  padding: 1.25rem 0 1.5rem;
+  border-top: 1px solid rgba(205, 255, 216, 0.3);
+  border-bottom: 1px solid rgba(205, 255, 216, 0.18);
+}
+
+.contact-drawer-thank-you h3 {
+  margin: 0.2rem 0 0;
+  color: var(--text-main);
+  font-family: 'Space Grotesk', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  font-size: clamp(1.45rem, 5vw, 2rem);
+  font-weight: 400;
+  letter-spacing: -0.03em;
+}
+
+.contact-drawer-thank-you > p:last-child {
+  max-width: 24rem;
+  margin: 0.3rem 0 0;
+  color: var(--text-muted);
+  line-height: 1.5;
 }
 
 .contact-drawer-form label {
@@ -1455,6 +1487,18 @@ textarea:focus-visible {
 .contact-drawer-submit:hover,
 .contact-drawer-submit:focus-visible {
   background: var(--text-main);
+}
+
+.contact-drawer-submit:disabled {
+  cursor: wait;
+  opacity: 0.62;
+}
+
+.contact-drawer-error {
+  margin: 0.35rem 0 0;
+  color: #ffb4b4;
+  font-size: 0.78rem;
+  line-height: 1.45;
 }
 
 .carousel-shell {
