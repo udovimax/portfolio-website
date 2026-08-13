@@ -731,65 +731,6 @@ function App() {
               <HeroImageBand />
             </Reveal>
           </div>
-          {content?.archive?.videos[1] ? (
-            <Reveal className="mt-10" delay={0.16}>
-              <div className="home-ambient-panel home-journey-panel">
-                <div className="home-journey-actions">
-                  <a
-                    href="#music"
-                    className="home-journey-link home-journey-link-primary magnetic-btn"
-                    style={{ '--journey-art': `url("${assetUrl(filmPhotoBackgrounds[0])}")` } as CSSProperties}
-                  >
-                    <span className="home-journey-image" aria-hidden="true" />
-                    <div className="home-journey-scrim" aria-hidden="true" />
-                    <motion.span
-                      className="home-journey-copy"
-                      initial={shouldReduceMotion ? false : { opacity: 0, y: 14 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: 0.2, duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
-                    >
-                      <span className="section-heading">Music / 01</span>
-                      <strong>Listen to the work</strong>
-                    </motion.span>
-                  </a>
-                  <a
-                    href="#projects"
-                    className="home-journey-link magnetic-btn"
-                    style={{ '--journey-art': `url("${assetUrl(filmPhotoBackgrounds[1])}")` } as CSSProperties}
-                  >
-                    <span className="home-journey-image" aria-hidden="true" />
-                    <div className="home-journey-scrim" aria-hidden="true" />
-                    <motion.span
-                      className="home-journey-copy"
-                      initial={shouldReduceMotion ? false : { opacity: 0, y: 14 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: 0.2, duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
-                    >
-                      <span className="section-heading">Projects / 02</span>
-                      <strong>Explore curated projects</strong>
-                    </motion.span>
-                  </a>
-                  <a
-                    href="#video"
-                    className="home-journey-link magnetic-btn"
-                    style={{ '--journey-art': `url("${assetUrl(filmPhotoBackgrounds[2])}")` } as CSSProperties}
-                  >
-                    <span className="home-journey-image" aria-hidden="true" />
-                    <div className="home-journey-scrim" aria-hidden="true" />
-                    <motion.span
-                      className="home-journey-copy"
-                      initial={shouldReduceMotion ? false : { opacity: 0, y: 14 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: 0.4, duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
-                    >
-                      <span className="section-heading">Video / 03</span>
-                      <strong>Watch the films</strong>
-                    </motion.span>
-                  </a>
-                </div>
-              </div>
-            </Reveal>
-          ) : null}
           <Reveal className="home-funnel-section" delay={0.17}>
             <div className="home-funnel-heading">
               <p className="section-heading">Find your way in</p>
