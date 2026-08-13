@@ -19,7 +19,10 @@ export function ContactDrawer({ isOpen, endpointEmail, subject, paypal, paypalQr
       return
     }
 
-    const focusFrame = window.requestAnimationFrame(() => firstFieldRef.current?.focus())
+    const isTouchDevice = window.matchMedia('(pointer: coarse)').matches || 'ontouchstart' in window
+    const focusFrame = isTouchDevice
+      ? null
+      : window.requestAnimationFrame(() => firstFieldRef.current?.focus())
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
         event.preventDefault()
@@ -29,7 +32,9 @@ export function ContactDrawer({ isOpen, endpointEmail, subject, paypal, paypalQr
 
     document.addEventListener('keydown', onKeyDown)
     return () => {
-      window.cancelAnimationFrame(focusFrame)
+      if (focusFrame !== null) {
+        window.cancelAnimationFrame(focusFrame)
+      }
       document.removeEventListener('keydown', onKeyDown)
     }
   }, [isOpen, onClose])
@@ -59,6 +64,9 @@ export function ContactDrawer({ isOpen, endpointEmail, subject, paypal, paypalQr
             tabIndex={0}
             data-lenis-prevent
             className="contact-drawer fixed right-0 top-0 h-dvh w-[min(100vw,30rem)] overflow-y-auto border-l border-white/20 bg-black/90 p-5 shadow-2xl backdrop-blur-2xl sm:p-8"
+            onClick={(event) => event.stopPropagation()}
+            onPointerDown={(event) => event.stopPropagation()}
+            onTouchStart={(event) => event.stopPropagation()}
             initial={{ x: '100%' }}
             animate={{ x: 0 }}
             exit={{ x: '100%' }}
@@ -122,7 +130,6 @@ export function ContactDrawer({ isOpen, endpointEmail, subject, paypal, paypalQr
                 name="name"
                 type="text"
                 autoComplete="name"
-                autoFocus={isOpen}
                 required
               />
               <label htmlFor="drawer-email">Email</label>

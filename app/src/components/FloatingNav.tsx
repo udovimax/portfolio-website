@@ -78,7 +78,7 @@ export function FloatingNav({ activePage, contactOpen, onContactOpenChange, play
   useEffect(() => {
     const onTouchStart = (event: TouchEvent) => {
       const target = event.target as HTMLElement | null
-      if (target?.closest('.carousel-track, .player-shell, .player-reopen, input, textarea, [contenteditable="true"]')) {
+      if (target?.closest('.contact-drawer-layer, .site-menu, .carousel-track, .player-shell, .player-reopen, input, textarea, [contenteditable="true"]')) {
         touchStartRef.current = null
         return
       }
