@@ -25,8 +25,9 @@ jobs:
 
       # Git LFS bandwidth is currently exhausted. The latest successful Pages
       # artifact already contains the complete optimized media bundle, so use
-      # it as the media base while rebuilding the application shell. This keeps
-      # code-only fixes deployable without replacing media with LFS pointers.
+      # it as the media base while rebuilding the application shell. Keep the
+      # freshly built JS/CSS/HTML so code-only fixes are not overwritten by an
+      # older full-site artifact.
       - name: Restore existing media artifact
         uses: actions/download-artifact@v4
         with:
@@ -58,9 +59,11 @@ jobs:
       - name: Build
         run: npm run build
 
-      - name: Restore optimized media
+      - name: Restore optimized media only
         run: |
-          tar -xf ../previous-pages/github-pages/artifact.tar -C dist
+          mkdir -p ../previous-pages/extracted
+          tar -xf ../previous-pages/github-pages/artifact.tar -C ../previous-pages/extracted ./media
+          cp -R ../previous-pages/extracted/media dist/media
 
       - name: SPA fallback
         run: cp dist/index.html dist/404.html
