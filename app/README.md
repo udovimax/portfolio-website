@@ -13,7 +13,8 @@ src/main.tsx
        ├─ Player ── visual/audio controls; playback state is owned by App
        ├─ MediaArchive ── highlight-video carousel
        ├─ MediaModals ── lazy-loaded video/project dialogs
-       └─ useSiteContent ── JSON loading and deploy-base asset resolution
+       ├─ useSiteContent ── JSON loading and deploy-base asset resolution
+       └─ usePageAnalytics ── non-blocking aggregate page-view capture
 ```
 
 `App.tsx` is currently the composition root. It owns the hash-based page state (`home`, `music`, `projects`, `video`, `about`), Howler lifecycle, analyser data, modal state, and the global player. Page-specific markup remains there so navigation and cross-page media state stay coordinated. A future page split should preserve those ownership rules and be treated as a behavior change, not a formatting refactor.
@@ -28,6 +29,13 @@ The canonical editable content is in `public/content/`:
 - `videos.json` — cinematic videos and caption tracks.
 - `archive.json` — Instagram highlight stills, posters, loops, and full videos.
 - `socials.json` — external profiles, email, donation link, and FormSubmit recipient.
+
+The public site sends FormSubmit enquiries as the primary delivery path and
+makes a best-effort copy to the Max-owned Google Sheet endpoint configured in
+`socials.json`. The private enquiry dashboard is not bundled here; it lives in
+`integrations/google-sheets/Admin.html` and is served by Max's restricted Apps
+Script deployment. The site only sends anonymous page ID/path/timestamp events
+for aggregate dashboard view counts.
 
 Paths in those files are public-root paths such as `/media/...`; `useSiteContent.ts` resolves them through `assetUrl()` so GitHub Pages subpaths continue to work. Routine content changes should edit JSON and add the referenced file; components should not need changing.
 

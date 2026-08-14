@@ -20,6 +20,7 @@ import { InstagramEmbed } from './components/InstagramEmbed'
 import { MediaArchive } from './components/MediaArchive'
 import { Player } from './components/Player'
 import { useLenis } from './hooks/useLenis'
+import { usePageAnalytics } from './hooks/usePageAnalytics'
 import { assetUrl, useSiteContent } from './hooks/useSiteContent'
 import type { NavSection, ProjectItem, Track, VideoItem } from './types/content'
 
@@ -294,6 +295,8 @@ function App() {
   const [contactOpen, setContactOpen] = useState(false)
   const [contactInterest, setContactInterest] = useState('')
   const [videoResumePoints, setVideoResumePoints] = useState<Record<string, number>>({})
+
+  usePageAnalytics(content?.socials.googleSheetsEndpoint, currentPage)
 
   const howlRef = useRef<Howl | null>(null)
   const initialVolumeRef = useRef(volume)

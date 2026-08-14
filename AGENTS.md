@@ -27,6 +27,11 @@
 23. Runtime posters, stills, loops, and compressed audio should be preferred over original/full media on the initial render path.
 24. Do not edit generated `app/dist`, local QA captures, vendor `node_modules`, macOS metadata, or imported archive trees to fix application behavior.
 25. GitHub Pages Actions is the canonical deployment; preserve LFS checkout, `npm ci`, lint, typecheck, test, build, SPA `404.html`, and Pages artifact/deploy steps.
+26. `integrations/google-sheets/Code.gs` is the canonical lead workflow backend. Keep its public capture deployment separate from its Max-only dashboard deployment.
+27. The public Apps Script deployment may accept anonymous lead/page-view POSTs, but must never expose lead reads or admin mutations.
+28. The private Apps Script dashboard must remain restricted to `maxudovichenko.prod@gmail.com`; a hidden URL is not an access control.
+29. `integrations/google-sheets/Admin.html` is hosted by Apps Script and uses `google.script.run`; it is not part of the public Vite bundle.
+30. Page analytics are intentionally aggregate and cookie-free: record only page ID, path, and timestamp; never add names, email addresses, IP addresses, or full referrers.
 
 ## Navigation map
 
@@ -34,7 +39,9 @@
 - `app/src/App.tsx` — page composition and cross-feature state owner.
 - `app/src/components/` — UI boundaries: nav/drawer, carousel, player, media archive, and modals.
 - `app/src/hooks/useSiteContent.ts` — content fetch and asset-base resolution.
+- `app/src/hooks/usePageAnalytics.ts` — non-blocking, cookie-free aggregate page-view capture.
 - `app/src/types/content.ts` — JSON/runtime contract.
+- `integrations/google-sheets/` — Max-owned public capture endpoint and private dashboard source.
 - `app/public/content/` — editable content records; see its local `AGENTS.md`.
 - `app/public/media/` — deployable runtime media.
 - `.github/workflows/github-pages.yml` — CI and Pages deployment.
