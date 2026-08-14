@@ -17,5 +17,5 @@
     "endpointEmail": "maxudovichenko.prod+websitecoms@gmail.com",
     "subject": "New portfolio contact"
   },
-  "googleSheetsEndpoint": ""
+  "googleSheetsEndpoint": "https://script.google.com/macros/s/AKfycbwRiXywuI1496ERempKne_yuu__UsOXidGcKYGH424q_dZJlW2HtdfT-zn9ucFhRIPW/exec"
 }
