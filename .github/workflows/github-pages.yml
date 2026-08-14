@@ -65,12 +65,14 @@ jobs:
             }
 
             core.setOutput('artifact_id', String(pagesArtifact.id));
+            core.setOutput('run_id', String(previousRun.id));
             core.info(`Restoring media from Pages artifact ${pagesArtifact.id} (run ${previousRun.id}).`);
 
       - name: Restore existing media artifact
         uses: actions/download-artifact@v4
         with:
           artifact-ids: ${{ steps.find-pages-artifact.outputs.artifact_id }}
+          run-id: ${{ steps.find-pages-artifact.outputs.run_id }}
           path: previous-pages
           github-token: ${{ github.token }}
           repository: ${{ github.repository }}
