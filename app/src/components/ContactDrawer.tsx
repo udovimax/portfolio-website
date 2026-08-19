@@ -216,7 +216,9 @@ export function ContactDrawer({
                 >
                   <p className="section-heading">Message received</p>
                   <h3>Thank you for reaching out.</h3>
-                  <p>Max will read your message and respond as soon as he can.</p>
+                  <p>
+                    Max will read your message and respond as soon as he can. Please check your spam or junk folder if you do not see his reply.
+                  </p>
                 </motion.div>
               ) : isSubmitted ? null : (
                 <motion.form
