@@ -2,6 +2,14 @@ import { useEffect, useRef, useState, type FormEvent } from 'react'
 import { createPortal } from 'react-dom'
 import { AnimatePresence, motion } from 'framer-motion'
 
+const BOOKING_INTEREST = 'Booking / studio session'
+const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/i
+
+type AvailabilityResponse = {
+  ok: boolean
+  slots?: Array<{ date: string; times: string[] }>
+}
+
 interface ContactDrawerProps {
   isOpen: boolean
   endpointEmail: string
@@ -30,8 +38,60 @@ export function ContactDrawer({
   const [isSupportExpanded, setIsSupportExpanded] = useState(false)
   const [submitError, setSubmitError] = useState<string | null>(null)
   const [interest, setInterest] = useState(initialInterest)
+  const [bookingDate, setBookingDate] = useState('')
+  const [bookingTime, setBookingTime] = useState('')
+  const [availability, setAvailability] = useState<Record<string, string[]>>({})
+  const [availabilityState, setAvailabilityState] = useState<'idle' | 'loading' | 'ready' | 'error'>('idle')
 
   const formAction = `https://formsubmit.co/${endpointEmail}`
+  const isBooking = interest === BOOKING_INTEREST
+  const availableTimes = bookingDate ? availability[bookingDate] || [] : []
+  const localToday = new Date()
+  const minimumBookingDate = new Date(localToday.getTime() - localToday.getTimezoneOffset() * 60_000)
+    .toISOString()
+    .slice(0, 10)
+
+  useEffect(() => {
+    if (!isOpen || !isBooking || !googleSheetsEndpoint) {
+      setAvailability({})
+      setAvailabilityState('idle')
+      return
+    }
+
+    const callbackName = `maxAvailability_${Date.now()}`
+    const script = document.createElement('script')
+    const endpoint = new URL(googleSheetsEndpoint)
+    endpoint.searchParams.set('action', 'availability')
+    endpoint.searchParams.set('from', minimumBookingDate)
+    endpoint.searchParams.set('days', '120')
+    endpoint.searchParams.set('callback', callbackName)
+    script.src = endpoint.toString()
+    script.async = true
+    setAvailabilityState('loading')
+
+    const windowWithCallback = window as typeof window & Record<string, unknown>
+    windowWithCallback[callbackName] = (response: AvailabilityResponse) => {
+      const nextAvailability = (response.slots || []).reduce<Record<string, string[]>>((result, slot) => {
+        result[slot.date] = slot.times
+        return result
+      }, {})
+      setAvailability(nextAvailability)
+      setAvailabilityState(response.ok ? 'ready' : 'error')
+      delete windowWithCallback[callbackName]
+      script.remove()
+    }
+    script.onerror = () => {
+      setAvailabilityState('error')
+      delete windowWithCallback[callbackName]
+      script.remove()
+    }
+    document.body.appendChild(script)
+
+    return () => {
+      delete windowWithCallback[callbackName]
+      script.remove()
+    }
+  }, [googleSheetsEndpoint, isBooking, isOpen, minimumBookingDate])
 
   useEffect(() => {
     if (!isOpen) {
@@ -41,10 +101,16 @@ export function ContactDrawer({
       setIsSupportExpanded(false)
       setSubmitError(null)
       setInterest('')
+      setBookingDate('')
+      setBookingTime('')
+      setAvailability({})
+      setAvailabilityState('idle')
       return
     }
 
     setInterest(initialInterest)
+    setBookingDate('')
+    setBookingTime('')
 
     const isTouchDevice = window.matchMedia('(pointer: coarse)').matches || 'ontouchstart' in window
     const focusFrame = isTouchDevice
@@ -92,6 +158,22 @@ export function ContactDrawer({
       // FormSubmit accepts a regular FormData POST. no-cors keeps the drawer
       // in place while the external service receives the message.
       const formData = new FormData(form)
+      const email = String(formData.get('email') || '').trim()
+      if (!EMAIL_PATTERN.test(email)) {
+        setIsSubmitting(false)
+        setSubmitError('Please enter a valid email address so Max can reply.')
+        return
+      }
+      if (isBooking && (!bookingDate || !bookingTime)) {
+        setIsSubmitting(false)
+        setSubmitError('Choose an available booking date and time before sending.')
+        return
+      }
+      if (isBooking && !availableTimes.includes(bookingTime)) {
+        setIsSubmitting(false)
+        setSubmitError('That booking time is no longer available. Please choose another slot.')
+        return
+      }
       const emailSubmission = fetch(formAction, {
         method: 'POST',
         body: formData,
@@ -121,6 +203,8 @@ export function ContactDrawer({
       setIsSubmitted(true)
       setShowThankYou(true)
       setIsSupportExpanded(false)
+      setBookingDate('')
+      setBookingTime('')
     }
   }
 
@@ -217,7 +301,7 @@ export function ContactDrawer({
                   <p className="section-heading">Message received</p>
                   <h3>Thank you for reaching out.</h3>
                   <p>
-                    Max will read your message and respond as soon as he can. Please check your spam or junk folder if you do not see his reply.
+                    A confirmation email should arrive at the address you entered. Max will read your message and respond as soon as he can. Please check your spam or junk folder if you do not see his reply.
                   </p>
                 </motion.div>
               ) : isSubmitted ? null : (
@@ -233,6 +317,7 @@ export function ContactDrawer({
               <input type="hidden" name="_subject" value={subject} />
               <input type="hidden" name="_captcha" value="false" />
               <input type="hidden" name="_template" value="table" />
+              <input type="hidden" name="_type" value="lead" />
               <label htmlFor="drawer-name">Name</label>
               <input
                 id="drawer-name"
@@ -250,14 +335,67 @@ export function ContactDrawer({
               <select
                 id="drawer-interest"
                 name="interest"
+                required
                 value={interest}
-                onChange={(event) => setInterest(event.target.value)}
+                onChange={(event) => {
+                  setInterest(event.target.value)
+                  setBookingDate('')
+                  setBookingTime('')
+                  setSubmitError(null)
+                }}
               >
                 <option value="">General enquiry</option>
+                <option value={BOOKING_INTEREST}>Booking / studio session</option>
                 <option value="Producer / engineer / sound designer">Producer / engineer / sound designer</option>
                 <option value="Artist / music collaboration">Artist / music collaboration</option>
                 <option value="Research / photography">Research / photography</option>
               </select>
+              {isBooking ? (
+                <div className="contact-booking-fields">
+                  <div>
+                    <label htmlFor="drawer-booking-date">Preferred date</label>
+                    <input
+                      id="drawer-booking-date"
+                      name="bookingDate"
+                      type="date"
+                      min={minimumBookingDate}
+                      value={bookingDate}
+                      onChange={(event) => {
+                        setBookingDate(event.target.value)
+                        setBookingTime('')
+                      }}
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label htmlFor="drawer-booking-time">Available time</label>
+                    <select
+                      id="drawer-booking-time"
+                      name="bookingTime"
+                      value={bookingTime}
+                      onChange={(event) => setBookingTime(event.target.value)}
+                      disabled={!bookingDate || availabilityState !== 'ready' || availableTimes.length === 0}
+                      required
+                    >
+                      <option value="">
+                        {availabilityState === 'loading'
+                          ? 'Loading slots…'
+                          : bookingDate && availableTimes.length === 0
+                            ? 'No times available'
+                            : 'Choose a time'}
+                      </option>
+                      {availableTimes.map((time) => <option key={time} value={time}>{time}</option>)}
+                    </select>
+                  </div>
+                  <p className="contact-drawer-field-note" role="status">
+                    {availabilityState === 'error'
+                      ? 'Booking availability is temporarily unavailable. Please email Max directly.'
+                      : availabilityState === 'ready'
+                        ? 'Choose from the slots currently published by Max.'
+                        : 'Choose a date to see available times.'}
+                  </p>
+                </div>
+              ) : null}
               <input
                 type="text"
                 name="_honey"

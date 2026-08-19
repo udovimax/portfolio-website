@@ -1478,6 +1478,42 @@ textarea:focus-visible {
   padding-right: 2.5rem;
 }
 
+.contact-booking-fields {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.65rem;
+  margin-top: 0.2rem;
+  padding-top: 0.7rem;
+  border-top: 1px solid rgba(205, 255, 216, 0.18);
+}
+
+.contact-booking-fields > div {
+  display: grid;
+  gap: 0.45rem;
+}
+
+.contact-booking-fields label {
+  margin-top: 0;
+}
+
+.contact-booking-fields input,
+.contact-booking-fields select {
+  min-width: 0;
+}
+
+.contact-booking-fields select:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.contact-drawer-field-note {
+  grid-column: 1 / -1;
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 0.78rem;
+  line-height: 1.45;
+}
+
 .contact-drawer-form option {
   background: #090c10;
   color: var(--text-main);

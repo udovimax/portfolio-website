@@ -213,7 +213,12 @@
         panel.appendChild(title);
 
         var meta = node('div', 'detail-meta');
-        [['Name', lead.name], ['Email', lead.email], ['Interest', lead.interest], ['Received', lead.receivedAt]].forEach(function (item) {
+        var metaItems = [['Name', lead.name], ['Email', lead.email], ['Interest', lead.interest], ['Received', lead.receivedAt]];
+        if (lead.bookingDate || lead.bookingTime) {
+          metaItems.push(['Requested booking', [lead.bookingDate, lead.bookingTime].filter(Boolean).join(' at ')]);
+        }
+        if (lead.confirmationSent) metaItems.push(['Customer confirmation', lead.confirmationSent]);
+        metaItems.forEach(function (item) {
           var wrapper = node('div', 'meta-item');
           wrapper.appendChild(node('span', '', item[0]));
           if (item[0] === 'Email') {
@@ -232,7 +237,7 @@
           saveLead(form, lead.row);
         });
         var grid = node('div', 'form-grid');
-        var status = field('Status', 'select', lead.status, ['New', 'Contacted', 'Replied', 'Booked', 'Complete', 'Archived']);
+        var status = field('Status', 'select', lead.status, ['New', 'Contacted', 'Replied', 'Booked', 'Declined', 'Complete', 'Archived']);
         var priority = field('Priority', 'select', lead.priority, ['Normal', 'High', 'Urgent']);
         var followUp = field('Follow-up', 'input', lead.followUp, []);
         followUp.input.type = 'date';

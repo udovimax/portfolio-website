@@ -1,8 +1,10 @@
 # Max-owned enquiry sheet and private dashboard
 
-The website keeps FormSubmit as its email delivery path and can also make a
-best-effort copy of each enquiry to a Google Sheet. The Sheet and Apps Script
-must be owned by Max so he controls the lead data, replies, and deployments.
+The website keeps FormSubmit as its fallback enquiry delivery path and also
+records each enquiry in Max's Google Sheet. The Apps Script sends the customer
+an acknowledgement from Max's Gmail account, so the customer has a real email
+thread they can mark as safe. The Sheet and Apps Script must be owned by Max so
+he controls the lead data, replies, booking slots, and deployments.
 
 ## Max’s one-time setup
 
@@ -19,6 +21,25 @@ must be owned by Max so he controls the lead data, replies, and deployments.
 5. Copy the public web-app URL. It normally ends in `/exec`.
 6. Paste that URL into `app/public/content/socials.json` as
    `googleSheetsEndpoint`, commit it, and push `main`.
+
+## Booking availability
+
+The site shows booking date/time fields only when a visitor chooses `Booking /
+studio session`. Max controls the published slots in an `Availability` tab in
+the same Sheet. The script creates the tab automatically; Max then adds rows
+using:
+
+`Date` = `2026-09-05`, `Time` = `14:00`, `Status` = `Available`
+
+Only rows marked `Available` are shown on the site. When a visitor submits a
+booking request, the script locks and changes that row to `Requested`, which
+prevents another visitor from selecting it. In the private dashboard, changing
+the enquiry status to `Booked` or `Complete` keeps it unavailable. Changing it
+to `Declined` releases the slot back to `Available`.
+
+The form also validates email addresses in the browser and again in Apps
+Script. A booking submission without a currently published slot is rejected by
+the Apps Script endpoint, even if someone bypasses the website UI.
 
 ## Max-only dashboard
 
@@ -38,6 +59,12 @@ Before using the Reply button, Max must grant Gmail permission once:
 2. Click **Run**.
 3. Review the Google permission screen and choose Max's account.
 4. Click **Allow**.
+
+This same permission is used by the public endpoint to send each customer a
+confirmation email containing their enquiry type and, for bookings, their
+requested date and time. After replacing `Code.gs`, Max must run
+`authorizeGmail` again if Google asks for permission, then update both the
+public and private web-app deployments to the new version.
 
 The function only checks that Max is signed in and requests Gmail access; it
 does not send an email. This is required so later replies come from his account
@@ -59,7 +86,8 @@ Google account check are the actual security boundary.
 The first successful enquiry creates or extends a `Leads` tab with these columns:
 
 `Received at`, `Name`, `Email`, `Interest`, `Message`, `Subject`, `Status`,
-`Priority`, `Notes`, `Follow-up`, `Last replied at`
+`Priority`, `Notes`, `Follow-up`, `Last replied at`, `Booking date`,
+`Booking time`, `Confirmation sent`
 
 The `Interest` field is supplied by the home-page funnel and currently has
 three routes: production/engineering, artist/music collaboration, and
@@ -80,5 +108,7 @@ IP addresses, or full referrers.
   security measure.
 - The dashboard checks the signed-in Google account against
   `maxudovichenko.prod@gmail.com` before returning data or sending mail.
-- If the Sheet is unavailable, the form still submits to FormSubmit and the
-  drawer still shows its normal in-place confirmation.
+- If the Sheet is unavailable, the form still submits to FormSubmit, but the
+  booking availability and customer confirmation features cannot operate.
+- Do not publish arbitrary availability rows without checking Max's real
+  schedule; the sheet is the source of truth for bookable times.
