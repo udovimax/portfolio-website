@@ -350,6 +350,7 @@ function sendCustomerConfirmation_(values) {
   if (values.bookingDate && values.bookingTime) {
     body.push('Requested booking: ' + values.bookingDate + ' at ' + values.bookingTime);
   }
+  body.push('', 'Your message:', String(values.message || '').trim());
   body.push('', 'Max will review your message and reply as soon as possible.',
     '', 'If you do not see his reply, please check your spam or junk folder.',
     '', '— Max Udovichenko');
