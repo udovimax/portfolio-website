@@ -32,9 +32,17 @@ Create a second deployment from the same Apps Script project:
 5. Bookmark that private URL. It provides the enquiries dashboard and must not
    be changed to public access.
 
-The first time Max sends a reply from the dashboard, Google will ask him to
-authorise Gmail access for the script. This is required so replies come from
-his account rather than from a third-party service.
+Before using the Reply button, Max must grant Gmail permission once:
+
+1. In the Apps Script editor, select `authorizeGmail` from the function menu.
+2. Click **Run**.
+3. Review the Google permission screen and choose Max's account.
+4. Click **Allow**.
+
+The function only checks that Max is signed in and requests Gmail access; it
+does not send an email. This is required so later replies come from his account
+rather than from a third-party service. If the dashboard shows a Gmail
+permission error, repeat these steps and then refresh the private dashboard.
 
 The dashboard lets Max:
 

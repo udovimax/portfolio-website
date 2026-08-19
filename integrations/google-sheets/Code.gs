@@ -114,6 +114,13 @@ function sendLeadReply(rowNumber, subject, message) {
   return readLeadAt_(sheet, row);
 }
 
+/** Run once from the Apps Script editor to grant the script Gmail permission. */
+function authorizeGmail() {
+  requireAdmin_();
+  GmailApp.getAliases();
+  return 'Gmail access is ready.';
+}
+
 function appendPageView_(values) {
   var sheet = getOrCreateSheet_(ANALYTICS_SHEET_NAME, ANALYTICS_HEADERS);
   sheet.appendRow([new Date(), safeAnalyticsValue_(values.page || 'home'), safeAnalyticsValue_(values.path || '/')]);
