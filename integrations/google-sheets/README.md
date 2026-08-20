@@ -27,11 +27,13 @@ he controls the lead data, replies, booking slots, and deployments.
 The site shows booking date/time fields only when a visitor chooses `Booking /
 studio session`. Max controls the published slots in an `Availability` tab in
 the same Sheet. The script creates the tab automatically. The easiest way to
-publish availability is the **Booking availability** editor at the top of the
-private dashboard: choose a `From date`, optionally choose a later `To date`,
-then choose the `Start time` and `End time` and select **Publish availability**.
-One date creates one window; a date range creates the same window on every day
-in that range. Max can remove unused rows from the dashboard; requested or
+publish availability is the **Booking availability** calendar at the top of the
+private dashboard. Choose a month, click a day, then inspect that day’s windows
+underneath the calendar. Green days contain public `Available` windows;
+`Requested` and `Booked` days are shown separately, and `Unavailable` days
+remain visible as history. The **Publish a new window** form can still create
+one window or repeat the same window across a date range. Max can mark an
+unused window unavailable and later use **Restore** to reopen it; requested or
 booked rows remain locked so the booking history is not lost.
 
 The Sheet remains the source of truth and can also be edited manually when
@@ -39,18 +41,28 @@ needed, using:
 
 `Date` = `2026-09-05`, `Time` = `14:00`, `End time` = `16:00`, `Status` = `Available`
 
-Only rows marked `Available` are shown on the site. The calendar greys out
-dates without an available row, then the visitor chooses a start and end time
-from that row. When a visitor submits a booking request, the script locks and
-changes that row to `Requested`, which prevents another visitor from selecting
-it. In the private dashboard, changing the enquiry status to `Booked` or
-`Complete` keeps it unavailable. Changing it to `Declined` releases the slot
-back to `Available`.
+Only rows marked `Available` are shown on the site. The visitor chooses a
+date, then a start and end time from an available window. When a visitor
+submits a booking request, the script locks and changes that row to `Requested`,
+which prevents another visitor from selecting it. In the private dashboard,
+changing the enquiry status to `Booked` or `Complete` keeps it unavailable.
+Changing it to `Declined` releases the slot back to `Available`.
+
+The calendar is a dashboard view over the same `Availability` sheet; it is not
+a second source of truth. Clicking **Mark unavailable** changes an unused
+`Available` row to `Unavailable` without deleting it. Clicking **Restore**
+changes that unused row back to `Available`. This preserves the audit history
+and makes it clear why an old slot is no longer visible to visitors.
 
 Do not publish overlapping windows for the same day. The dashboard checks for
 overlaps before adding a date or date range and reports which day conflicts.
 Older availability rows without an `End time` are treated as one-hour windows
 so existing bookings continue to work.
+
+Locations, studio choices, travel rules, and payment links are intentionally
+not part of this editor yet. Add those only after Max supplies the confirmed
+studio names, prices, travel details, and payment URLs; otherwise the booking
+form could publish inaccurate options.
 
 The form also validates email addresses in the browser and again in Apps
 Script. A booking submission without a currently published slot is rejected by

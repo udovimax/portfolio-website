@@ -199,6 +199,20 @@ function removeAvailabilitySlot(rowNumber) {
   return readAdminAvailability_();
 }
 
+/** Reopen an unused availability row that was previously marked unavailable. */
+function restoreAvailabilitySlot(rowNumber) {
+  requireAdmin_();
+  var sheet = getOrCreateSheet_(AVAILABILITY_SHEET_NAME, AVAILABILITY_HEADERS);
+  var row = normaliseRowNumber_(rowNumber);
+  var statusColumn = availabilityColumn_(sheet, 'Status');
+  var status = String(sheet.getRange(row, statusColumn).getValue() || '').trim();
+  if (status !== 'Unavailable') throw new Error('Only Unavailable slots can be restored.');
+  sheet.getRange(row, statusColumn).setValue('Available');
+  sheet.getRange(row, availabilityColumn_(sheet, 'Lead row')).clearContent();
+  sheet.getRange(row, availabilityColumn_(sheet, 'Updated at')).setValue(new Date());
+  return readAdminAvailability_();
+}
+
 /** Update status, priority, notes, or follow-up for a lead row. */
 function updateLead(rowNumber, changes) {
   requireAdmin_();

@@ -69,13 +69,40 @@
       .pages { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 5px; }
       .page-count { border: 1px solid var(--line); border-radius: 10px; padding: 8px 10px; color: var(--muted); }
       .page-count strong { color: var(--text); }
-      .availability-form { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; align-items: end; }
-      .availability-form .button { min-height: 42px; }
       .availability-note { margin: 12px 0 0; color: var(--muted); font-size: 13px; }
-      .availability-list { display: grid; gap: 8px; margin-top: 16px; }
+      .availability-legend { display: flex; flex-wrap: wrap; gap: 8px 14px; margin-top: 14px; color: var(--muted); font-size: 12px; }
+      .availability-legend span { display: inline-flex; align-items: center; gap: 6px; }
+      .availability-legend i { width: 9px; height: 9px; border-radius: 50%; background: var(--line); }
+      .availability-legend .available i { background: var(--success); }
+      .availability-legend .requested i { background: #f6d48a; }
+      .availability-legend .booked i { background: #ff9d9d; }
+      .availability-legend .unavailable i { background: #68747c; }
+      .availability-toolbar { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-top: 18px; }
+      .availability-toolbar strong { font-size: 1.05rem; font-weight: 500; }
+      .availability-toolbar .button { min-width: 84px; }
+      .availability-calendar { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 6px; margin-top: 12px; }
+      .availability-weekday { padding: 4px; color: var(--muted); font-size: 10px; letter-spacing: .1em; text-align: center; text-transform: uppercase; }
+      .availability-day { min-height: 72px; border: 1px solid var(--line); border-radius: 10px; background: rgba(255,255,255,.025); color: var(--text); padding: 8px; text-align: left; }
+      .availability-day:hover, .availability-day:focus-visible, .availability-day.is-selected { border-color: var(--accent); background: rgba(166, 200, 255, .1); outline: none; }
+      .availability-day.is-available { border-color: rgba(205,255,216,.5); }
+      .availability-day.is-requested { border-color: rgba(246,212,138,.55); }
+      .availability-day.is-booked { border-color: rgba(255,157,157,.55); }
+      .availability-day.is-unavailable { border-color: rgba(104,116,124,.6); }
+      .availability-day.is-empty { color: var(--muted); }
+      .availability-day-number { display: block; font-size: 15px; }
+      .availability-day-summary { display: block; margin-top: 7px; color: var(--muted); font-size: 11px; line-height: 1.2; }
+      .availability-day.is-available .availability-day-summary { color: var(--success); }
+      .availability-day.is-requested .availability-day-summary { color: #f6d48a; }
+      .availability-day.is-booked .availability-day-summary { color: #ffb7b7; }
+      .availability-day-panel { margin-top: 14px; border-top: 1px solid var(--line); padding-top: 14px; }
+      .availability-day-heading { margin-bottom: 10px; font-size: 1rem; font-weight: 500; }
+      .availability-list { display: grid; gap: 8px; }
       .availability-row { display: flex; justify-content: space-between; align-items: center; gap: 12px; border: 1px solid var(--line); border-radius: 12px; background: rgba(255,255,255,.035); padding: 10px 12px; }
       .availability-row-main { display: grid; gap: 2px; }
       .availability-row small { color: var(--muted); }
+      .availability-form { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 10px; align-items: end; margin-top: 18px; border-top: 1px solid var(--line); padding-top: 16px; }
+      .availability-form .button { min-height: 42px; }
+      .availability-form-title { grid-column: 1 / -1; margin: 0; color: var(--muted); font-size: 13px; }
       @media (max-width: 800px) {
         .stats { grid-template-columns: repeat(2, 1fr); }
         .layout { grid-template-columns: 1fr; }
@@ -86,6 +113,10 @@
         .shell { width: min(100% - 22px, 1180px); padding-top: 18px; }
         header { align-items: start; flex-direction: column; }
         .stats, .detail-meta, .form-grid, .availability-form { grid-template-columns: 1fr; }
+        .availability-day { min-height: 62px; padding: 6px; }
+        .availability-day-summary { font-size: 10px; }
+        .availability-toolbar .button { min-width: 0; padding-inline: 10px; }
+        .availability-form-title { grid-column: auto; }
         .field-full { grid-column: auto; }
       }
     </style>
@@ -110,8 +141,25 @@
 
       <section class="panel" style="margin-bottom:16px">
         <div class="panel-heading"><h2>Booking availability</h2><button class="button" id="refresh-availability" type="button">Refresh</button></div>
-        <p class="availability-note">Publish one day or a date range. Visitors will only see these windows in the booking calendar.</p>
+        <p class="availability-note">Choose a day to see its booking windows. Only green Available windows appear on the public booking form; Requested and Booked windows are locked. Marking an unused window unavailable keeps it in the history and it can be restored.</p>
+        <div class="availability-legend" aria-label="Availability status legend">
+          <span class="available"><i></i>Available</span>
+          <span class="requested"><i></i>Requested</span>
+          <span class="booked"><i></i>Booked</span>
+          <span class="unavailable"><i></i>Unavailable</span>
+        </div>
+        <div class="availability-toolbar">
+          <button class="button" id="availability-prev" type="button" aria-label="Previous month">Previous</button>
+          <strong id="availability-month">Loading calendar…</strong>
+          <button class="button" id="availability-next" type="button" aria-label="Next month">Next</button>
+        </div>
+        <div class="availability-calendar" id="availability-calendar" aria-label="Booking availability calendar"></div>
+        <div class="availability-day-panel" id="availability-day-panel">
+          <h3 class="availability-day-heading" id="availability-day-heading">Select a day</h3>
+          <div class="availability-list" id="availability-day-list"></div>
+        </div>
         <form class="availability-form" id="availability-form">
+          <p class="availability-form-title">Publish a new window. A date range creates the same time window on each day.</p>
           <label>From date<input name="fromDate" type="date" required></label>
           <label>To date<input name="toDate" type="date"></label>
           <label>Start time<input name="startTime" type="time" required></label>
@@ -135,7 +183,13 @@
     </main>
 
     <script>
-      var state = { data: null, selectedRow: null };
+      var now = new Date();
+      var state = {
+        data: null,
+        selectedRow: null,
+        availabilityMonth: new Date(now.getFullYear(), now.getMonth(), 1),
+        selectedAvailabilityDate: '',
+      };
 
       function serverCall(name) {
         var args = Array.prototype.slice.call(arguments, 1);
@@ -194,34 +248,129 @@
         });
       }
 
-      function renderAvailability(slots) {
-        var container = document.getElementById('availability-list');
+      function pad(value) { return String(value).padStart(2, '0'); }
+
+      function dateKeyLocal(date) {
+        return date.getFullYear() + '-' + pad(date.getMonth() + 1) + '-' + pad(date.getDate());
+      }
+
+      function parseDateKey(key) {
+        var parts = String(key || '').split('-').map(Number);
+        return new Date(parts[0], parts[1] - 1, parts[2]);
+      }
+
+      function monthLabel(date) {
+        return date.toLocaleDateString(undefined, { month: 'long', year: 'numeric' });
+      }
+
+      function slotsForDate(slots, date) {
+        return (slots || []).filter(function (slot) { return slot.date === date; });
+      }
+
+      function statusForDate(slots) {
+        if (!slots.length) return 'empty';
+        var order = ['Available', 'Requested', 'Booked', 'Unavailable'];
+        for (var i = 0; i < order.length; i += 1) {
+          if (slots.some(function (slot) { return slot.status === order[i]; })) return order[i].toLowerCase();
+        }
+        return 'empty';
+      }
+
+      function availabilitySummary(slots) {
+        if (!slots.length) return 'No windows';
+        return slots.length + (slots.length === 1 ? ' window' : ' windows');
+      }
+
+      function chooseAvailabilityDate(slots) {
+        var month = state.availabilityMonth;
+        var monthPrefix = month.getFullYear() + '-' + pad(month.getMonth() + 1) + '-';
+        var current = state.selectedAvailabilityDate;
+        if (current && current.indexOf(monthPrefix) === 0) return current;
+        var firstWithSlot = (slots || []).find(function (slot) { return slot.date.indexOf(monthPrefix) === 0; });
+        if (firstWithSlot) return firstWithSlot.date;
+        var today = dateKeyLocal(new Date());
+        if (today.indexOf(monthPrefix) === 0) return today;
+        return monthPrefix + '01';
+      }
+
+      function renderAvailabilityCalendar(slots) {
+        var month = state.availabilityMonth;
+        var calendar = document.getElementById('availability-calendar');
+        document.getElementById('availability-month').textContent = monthLabel(month);
+        calendar.replaceChildren();
+        ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].forEach(function (label) {
+          calendar.appendChild(node('div', 'availability-weekday', label));
+        });
+        var firstDay = new Date(month.getFullYear(), month.getMonth(), 1).getDay();
+        var dayCount = new Date(month.getFullYear(), month.getMonth() + 1, 0).getDate();
+        for (var blank = 0; blank < firstDay; blank += 1) calendar.appendChild(node('div'));
+        state.selectedAvailabilityDate = chooseAvailabilityDate(slots);
+        for (var day = 1; day <= dayCount; day += 1) {
+          var key = month.getFullYear() + '-' + pad(month.getMonth() + 1) + '-' + pad(day);
+          var daySlots = slotsForDate(slots, key);
+          var status = statusForDate(daySlots);
+          var button = node('button', 'availability-day is-' + status);
+          button.type = 'button';
+          if (key === state.selectedAvailabilityDate) button.className += ' is-selected';
+          button.setAttribute('aria-label', key + ': ' + availabilitySummary(daySlots));
+          button.setAttribute('aria-pressed', String(key === state.selectedAvailabilityDate));
+          button.appendChild(node('span', 'availability-day-number', String(day)));
+          button.appendChild(node('span', 'availability-day-summary', availabilitySummary(daySlots)));
+          button.addEventListener('click', function (event) {
+            state.selectedAvailabilityDate = event.currentTarget.getAttribute('data-date');
+            renderAvailability(state.data.availability);
+          });
+          button.setAttribute('data-date', key);
+          calendar.appendChild(button);
+        }
+      }
+
+      function renderAvailabilityDay(slots) {
+        var selectedDate = state.selectedAvailabilityDate;
+        var heading = document.getElementById('availability-day-heading');
+        var container = document.getElementById('availability-day-list');
+        heading.textContent = selectedDate ? 'Windows for ' + selectedDate : 'Select a day';
         container.replaceChildren();
-        if (!slots || !slots.length) {
-          container.appendChild(node('p', 'empty', 'No availability published yet.'));
+        if (!selectedDate) {
+          container.appendChild(node('p', 'empty', 'Select a day to inspect its booking windows.'));
           return;
         }
-        slots.forEach(function (slot) {
+        var daySlots = slotsForDate(slots, selectedDate);
+        if (!daySlots.length) {
+          container.appendChild(node('p', 'empty', 'No windows published for this day. Use the form below to add one.'));
+          return;
+        }
+        daySlots.forEach(function (slot) {
           var row = node('div', 'availability-row');
           var main = node('div', 'availability-row-main');
-          main.appendChild(node('strong', '', slot.date + ' · ' + slot.startTime + '–' + slot.endTime));
+          main.appendChild(node('strong', '', slot.startTime + '–' + slot.endTime));
           main.appendChild(node('small', '', slot.status + (slot.leadRow ? ' · enquiry row ' + slot.leadRow : '')));
           row.appendChild(main);
-          if (slot.status === 'Available') {
-            var remove = node('button', 'button', 'Remove');
-            remove.type = 'button';
-            remove.addEventListener('click', function () {
-              if (!window.confirm('Remove availability for ' + slot.date + '?')) return;
-              serverCall('removeAvailabilitySlot', slot.row).then(function (next) {
+          if (slot.status === 'Available' || slot.status === 'Unavailable') {
+            var actionLabel = slot.status === 'Available' ? 'Mark unavailable' : 'Restore';
+            var action = node('button', 'button', actionLabel);
+            action.type = 'button';
+            action.addEventListener('click', function () {
+              var question = slot.status === 'Available'
+                ? 'Mark ' + slot.date + ' ' + slot.startTime + '–' + slot.endTime + ' unavailable? You can restore it later.'
+                : 'Restore ' + slot.date + ' ' + slot.startTime + '–' + slot.endTime + ' as available?';
+              if (!window.confirm(question)) return;
+              var method = slot.status === 'Available' ? 'removeAvailabilitySlot' : 'restoreAvailabilitySlot';
+              serverCall(method, slot.row).then(function (next) {
                 state.data.availability = next;
                 renderAvailability(next);
-                showNotice('Availability removed.', 'success');
+                showNotice(slot.status === 'Available' ? 'Window marked unavailable.' : 'Window restored.', 'success');
               }).catch(function (error) { showNotice(error.message, 'error'); });
             });
-            row.appendChild(remove);
+            row.appendChild(action);
           } else row.appendChild(node('span', 'badge', slot.status));
           container.appendChild(row);
         });
+      }
+
+      function renderAvailability(slots) {
+        renderAvailabilityCalendar(slots || []);
+        renderAvailabilityDay(slots || []);
       }
 
       function renderLeads(leads) {
@@ -376,12 +525,28 @@
 
       document.getElementById('refresh').addEventListener('click', refresh);
       document.getElementById('refresh-availability').addEventListener('click', refresh);
+      document.getElementById('availability-prev').addEventListener('click', function () {
+        state.availabilityMonth = new Date(state.availabilityMonth.getFullYear(), state.availabilityMonth.getMonth() - 1, 1);
+        state.selectedAvailabilityDate = '';
+        renderAvailability(state.data ? state.data.availability : []);
+      });
+      document.getElementById('availability-next').addEventListener('click', function () {
+        state.availabilityMonth = new Date(state.availabilityMonth.getFullYear(), state.availabilityMonth.getMonth() + 1, 1);
+        state.selectedAvailabilityDate = '';
+        renderAvailability(state.data ? state.data.availability : []);
+      });
       document.getElementById('availability-form').addEventListener('submit', function (event) {
         event.preventDefault();
         var values = new FormData(event.currentTarget);
         serverCall('saveAvailabilitySlots', values.get('fromDate'), values.get('toDate'), values.get('startTime'), values.get('endTime'))
           .then(function (next) {
             state.data.availability = next;
+            var firstDate = values.get('fromDate');
+            if (firstDate) {
+              var parsed = parseDateKey(firstDate);
+              state.availabilityMonth = new Date(parsed.getFullYear(), parsed.getMonth(), 1);
+              state.selectedAvailabilityDate = firstDate;
+            }
             renderAvailability(next);
             event.currentTarget.reset();
             showNotice('Availability published.', 'success');
