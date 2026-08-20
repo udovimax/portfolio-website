@@ -3,11 +3,29 @@ import { createPortal } from 'react-dom'
 import { AnimatePresence, motion } from 'framer-motion'
 
 const BOOKING_INTEREST = 'Booking / studio session'
+const COLLABORATION_INTEREST = 'Artist / music collaboration'
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/i
 
 type AvailabilityResponse = {
   ok: boolean
-  slots?: Array<{ date: string; times: string[] }>
+  slots?: Array<{ date: string; ranges?: Array<{ start: string; end: string }>; times?: string[] }>
+}
+
+type BookingRange = { start: string; end: string }
+
+function dateKey(date: Date) {
+  return new Date(date.getTime() - date.getTimezoneOffset() * 60_000).toISOString().slice(0, 10)
+}
+
+function monthLabel(date: Date) {
+  return new Intl.DateTimeFormat('en-GB', { month: 'long', year: 'numeric' }).format(date)
+}
+
+function addMonths(date: Date, amount: number) {
+  const next = new Date(date)
+  next.setDate(1)
+  next.setMonth(next.getMonth() + amount)
+  return next
 }
 
 interface ContactDrawerProps {
@@ -40,12 +58,24 @@ export function ContactDrawer({
   const [interest, setInterest] = useState(initialInterest)
   const [bookingDate, setBookingDate] = useState('')
   const [bookingTime, setBookingTime] = useState('')
-  const [availability, setAvailability] = useState<Record<string, string[]>>({})
+  const [bookingEndTime, setBookingEndTime] = useState('')
+  const [calendarMonth, setCalendarMonth] = useState(() => new Date())
+  const [availability, setAvailability] = useState<Record<string, BookingRange[]>>({})
   const [availabilityState, setAvailabilityState] = useState<'idle' | 'loading' | 'ready' | 'error'>('idle')
 
   const formAction = `https://formsubmit.co/${endpointEmail}`
   const isBooking = interest === BOOKING_INTEREST
-  const availableTimes = bookingDate ? availability[bookingDate] || [] : []
+  const isCollaboration = interest === COLLABORATION_INTEREST
+  const availableRanges = bookingDate ? availability[bookingDate] || [] : []
+  const availableEndTimes = availableRanges.filter((range) => range.start === bookingTime).map((range) => range.end)
+  const availableDates = new Set(Object.keys(availability))
+  const calendarStart = new Date(calendarMonth.getFullYear(), calendarMonth.getMonth(), 1)
+  const calendarOffset = (calendarStart.getDay() + 6) % 7
+  const calendarDays = Array.from({ length: 42 }, (_, index) => {
+    const day = new Date(calendarStart)
+    day.setDate(1 + index - calendarOffset)
+    return day
+  })
   const localToday = new Date()
   const minimumBookingDate = new Date(localToday.getTime() - localToday.getTimezoneOffset() * 60_000)
     .toISOString()
@@ -71,8 +101,8 @@ export function ContactDrawer({
 
     const windowWithCallback = window as typeof window & Record<string, unknown>
     windowWithCallback[callbackName] = (response: AvailabilityResponse) => {
-      const nextAvailability = (response.slots || []).reduce<Record<string, string[]>>((result, slot) => {
-        result[slot.date] = slot.times
+      const nextAvailability = (response.slots || []).reduce<Record<string, BookingRange[]>>((result, slot) => {
+        result[slot.date] = slot.ranges || (slot.times || []).map((time) => ({ start: time, end: time }))
         return result
       }, {})
       setAvailability(nextAvailability)
@@ -103,6 +133,7 @@ export function ContactDrawer({
       setInterest('')
       setBookingDate('')
       setBookingTime('')
+      setBookingEndTime('')
       setAvailability({})
       setAvailabilityState('idle')
       return
@@ -111,6 +142,7 @@ export function ContactDrawer({
     setInterest(initialInterest)
     setBookingDate('')
     setBookingTime('')
+    setBookingEndTime('')
 
     const isTouchDevice = window.matchMedia('(pointer: coarse)').matches || 'ontouchstart' in window
     const focusFrame = isTouchDevice
@@ -164,12 +196,28 @@ export function ContactDrawer({
         setSubmitError('Please enter a valid email address so Max can reply.')
         return
       }
-      if (isBooking && (!bookingDate || !bookingTime)) {
+      const projectUrl = String(formData.get('projectUrl') || '').trim()
+      if (isCollaboration && !projectUrl) {
+        setIsSubmitting(false)
+        setSubmitError('Add a link to the project you want to discuss.')
+        return
+      }
+      if (projectUrl) {
+        try {
+          const parsedUrl = new URL(projectUrl)
+          if (!['http:', 'https:'].includes(parsedUrl.protocol)) throw new Error('Unsupported URL protocol')
+        } catch {
+          setIsSubmitting(false)
+          setSubmitError('Please enter a valid project link beginning with https://.')
+          return
+        }
+      }
+      if (isBooking && (!bookingDate || !bookingTime || !bookingEndTime)) {
         setIsSubmitting(false)
         setSubmitError('Choose an available booking date and time before sending.')
         return
       }
-      if (isBooking && !availableTimes.includes(bookingTime)) {
+      if (isBooking && !availableRanges.some((range) => range.start === bookingTime && range.end === bookingEndTime)) {
         setIsSubmitting(false)
         setSubmitError('That booking time is no longer available. Please choose another slot.')
         return
@@ -205,6 +253,7 @@ export function ContactDrawer({
       setIsSupportExpanded(false)
       setBookingDate('')
       setBookingTime('')
+      setBookingEndTime('')
     }
   }
 
@@ -318,6 +367,25 @@ export function ContactDrawer({
               <input type="hidden" name="_captcha" value="false" />
               <input type="hidden" name="_template" value="table" />
               <input type="hidden" name="_type" value="lead" />
+              <label htmlFor="drawer-interest">I’m interested in</label>
+              <select
+                id="drawer-interest"
+                name="interest"
+                required
+                value={interest}
+                onChange={(event) => {
+                  setInterest(event.target.value)
+                  setBookingDate('')
+                  setBookingTime('')
+                  setBookingEndTime('')
+                  setSubmitError(null)
+                }}
+              >
+                <option value="">General enquiry</option>
+                <option value={BOOKING_INTEREST}>Booking / studio session</option>
+                <option value="Producer / engineer / sound designer">Producer / engineer / sound designer</option>
+                <option value={COLLABORATION_INTEREST}>{COLLABORATION_INTEREST}</option>
+              </select>
               <label htmlFor="drawer-name">Name</label>
               <input
                 id="drawer-name"
@@ -330,69 +398,104 @@ export function ContactDrawer({
               <label htmlFor="drawer-email">Email</label>
               <input id="drawer-email" name="email" type="email" autoComplete="email" required />
               <label htmlFor="drawer-message">Message</label>
-              <textarea id="drawer-message" name="message" rows={6} required />
-              <label htmlFor="drawer-interest">I’m interested in</label>
-              <select
-                id="drawer-interest"
-                name="interest"
-                required
-                value={interest}
-                onChange={(event) => {
-                  setInterest(event.target.value)
-                  setBookingDate('')
-                  setBookingTime('')
-                  setSubmitError(null)
-                }}
-              >
-                <option value="">General enquiry</option>
-                <option value={BOOKING_INTEREST}>Booking / studio session</option>
-                <option value="Producer / engineer / sound designer">Producer / engineer / sound designer</option>
-                <option value="Artist / music collaboration">Artist / music collaboration</option>
-                <option value="Research / photography">Research / photography</option>
-              </select>
+              <textarea id="drawer-message" name="message" rows={isBooking ? 3 : 6} required />
+              <div className="contact-collaboration-field">
+                <label htmlFor="drawer-project-url">{isCollaboration ? 'Project link (required)' : 'Project or reference link (optional)'}</label>
+                <input
+                  id="drawer-project-url"
+                  name="projectUrl"
+                  type="url"
+                  inputMode="url"
+                  autoComplete="url"
+                  placeholder="https://your-project-link.com"
+                  required={isCollaboration}
+                />
+                <p className="contact-drawer-field-note">
+                  {isCollaboration
+                    ? 'Share a public or private link to the project you want to discuss.'
+                    : 'Add a link if it helps Max understand your enquiry.'}
+                </p>
+              </div>
               {isBooking ? (
                 <div className="contact-booking-fields">
-                  <div>
-                    <label htmlFor="drawer-booking-date">Preferred date</label>
-                    <input
-                      id="drawer-booking-date"
-                      name="bookingDate"
-                      type="date"
-                      min={minimumBookingDate}
-                      value={bookingDate}
-                      onChange={(event) => {
-                        setBookingDate(event.target.value)
-                        setBookingTime('')
-                      }}
-                      required
-                    />
+                  <div className="booking-calendar" aria-label="Available booking dates">
+                    <div className="booking-calendar-header">
+                      <strong>{monthLabel(calendarMonth)}</strong>
+                      <div>
+                        <button type="button" onClick={() => setCalendarMonth((month) => addMonths(month, -1))} aria-label="Previous month">←</button>
+                        <button type="button" onClick={() => setCalendarMonth((month) => addMonths(month, 1))} aria-label="Next month">→</button>
+                      </div>
+                    </div>
+                    <div className="booking-calendar-weekdays" aria-hidden="true">
+                      {['M', 'T', 'W', 'T', 'F', 'S', 'S'].map((day, index) => <span key={`${day}-${index}`}>{day}</span>)}
+                    </div>
+                    <div className="booking-calendar-grid">
+                      {calendarDays.map((day) => {
+                        const key = dateKey(day)
+                        const isCurrentMonth = day.getMonth() === calendarMonth.getMonth()
+                        const isAvailable = availableDates.has(key)
+                        const isSelected = key === bookingDate
+                        const isPast = key < minimumBookingDate
+                        return (
+                          <button
+                            type="button"
+                            key={key}
+                            className={isSelected ? 'is-selected' : ''}
+                            disabled={!isCurrentMonth || !isAvailable || isPast || availabilityState !== 'ready'}
+                            onClick={() => {
+                              setBookingDate(key)
+                              setBookingTime('')
+                              setBookingEndTime('')
+                            }}
+                            aria-pressed={isSelected}
+                            aria-label={`${day.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}${isAvailable ? ', available' : ', unavailable'}`}
+                          >
+                            {day.getDate()}
+                          </button>
+                        )
+                      })}
+                    </div>
                   </div>
-                  <div>
-                    <label htmlFor="drawer-booking-time">Available time</label>
-                    <select
-                      id="drawer-booking-time"
-                      name="bookingTime"
-                      value={bookingTime}
-                      onChange={(event) => setBookingTime(event.target.value)}
-                      disabled={!bookingDate || availabilityState !== 'ready' || availableTimes.length === 0}
-                      required
-                    >
-                      <option value="">
-                        {availabilityState === 'loading'
-                          ? 'Loading slots…'
-                          : bookingDate && availableTimes.length === 0
-                            ? 'No times available'
-                            : 'Choose a time'}
-                      </option>
-                      {availableTimes.map((time) => <option key={time} value={time}>{time}</option>)}
-                    </select>
+                  <input type="hidden" name="bookingDate" value={bookingDate} />
+                  <div className="booking-time-fields">
+                    <div>
+                      <label htmlFor="drawer-booking-time">Start time</label>
+                      <select
+                        id="drawer-booking-time"
+                        name="bookingTime"
+                        value={bookingTime}
+                        onChange={(event) => {
+                          setBookingTime(event.target.value)
+                          setBookingEndTime('')
+                        }}
+                        disabled={!bookingDate || availabilityState !== 'ready' || availableRanges.length === 0}
+                        required
+                      >
+                        <option value="">Choose a start</option>
+                        {[...new Set(availableRanges.map((range) => range.start))].map((time) => <option key={time} value={time}>{time}</option>)}
+                      </select>
+                    </div>
+                    <div>
+                      <label htmlFor="drawer-booking-end-time">End time</label>
+                      <select
+                        id="drawer-booking-end-time"
+                        name="bookingEndTime"
+                        value={bookingEndTime}
+                        onChange={(event) => setBookingEndTime(event.target.value)}
+                        disabled={!bookingTime || availableEndTimes.length === 0}
+                        required
+                      >
+                        <option value="">Choose an end</option>
+                        {availableEndTimes.map((time) => <option key={time} value={time}>{time}</option>)}
+                      </select>
+                    </div>
                   </div>
                   <p className="contact-drawer-field-note" role="status">
                     {availabilityState === 'error'
                       ? 'Booking availability is temporarily unavailable. Please email Max directly.'
                       : availabilityState === 'ready'
-                        ? 'Choose from the slots currently published by Max.'
-                        : 'Choose a date to see available times.'}
+                        ? 'Choose a highlighted day, then select an available start and end time.'
+                        : 'Loading Max’s available dates…'}
                   </p>
                 </div>
               ) : null}

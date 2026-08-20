@@ -19,10 +19,10 @@ var AVAILABILITY_SHEET_NAME = 'Availability';
 var LEAD_HEADERS = [
   'Received at', 'Name', 'Email', 'Interest', 'Message', 'Subject',
   'Status', 'Priority', 'Notes', 'Follow-up', 'Last replied at',
-  'Booking date', 'Booking time', 'Confirmation sent',
+  'Booking date', 'Booking time', 'Confirmation sent', 'Project URL', 'Booking end time',
 ];
 var ANALYTICS_HEADERS = ['Received at', 'Page', 'Path'];
-var AVAILABILITY_HEADERS = ['Date', 'Time', 'Status', 'Lead row', 'Updated at'];
+var AVAILABILITY_HEADERS = ['Date', 'Time', 'Status', 'Lead row', 'Updated at', 'End time'];
 
 /** Public entry point for anonymous website lead and page-view POSTs. */
 function doPost(event) {
@@ -36,13 +36,22 @@ function doPost(event) {
   if (!isValidEmail_(values.email)) {
     return jsonResponse_({ ok: false, error: 'invalid_email' });
   }
+  if (!isValidProjectUrl_(values.projectUrl)) {
+    return jsonResponse_({ ok: false, error: 'invalid_project_url' });
+  }
+  if (isCollaboration_(values) && !String(values.projectUrl || '').trim()) {
+    return jsonResponse_({ ok: false, error: 'project_url_required' });
+  }
+  if (isBooking_(values) && (!values.bookingDate || !values.bookingTime || !values.bookingEndTime)) {
+    return jsonResponse_({ ok: false, error: 'booking_range_required' });
+  }
 
   var lock = LockService.getScriptLock();
   lock.waitLock(10000);
   try {
     var reservation = null;
     if (isBooking_(values)) {
-      reservation = reserveBookingSlot_(values.bookingDate, values.bookingTime);
+      reservation = reserveBookingSlot_(values.bookingDate, values.bookingTime, values.bookingEndTime);
       if (!reservation.ok) return jsonResponse_(reservation);
     }
 
@@ -52,7 +61,7 @@ function doPost(event) {
       new Date(), safeCell(values.name), safeCell(values.email),
       safeCell(values.interest || 'General enquiry'), safeCell(values.message),
       safeCell(values._subject || 'Portfolio enquiry'), 'New', 'Normal', '', '', '',
-      safeCell(values.bookingDate), safeCell(values.bookingTime), '',
+      safeCell(values.bookingDate), safeCell(values.bookingTime), '', safeCell(values.projectUrl), safeCell(values.bookingEndTime),
     ]);
 
     if (reservation) markBookingSlot_(reservation.row, leadRow, 'Requested');
@@ -179,6 +188,7 @@ function leadFromRow_(row, rowNumber) {
     notes: String(row[8] || ''), followUp: formatDateOrText_(row[9]),
     lastRepliedAt: formatDateOrText_(row[10]), bookingDate: dateKey_(row[11]),
     bookingTime: timeKey_(row[12]), confirmationSent: String(row[13] || ''),
+    projectUrl: String(row[14] || ''), bookingEndTime: timeKey_(row[15]),
   };
 }
 
@@ -271,6 +281,7 @@ function readAvailability_(from, days) {
   var lastDate = dateKey_(end);
   var dateColumn = availabilityColumn_(sheet, 'Date');
   var timeColumn = availabilityColumn_(sheet, 'Time');
+  var endTimeColumn = availabilityColumn_(sheet, 'End time');
   var statusColumn = availabilityColumn_(sheet, 'Status');
   var rows = sheet.getRange(2, 1, lastRow - 1, Math.max(sheet.getLastColumn(), AVAILABILITY_HEADERS.length)).getValues();
   var grouped = {};
@@ -278,21 +289,24 @@ function readAvailability_(from, days) {
   rows.forEach(function (row) {
     var date = dateKey_(row[dateColumn - 1]);
     var time = timeKey_(row[timeColumn - 1]);
+    var endTime = timeKey_(row[endTimeColumn - 1]) || addMinutesToTime_(time, 60);
     var status = String(row[statusColumn - 1] || 'Available').trim().toLowerCase();
     if (!date || !time || date < firstDate || date > lastDate || (status && status !== 'available')) return;
     if (!grouped[date]) grouped[date] = [];
-    if (grouped[date].indexOf(time) < 0) grouped[date].push(time);
+    if (!grouped[date].some(function (range) { return range.start === time && range.end === endTime; })) {
+      grouped[date].push({ start: time, end: endTime });
+    }
   });
 
   return Object.keys(grouped).sort().map(function (date) {
-    return { date: date, times: grouped[date].sort() };
+    return { date: date, ranges: grouped[date].sort(function (a, b) { return a.start.localeCompare(b.start) || a.end.localeCompare(b.end); }) };
   });
 }
 
 /** Atomically reserve a published slot before a lead row is created. */
-function reserveBookingSlot_(date, time) {
+function reserveBookingSlot_(date, time, endTime) {
   var sheet = getOrCreateSheet_(AVAILABILITY_SHEET_NAME, AVAILABILITY_HEADERS);
-  var row = findAvailabilityRow_(sheet, date, time);
+  var row = findAvailabilityRow_(sheet, date, time, endTime);
   if (!row) return { ok: false, error: 'slot_unavailable' };
   var status = String(sheet.getRange(row, availabilityColumn_(sheet, 'Status')).getValue() || 'Available')
     .trim().toLowerCase();
@@ -307,15 +321,19 @@ function markBookingSlot_(row, leadRow, status) {
   sheet.getRange(row, availabilityColumn_(sheet, 'Updated at')).setValue(new Date());
 }
 
-function findAvailabilityRow_(sheet, date, time) {
+function findAvailabilityRow_(sheet, date, time, endTime) {
   var lastRow = sheet.getLastRow();
   if (lastRow < 2) return 0;
   var dateColumn = availabilityColumn_(sheet, 'Date');
   var timeColumn = availabilityColumn_(sheet, 'Time');
+  var endTimeColumn = availabilityColumn_(sheet, 'End time');
   var values = sheet.getRange(2, 1, lastRow - 1, Math.max(sheet.getLastColumn(), AVAILABILITY_HEADERS.length)).getValues();
   for (var index = 0; index < values.length; index += 1) {
+    var storedStart = timeKey_(values[index][timeColumn - 1]);
+    var storedEnd = timeKey_(values[index][endTimeColumn - 1]) || addMinutesToTime_(storedStart, 60);
     if (dateKey_(values[index][dateColumn - 1]) === dateKey_(date)
-      && timeKey_(values[index][timeColumn - 1]) === timeKey_(time)) return index + 2;
+      && storedStart === timeKey_(time)
+      && (!endTime || storedEnd === timeKey_(endTime))) return index + 2;
   }
   return 0;
 }
@@ -324,7 +342,7 @@ function findAvailabilityRow_(sheet, date, time) {
 function syncBookingStatus_(lead, status) {
   if (!lead.bookingDate || !lead.bookingTime) return;
   var sheet = getOrCreateSheet_(AVAILABILITY_SHEET_NAME, AVAILABILITY_HEADERS);
-  var row = findAvailabilityRow_(sheet, lead.bookingDate, lead.bookingTime);
+  var row = findAvailabilityRow_(sheet, lead.bookingDate, lead.bookingTime, lead.bookingEndTime);
   if (!row) return;
   if (status === 'Declined') {
     markBookingSlot_(row, '', 'Available');
@@ -348,8 +366,9 @@ function sendCustomerConfirmation_(values) {
     'Enquiry type: ' + interest,
   ];
   if (values.bookingDate && values.bookingTime) {
-    body.push('Requested booking: ' + values.bookingDate + ' at ' + values.bookingTime);
+    body.push('Requested booking: ' + values.bookingDate + ' from ' + values.bookingTime + (values.bookingEndTime ? ' to ' + values.bookingEndTime : ''));
   }
+  if (values.projectUrl) body.push('Project link: ' + String(values.projectUrl).trim());
   body.push('', 'Your message:', String(values.message || '').trim());
   body.push('', 'Max will review your message and reply as soon as possible.',
     '', 'If you do not see his reply, please check your spam or junk folder.',
@@ -369,9 +388,26 @@ function isBooking_(values) {
   return String(values.interest || '').trim() === 'Booking / studio session';
 }
 
+function isCollaboration_(values) {
+  return String(values.interest || '').trim() === 'Artist / music collaboration';
+}
+
 function isValidEmail_(value) {
   var email = String(value || '').trim();
   return email.length <= 254 && EMAIL_PATTERN_().test(email);
+}
+
+function isValidProjectUrl_(value) {
+  var url = String(value || '').trim();
+  return !url || /^https?:\/\/\S+$/i.test(url);
+}
+
+function addMinutesToTime_(value, minutes) {
+  var match = String(value || '').match(/^(\d{1,2}):(\d{2})$/);
+  if (!match) return '';
+  var total = Number(match[1]) * 60 + Number(match[2]) + minutes;
+  total = total % (24 * 60);
+  return String(Math.floor(total / 60)).padStart(2, '0') + ':' + String(total % 60).padStart(2, '0');
 }
 
 function EMAIL_PATTERN_() {

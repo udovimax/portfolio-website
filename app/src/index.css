@@ -1480,14 +1480,90 @@ textarea:focus-visible {
 
 .contact-booking-fields {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 0.65rem;
+  gap: 0.7rem;
   margin-top: 0.2rem;
   padding-top: 0.7rem;
   border-top: 1px solid rgba(205, 255, 216, 0.18);
 }
 
-.contact-booking-fields > div {
+.booking-calendar {
+  display: grid;
+  gap: 0.6rem;
+  padding: 0.8rem;
+  border: 1px solid rgba(205, 255, 216, 0.24);
+  border-radius: 0.8rem;
+  background: rgba(9, 12, 16, 0.42);
+}
+
+.booking-calendar-header,
+.booking-calendar-weekdays,
+.booking-calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 0.25rem;
+}
+
+.booking-calendar-header {
+  grid-template-columns: 1fr auto;
+  align-items: center;
+}
+
+.booking-calendar-header strong {
+  color: var(--text-main);
+  font-size: 0.82rem;
+  font-weight: 500;
+}
+
+.booking-calendar-header > div {
+  display: flex;
+  gap: 0.25rem;
+}
+
+.booking-calendar-header button,
+.booking-calendar-grid button {
+  min-height: 2rem;
+  border: 1px solid transparent;
+  border-radius: 0.45rem;
+  background: transparent;
+  color: var(--text-muted);
+  font: inherit;
+}
+
+.booking-calendar-header button {
+  width: 2rem;
+  border-color: rgba(205, 255, 216, 0.18);
+}
+
+.booking-calendar-weekdays {
+  color: var(--text-muted);
+  font-size: 0.68rem;
+  text-align: center;
+}
+
+.booking-calendar-grid button {
+  color: rgba(247, 244, 239, 0.28);
+  cursor: not-allowed;
+}
+
+.booking-calendar-grid button:enabled {
+  color: var(--text-main);
+  cursor: pointer;
+}
+
+.booking-calendar-grid button:enabled:hover,
+.booking-calendar-grid button.is-selected {
+  border-color: rgba(148, 185, 255, 0.9);
+  background: rgba(148, 185, 255, 0.18);
+  color: #d6ffff;
+}
+
+.booking-time-fields {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.65rem;
+}
+
+.booking-time-fields > div {
   display: grid;
   gap: 0.45rem;
 }
@@ -1496,18 +1572,28 @@ textarea:focus-visible {
   margin-top: 0;
 }
 
-.contact-booking-fields input,
-.contact-booking-fields select {
+.booking-time-fields select {
   min-width: 0;
 }
 
-.contact-booking-fields select:disabled {
+.booking-time-fields select:disabled {
   cursor: not-allowed;
   opacity: 0.55;
 }
 
+.contact-collaboration-field {
+  display: grid;
+  gap: 0.45rem;
+  margin-top: 0.2rem;
+  padding-top: 0.7rem;
+  border-top: 1px solid rgba(205, 255, 216, 0.18);
+}
+
+.contact-collaboration-field label {
+  margin-top: 0;
+}
+
 .contact-drawer-field-note {
-  grid-column: 1 / -1;
   margin: 0;
   color: var(--text-muted);
   font-size: 0.78rem;

@@ -215,15 +215,22 @@
         var meta = node('div', 'detail-meta');
         var metaItems = [['Name', lead.name], ['Email', lead.email], ['Interest', lead.interest], ['Received', lead.receivedAt]];
         if (lead.bookingDate || lead.bookingTime) {
-          metaItems.push(['Requested booking', [lead.bookingDate, lead.bookingTime].filter(Boolean).join(' at ')]);
+          var booking = [lead.bookingDate, lead.bookingTime].filter(Boolean).join(' from ');
+          if (lead.bookingEndTime) booking += ' to ' + lead.bookingEndTime;
+          metaItems.push(['Requested booking', booking]);
         }
         if (lead.confirmationSent) metaItems.push(['Customer confirmation', lead.confirmationSent]);
+        if (lead.projectUrl) metaItems.push(['Project URL', lead.projectUrl]);
         metaItems.forEach(function (item) {
           var wrapper = node('div', 'meta-item');
           wrapper.appendChild(node('span', '', item[0]));
-          if (item[0] === 'Email') {
+          if (item[0] === 'Email' || item[0] === 'Project URL') {
             var link = node('a', '', item[1]);
-            link.href = 'mailto:' + item[1];
+            link.href = item[0] === 'Email' ? 'mailto:' + item[1] : item[1];
+            if (item[0] === 'Project URL') {
+              link.target = '_blank';
+              link.rel = 'noreferrer';
+            }
             wrapper.appendChild(link);
           } else wrapper.appendChild(node('strong', '', item[1] || '—'));
           meta.appendChild(wrapper);

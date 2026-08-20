@@ -29,13 +29,15 @@ studio session`. Max controls the published slots in an `Availability` tab in
 the same Sheet. The script creates the tab automatically; Max then adds rows
 using:
 
-`Date` = `2026-09-05`, `Time` = `14:00`, `Status` = `Available`
+`Date` = `2026-09-05`, `Time` = `14:00`, `End time` = `16:00`, `Status` = `Available`
 
-Only rows marked `Available` are shown on the site. When a visitor submits a
-booking request, the script locks and changes that row to `Requested`, which
-prevents another visitor from selecting it. In the private dashboard, changing
-the enquiry status to `Booked` or `Complete` keeps it unavailable. Changing it
-to `Declined` releases the slot back to `Available`.
+Only rows marked `Available` are shown on the site. The calendar greys out
+dates without an available row, then the visitor chooses a start and end time
+from that row. When a visitor submits a booking request, the script locks and
+changes that row to `Requested`, which prevents another visitor from selecting
+it. In the private dashboard, changing the enquiry status to `Booked` or
+`Complete` keeps it unavailable. Changing it to `Declined` releases the slot
+back to `Available`.
 
 The form also validates email addresses in the browser and again in Apps
 Script. A booking submission without a currently published slot is rejected by
@@ -87,11 +89,12 @@ The first successful enquiry creates or extends a `Leads` tab with these columns
 
 `Received at`, `Name`, `Email`, `Interest`, `Message`, `Subject`, `Status`,
 `Priority`, `Notes`, `Follow-up`, `Last replied at`, `Booking date`,
-`Booking time`, `Confirmation sent`
+`Booking time`, `Confirmation sent`, `Project URL`, `Booking end time`
 
-The `Interest` field is supplied by the home-page funnel and currently has
-three routes: production/engineering, artist/music collaboration, and
-research/photography. Existing seven-column `Leads` tabs are upgraded with the
+The `Interest` field is supplied by the contact form. Artist/music
+collaboration enquiries require a `Project URL`; general, booking, and
+production enquiries may include one optionally. Booking enquiries also store
+the requested start and end time. Existing `Leads` tabs are extended with the
 new workflow columns automatically when the script receives a request or the
 dashboard opens.
 
