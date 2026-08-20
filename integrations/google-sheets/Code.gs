@@ -96,6 +96,7 @@ function getDashboardData() {
   requireAdmin_();
   var leads = readLeads_();
   var pageViews = readPageViews_();
+  var availability = readAdminAvailability_();
   var thirtyDaysAgo = new Date().getTime() - 30 * 24 * 60 * 60 * 1000;
   var recentViews = pageViews.filter(function (view) {
     return view.receivedAtValue >= thirtyDaysAgo;
@@ -116,7 +117,86 @@ function getDashboardData() {
       viewsLast30Days: recentViews.length,
       viewsByPage: byPage,
     },
+    availability: availability,
   };
+}
+
+/** Return upcoming availability rows for Max's private booking editor. */
+function readAdminAvailability_() {
+  var sheet = getOrCreateSheet_(AVAILABILITY_SHEET_NAME, AVAILABILITY_HEADERS);
+  var lastRow = sheet.getLastRow();
+  if (lastRow < 2) return [];
+  var dateColumn = availabilityColumn_(sheet, 'Date');
+  var timeColumn = availabilityColumn_(sheet, 'Time');
+  var statusColumn = availabilityColumn_(sheet, 'Status');
+  var leadColumn = availabilityColumn_(sheet, 'Lead row');
+  var endTimeColumn = availabilityColumn_(sheet, 'End time');
+  var values = sheet.getRange(2, 1, lastRow - 1, Math.max(sheet.getLastColumn(), AVAILABILITY_HEADERS.length)).getValues();
+  return values.map(function (row, index) {
+    var startTime = timeKey_(row[timeColumn - 1]);
+    return {
+      row: index + 2,
+      date: dateKey_(row[dateColumn - 1]),
+      startTime: startTime,
+      endTime: timeKey_(row[endTimeColumn - 1]) || addMinutesToTime_(startTime, 60),
+      status: String(row[statusColumn - 1] || 'Available').trim() || 'Available',
+      leadRow: String(row[leadColumn - 1] || ''),
+    };
+  }).filter(function (slot) { return slot.date && slot.startTime; }).sort(function (a, b) {
+    return (a.date + a.startTime).localeCompare(b.date + b.startTime);
+  });
+}
+
+/** Add one slot or a contiguous date range from the private dashboard. */
+function saveAvailabilitySlots(fromDate, toDate, startTime, endTime) {
+  requireAdmin_();
+  var startDate = validateDateKey_(fromDate, 'Choose a valid start date.');
+  var finishDate = validateDateKey_(toDate || fromDate, 'Choose a valid end date.');
+  var start = validateTimeKey_(startTime, 'Choose a valid start time.');
+  var finish = validateTimeKey_(endTime, 'Choose a valid end time.');
+  if (finish <= start) throw new Error('The end time must be later than the start time.');
+  if (finishDate < startDate) throw new Error('The end date must be on or after the start date.');
+
+  var lock = LockService.getScriptLock();
+  lock.waitLock(10000);
+  try {
+    var sheet = getOrCreateSheet_(AVAILABILITY_SHEET_NAME, AVAILABILITY_HEADERS);
+    var existing = readAdminAvailability_();
+    var dates = [];
+    var cursor = new Date(startDate + 'T00:00:00');
+    var last = new Date(finishDate + 'T00:00:00');
+    while (cursor <= last) {
+      dates.push(dateKey_(cursor));
+      cursor.setDate(cursor.getDate() + 1);
+    }
+    dates.forEach(function (date) {
+      var conflict = existing.some(function (slot) {
+        if (slot.date !== date || ['Available', 'Requested', 'Booked'].indexOf(slot.status) < 0) return false;
+        return timeMinutes_(start) < timeMinutes_(slot.endTime)
+          && timeMinutes_(finish) > timeMinutes_(slot.startTime);
+      });
+      if (conflict) throw new Error('An existing booking window overlaps ' + date + '.');
+    });
+    dates.forEach(function (date) {
+      sheet.appendRow([date, start, 'Available', '', '', finish]);
+    });
+    return readAdminAvailability_();
+  } finally {
+    lock.releaseLock();
+  }
+}
+
+/** Hide an unused availability row without deleting its audit history. */
+function removeAvailabilitySlot(rowNumber) {
+  requireAdmin_();
+  var sheet = getOrCreateSheet_(AVAILABILITY_SHEET_NAME, AVAILABILITY_HEADERS);
+  var row = normaliseRowNumber_(rowNumber);
+  var statusColumn = availabilityColumn_(sheet, 'Status');
+  var status = String(sheet.getRange(row, statusColumn).getValue() || 'Available').trim();
+  if (status !== 'Available') throw new Error('Only unused Available slots can be removed.');
+  sheet.getRange(row, statusColumn).setValue('Unavailable');
+  sheet.getRange(row, availabilityColumn_(sheet, 'Updated at')).setValue(new Date());
+  return readAdminAvailability_();
 }
 
 /** Update status, priority, notes, or follow-up for a lead row. */
@@ -408,6 +488,23 @@ function addMinutesToTime_(value, minutes) {
   var total = Number(match[1]) * 60 + Number(match[2]) + minutes;
   total = total % (24 * 60);
   return String(Math.floor(total / 60)).padStart(2, '0') + ':' + String(total % 60).padStart(2, '0');
+}
+
+function validateDateKey_(value, message) {
+  var date = String(value || '').trim();
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(date) || dateKey_(date) !== date) throw new Error(message);
+  return date;
+}
+
+function validateTimeKey_(value, message) {
+  var time = timeKey_(value);
+  if (!/^([01]\d|2[0-3]):[0-5]\d$/.test(time)) throw new Error(message);
+  return time;
+}
+
+function timeMinutes_(value) {
+  var parts = String(value || '').split(':');
+  return Number(parts[0]) * 60 + Number(parts[1]);
 }
 
 function EMAIL_PATTERN_() {

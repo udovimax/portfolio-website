@@ -26,8 +26,16 @@ he controls the lead data, replies, booking slots, and deployments.
 
 The site shows booking date/time fields only when a visitor chooses `Booking /
 studio session`. Max controls the published slots in an `Availability` tab in
-the same Sheet. The script creates the tab automatically; Max then adds rows
-using:
+the same Sheet. The script creates the tab automatically. The easiest way to
+publish availability is the **Booking availability** editor at the top of the
+private dashboard: choose a `From date`, optionally choose a later `To date`,
+then choose the `Start time` and `End time` and select **Publish availability**.
+One date creates one window; a date range creates the same window on every day
+in that range. Max can remove unused rows from the dashboard; requested or
+booked rows remain locked so the booking history is not lost.
+
+The Sheet remains the source of truth and can also be edited manually when
+needed, using:
 
 `Date` = `2026-09-05`, `Time` = `14:00`, `End time` = `16:00`, `Status` = `Available`
 
@@ -38,6 +46,11 @@ changes that row to `Requested`, which prevents another visitor from selecting
 it. In the private dashboard, changing the enquiry status to `Booked` or
 `Complete` keeps it unavailable. Changing it to `Declined` releases the slot
 back to `Available`.
+
+Do not publish overlapping windows for the same day. The dashboard checks for
+overlaps before adding a date or date range and reports which day conflicts.
+Older availability rows without an `End time` are treated as one-hour windows
+so existing bookings continue to work.
 
 The form also validates email addresses in the browser and again in Apps
 Script. A booking submission without a currently published slot is rejected by

@@ -69,15 +69,23 @@
       .pages { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 5px; }
       .page-count { border: 1px solid var(--line); border-radius: 10px; padding: 8px 10px; color: var(--muted); }
       .page-count strong { color: var(--text); }
+      .availability-form { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; align-items: end; }
+      .availability-form .button { min-height: 42px; }
+      .availability-note { margin: 12px 0 0; color: var(--muted); font-size: 13px; }
+      .availability-list { display: grid; gap: 8px; margin-top: 16px; }
+      .availability-row { display: flex; justify-content: space-between; align-items: center; gap: 12px; border: 1px solid var(--line); border-radius: 12px; background: rgba(255,255,255,.035); padding: 10px 12px; }
+      .availability-row-main { display: grid; gap: 2px; }
+      .availability-row small { color: var(--muted); }
       @media (max-width: 800px) {
         .stats { grid-template-columns: repeat(2, 1fr); }
         .layout { grid-template-columns: 1fr; }
         .lead-list { max-height: 330px; }
+        .availability-form { grid-template-columns: repeat(2, minmax(0, 1fr)); }
       }
       @media (max-width: 480px) {
         .shell { width: min(100% - 22px, 1180px); padding-top: 18px; }
         header { align-items: start; flex-direction: column; }
-        .stats, .detail-meta, .form-grid { grid-template-columns: 1fr; }
+        .stats, .detail-meta, .form-grid, .availability-form { grid-template-columns: 1fr; }
         .field-full { grid-column: auto; }
       }
     </style>
@@ -98,6 +106,19 @@
       <section class="panel" style="margin-bottom:16px">
         <div class="panel-heading"><h2>Site views · last 30 days</h2><span class="muted">No cookies or personal tracking</span></div>
         <div class="pages" id="pages"></div>
+      </section>
+
+      <section class="panel" style="margin-bottom:16px">
+        <div class="panel-heading"><h2>Booking availability</h2><button class="button" id="refresh-availability" type="button">Refresh</button></div>
+        <p class="availability-note">Publish one day or a date range. Visitors will only see these windows in the booking calendar.</p>
+        <form class="availability-form" id="availability-form">
+          <label>From date<input name="fromDate" type="date" required></label>
+          <label>To date<input name="toDate" type="date"></label>
+          <label>Start time<input name="startTime" type="time" required></label>
+          <label>End time<input name="endTime" type="time" required></label>
+          <button class="button" type="submit">Publish availability</button>
+        </form>
+        <div class="availability-list" id="availability-list"></div>
       </section>
 
       <div class="layout">
@@ -170,6 +191,36 @@
           item.appendChild(node('strong', '', page + ' '));
           item.appendChild(document.createTextNode(String(stats.viewsByPage[page])));
           container.appendChild(item);
+        });
+      }
+
+      function renderAvailability(slots) {
+        var container = document.getElementById('availability-list');
+        container.replaceChildren();
+        if (!slots || !slots.length) {
+          container.appendChild(node('p', 'empty', 'No availability published yet.'));
+          return;
+        }
+        slots.forEach(function (slot) {
+          var row = node('div', 'availability-row');
+          var main = node('div', 'availability-row-main');
+          main.appendChild(node('strong', '', slot.date + ' · ' + slot.startTime + '–' + slot.endTime));
+          main.appendChild(node('small', '', slot.status + (slot.leadRow ? ' · enquiry row ' + slot.leadRow : '')));
+          row.appendChild(main);
+          if (slot.status === 'Available') {
+            var remove = node('button', 'button', 'Remove');
+            remove.type = 'button';
+            remove.addEventListener('click', function () {
+              if (!window.confirm('Remove availability for ' + slot.date + '?')) return;
+              serverCall('removeAvailabilitySlot', slot.row).then(function (next) {
+                state.data.availability = next;
+                renderAvailability(next);
+                showNotice('Availability removed.', 'success');
+              }).catch(function (error) { showNotice(error.message, 'error'); });
+            });
+            row.appendChild(remove);
+          } else row.appendChild(node('span', 'badge', slot.status));
+          container.appendChild(row);
         });
       }
 
@@ -308,6 +359,7 @@
         document.getElementById('account').textContent = 'Signed in as ' + state.data.adminEmail;
         renderStats(state.data.stats);
         renderPages(state.data.stats);
+        renderAvailability(state.data.availability);
         renderLeads(state.data.leads);
         renderDetail();
       }
@@ -323,6 +375,19 @@
       }
 
       document.getElementById('refresh').addEventListener('click', refresh);
+      document.getElementById('refresh-availability').addEventListener('click', refresh);
+      document.getElementById('availability-form').addEventListener('submit', function (event) {
+        event.preventDefault();
+        var values = new FormData(event.currentTarget);
+        serverCall('saveAvailabilitySlots', values.get('fromDate'), values.get('toDate'), values.get('startTime'), values.get('endTime'))
+          .then(function (next) {
+            state.data.availability = next;
+            renderAvailability(next);
+            event.currentTarget.reset();
+            showNotice('Availability published.', 'success');
+          })
+          .catch(function (error) { showNotice(error.message, 'error'); });
+      });
       refresh();
     </script>
   </body>
