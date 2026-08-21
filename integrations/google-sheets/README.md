@@ -39,14 +39,23 @@ booked rows remain locked so the booking history is not lost.
 The Sheet remains the source of truth and can also be edited manually when
 needed, using:
 
-`Date` = `2026-09-05`, `Time` = `14:00`, `End time` = `16:00`, `Status` = `Available`
+`Date` = `2026-09-05`, `Time` = `14:00`, `End time` = `16:00`, `Status` = `Available`, `Location` = `Kingston University studio`, `Price` = `20`, `Payment URL` = `https://paypal.me/maksosshelbe`
 
 Only rows marked `Available` are shown on the site. The visitor chooses a
-date, then a start and end time from an available window. When a visitor
+date, then a start and end time from an available window. If a day contains
+windows at more than one location, the visitor chooses the location first.
+When a visitor
 submits a booking request, the script locks and changes that row to `Requested`,
 which prevents another visitor from selecting it. In the private dashboard,
 changing the enquiry status to `Booked` or `Complete` keeps it unavailable.
 Changing it to `Declined` releases the slot back to `Available`.
+
+New dashboard windows require a location. Price and payment URL are optional:
+leave price blank when Max needs to quote after reviewing the enquiry, and
+leave payment URL blank until the correct payment destination is confirmed.
+The booking record and customer confirmation email snapshot the location,
+price, and payment URL from the reserved row, so a later edit does not change
+the historical enquiry.
 
 The calendar is a dashboard view over the same `Availability` sheet; it is not
 a second source of truth. Clicking **Mark unavailable** changes an unused
@@ -59,10 +68,12 @@ overlaps before adding a date or date range and reports which day conflicts.
 Older availability rows without an `End time` are treated as one-hour windows
 so existing bookings continue to work.
 
-Locations, studio choices, travel rules, and payment links are intentionally
-not part of this editor yet. Add those only after Max supplies the confirmed
-studio names, prices, travel details, and payment URLs; otherwise the booking
-form could publish inaccurate options.
+The editor does not invent studio names, prices, travel rules, or payment
+links. Max must enter the confirmed venue and commercial terms when publishing
+each window. Kingston University publicly describes its music facilities and
+venue-hire contact route, but does not publish a general external hourly music
+studio rate on the pages reviewed; do not publish `£20/hour` until Max confirms
+that rate and the university permits the arrangement.
 
 The form also validates email addresses in the browser and again in Apps
 Script. A booking submission without a currently published slot is rejected by
@@ -114,7 +125,8 @@ The first successful enquiry creates or extends a `Leads` tab with these columns
 
 `Received at`, `Name`, `Email`, `Interest`, `Message`, `Subject`, `Status`,
 `Priority`, `Notes`, `Follow-up`, `Last replied at`, `Booking date`,
-`Booking time`, `Confirmation sent`, `Project URL`, `Booking end time`
+`Booking time`, `Confirmation sent`, `Project URL`, `Booking end time`,
+`Booking location`, `Booking price`, `Payment URL`
 
 The `Interest` field is supplied by the contact form. Artist/music
 collaboration enquiries require a `Project URL`; general, booking, and

@@ -20,9 +20,10 @@ var LEAD_HEADERS = [
   'Received at', 'Name', 'Email', 'Interest', 'Message', 'Subject',
   'Status', 'Priority', 'Notes', 'Follow-up', 'Last replied at',
   'Booking date', 'Booking time', 'Confirmation sent', 'Project URL', 'Booking end time',
+  'Booking location', 'Booking price', 'Payment URL',
 ];
 var ANALYTICS_HEADERS = ['Received at', 'Page', 'Path'];
-var AVAILABILITY_HEADERS = ['Date', 'Time', 'Status', 'Lead row', 'Updated at', 'End time'];
+var AVAILABILITY_HEADERS = ['Date', 'Time', 'Status', 'Lead row', 'Updated at', 'End time', 'Location', 'Price', 'Payment URL'];
 
 /** Public entry point for anonymous website lead and page-view POSTs. */
 function doPost(event) {
@@ -51,9 +52,13 @@ function doPost(event) {
   try {
     var reservation = null;
     if (isBooking_(values)) {
-      reservation = reserveBookingSlot_(values.bookingDate, values.bookingTime, values.bookingEndTime);
+      reservation = reserveBookingSlot_(values.bookingDate, values.bookingTime, values.bookingEndTime, values.bookingLocation);
       if (!reservation.ok) return jsonResponse_(reservation);
     }
+
+    var bookingLocation = reservation ? reservation.location : safeCell(values.bookingLocation);
+    var bookingPrice = reservation ? reservation.price : safeCell(values.bookingPrice);
+    var paymentUrl = reservation ? reservation.paymentUrl : safeCell(values.paymentUrl);
 
     var sheet = getOrCreateSheet_(LEADS_SHEET_NAME, LEAD_HEADERS);
     var leadRow = sheet.getLastRow() + 1;
@@ -62,10 +67,15 @@ function doPost(event) {
       safeCell(values.interest || 'General enquiry'), safeCell(values.message),
       safeCell(values._subject || 'Portfolio enquiry'), 'New', 'Normal', '', '', '',
       safeCell(values.bookingDate), safeCell(values.bookingTime), '', safeCell(values.projectUrl), safeCell(values.bookingEndTime),
+      bookingLocation, bookingPrice, paymentUrl,
     ]);
 
     if (reservation) markBookingSlot_(reservation.row, leadRow, 'Requested');
-    var confirmationSent = sendCustomerConfirmation_(values);
+    var confirmationSent = sendCustomerConfirmation_(Object.assign({}, values, {
+      bookingLocation: bookingLocation,
+      bookingPrice: bookingPrice,
+      paymentUrl: paymentUrl,
+    }));
     sheet.getRange(leadRow, headerColumn_(sheet, 'Confirmation sent'))
       .setValue(confirmationSent ? 'Sent' : 'Unavailable');
 
@@ -131,6 +141,9 @@ function readAdminAvailability_() {
   var statusColumn = availabilityColumn_(sheet, 'Status');
   var leadColumn = availabilityColumn_(sheet, 'Lead row');
   var endTimeColumn = availabilityColumn_(sheet, 'End time');
+  var locationColumn = availabilityColumn_(sheet, 'Location');
+  var priceColumn = availabilityColumn_(sheet, 'Price');
+  var paymentColumn = availabilityColumn_(sheet, 'Payment URL');
   var values = sheet.getRange(2, 1, lastRow - 1, Math.max(sheet.getLastColumn(), AVAILABILITY_HEADERS.length)).getValues();
   return values.map(function (row, index) {
     var startTime = timeKey_(row[timeColumn - 1]);
@@ -141,6 +154,9 @@ function readAdminAvailability_() {
       endTime: timeKey_(row[endTimeColumn - 1]) || addMinutesToTime_(startTime, 60),
       status: String(row[statusColumn - 1] || 'Available').trim() || 'Available',
       leadRow: String(row[leadColumn - 1] || ''),
+      location: String(row[locationColumn - 1] || '').trim(),
+      price: priceKey_(row[priceColumn - 1]),
+      paymentUrl: String(row[paymentColumn - 1] || '').trim(),
     };
   }).filter(function (slot) { return slot.date && slot.startTime; }).sort(function (a, b) {
     return (a.date + a.startTime).localeCompare(b.date + b.startTime);
@@ -148,12 +164,20 @@ function readAdminAvailability_() {
 }
 
 /** Add one slot or a contiguous date range from the private dashboard. */
-function saveAvailabilitySlots(fromDate, toDate, startTime, endTime) {
+function saveAvailabilitySlots(fromDate, toDate, startTime, endTime, location, price, paymentUrl) {
   requireAdmin_();
   var startDate = validateDateKey_(fromDate, 'Choose a valid start date.');
   var finishDate = validateDateKey_(toDate || fromDate, 'Choose a valid end date.');
   var start = validateTimeKey_(startTime, 'Choose a valid start time.');
   var finish = validateTimeKey_(endTime, 'Choose a valid end time.');
+  var studio = String(location || '').trim();
+  if (!studio) throw new Error('Enter the studio or location for this window.');
+  if (String(price || '').trim() && !/^\d+(?:\.\d{1,2})?$/.test(String(price).trim())) {
+    throw new Error('Price must be a positive GBP amount, or left blank for price on request.');
+  }
+  var amount = priceKey_(price);
+  var payment = String(paymentUrl || '').trim();
+  if (payment && !/^https?:\/\/\S+$/i.test(payment)) throw new Error('Payment link must begin with https://.');
   if (finish <= start) throw new Error('The end time must be later than the start time.');
   if (finishDate < startDate) throw new Error('The end date must be on or after the start date.');
 
@@ -171,14 +195,14 @@ function saveAvailabilitySlots(fromDate, toDate, startTime, endTime) {
     }
     dates.forEach(function (date) {
       var conflict = existing.some(function (slot) {
-        if (slot.date !== date || ['Available', 'Requested', 'Booked'].indexOf(slot.status) < 0) return false;
+        if (slot.date !== date || slot.location !== studio || ['Available', 'Requested', 'Booked'].indexOf(slot.status) < 0) return false;
         return timeMinutes_(start) < timeMinutes_(slot.endTime)
           && timeMinutes_(finish) > timeMinutes_(slot.startTime);
       });
       if (conflict) throw new Error('An existing booking window overlaps ' + date + '.');
     });
     dates.forEach(function (date) {
-      sheet.appendRow([date, start, 'Available', '', '', finish]);
+      sheet.appendRow([date, start, 'Available', '', '', finish, studio, amount, payment]);
     });
     return readAdminAvailability_();
   } finally {
@@ -283,6 +307,7 @@ function leadFromRow_(row, rowNumber) {
     lastRepliedAt: formatDateOrText_(row[10]), bookingDate: dateKey_(row[11]),
     bookingTime: timeKey_(row[12]), confirmationSent: String(row[13] || ''),
     projectUrl: String(row[14] || ''), bookingEndTime: timeKey_(row[15]),
+    bookingLocation: String(row[16] || ''), bookingPrice: priceKey_(row[17]), paymentUrl: String(row[18] || ''),
   };
 }
 
@@ -377,6 +402,9 @@ function readAvailability_(from, days) {
   var timeColumn = availabilityColumn_(sheet, 'Time');
   var endTimeColumn = availabilityColumn_(sheet, 'End time');
   var statusColumn = availabilityColumn_(sheet, 'Status');
+  var locationColumn = availabilityColumn_(sheet, 'Location');
+  var priceColumn = availabilityColumn_(sheet, 'Price');
+  var paymentColumn = availabilityColumn_(sheet, 'Payment URL');
   var rows = sheet.getRange(2, 1, lastRow - 1, Math.max(sheet.getLastColumn(), AVAILABILITY_HEADERS.length)).getValues();
   var grouped = {};
 
@@ -385,27 +413,40 @@ function readAvailability_(from, days) {
     var time = timeKey_(row[timeColumn - 1]);
     var endTime = timeKey_(row[endTimeColumn - 1]) || addMinutesToTime_(time, 60);
     var status = String(row[statusColumn - 1] || 'Available').trim().toLowerCase();
+    var location = String(row[locationColumn - 1] || '').trim();
+    var price = priceKey_(row[priceColumn - 1]);
+    var paymentUrl = String(row[paymentColumn - 1] || '').trim();
     if (!date || !time || date < firstDate || date > lastDate || (status && status !== 'available')) return;
     if (!grouped[date]) grouped[date] = [];
-    if (!grouped[date].some(function (range) { return range.start === time && range.end === endTime; })) {
-      grouped[date].push({ start: time, end: endTime });
+    if (!grouped[date].some(function (range) {
+      return range.start === time && range.end === endTime && range.location === location;
+    })) {
+      grouped[date].push({ start: time, end: endTime, location: location, price: price, paymentUrl: paymentUrl });
     }
   });
 
   return Object.keys(grouped).sort().map(function (date) {
-    return { date: date, ranges: grouped[date].sort(function (a, b) { return a.start.localeCompare(b.start) || a.end.localeCompare(b.end); }) };
+    return { date: date, ranges: grouped[date].sort(function (a, b) {
+      return a.start.localeCompare(b.start) || a.end.localeCompare(b.end) || a.location.localeCompare(b.location);
+    }) };
   });
 }
 
 /** Atomically reserve a published slot before a lead row is created. */
-function reserveBookingSlot_(date, time, endTime) {
+function reserveBookingSlot_(date, time, endTime, location) {
   var sheet = getOrCreateSheet_(AVAILABILITY_SHEET_NAME, AVAILABILITY_HEADERS);
-  var row = findAvailabilityRow_(sheet, date, time, endTime);
+  var row = findAvailabilityRow_(sheet, date, time, endTime, location);
   if (!row) return { ok: false, error: 'slot_unavailable' };
   var status = String(sheet.getRange(row, availabilityColumn_(sheet, 'Status')).getValue() || 'Available')
     .trim().toLowerCase();
   if (status && status !== 'available') return { ok: false, error: 'slot_taken' };
-  return { ok: true, row: row };
+  return {
+    ok: true,
+    row: row,
+    location: String(sheet.getRange(row, availabilityColumn_(sheet, 'Location')).getValue() || '').trim(),
+    price: priceKey_(sheet.getRange(row, availabilityColumn_(sheet, 'Price')).getValue()),
+    paymentUrl: String(sheet.getRange(row, availabilityColumn_(sheet, 'Payment URL')).getValue() || '').trim(),
+  };
 }
 
 function markBookingSlot_(row, leadRow, status) {
@@ -415,28 +456,34 @@ function markBookingSlot_(row, leadRow, status) {
   sheet.getRange(row, availabilityColumn_(sheet, 'Updated at')).setValue(new Date());
 }
 
-function findAvailabilityRow_(sheet, date, time, endTime) {
+function findAvailabilityRow_(sheet, date, time, endTime, location) {
   var lastRow = sheet.getLastRow();
   if (lastRow < 2) return 0;
   var dateColumn = availabilityColumn_(sheet, 'Date');
   var timeColumn = availabilityColumn_(sheet, 'Time');
   var endTimeColumn = availabilityColumn_(sheet, 'End time');
+  var locationColumn = availabilityColumn_(sheet, 'Location');
   var values = sheet.getRange(2, 1, lastRow - 1, Math.max(sheet.getLastColumn(), AVAILABILITY_HEADERS.length)).getValues();
+  var requestedLocation = String(location || '').trim().toLowerCase();
+  var matchingRows = [];
   for (var index = 0; index < values.length; index += 1) {
     var storedStart = timeKey_(values[index][timeColumn - 1]);
     var storedEnd = timeKey_(values[index][endTimeColumn - 1]) || addMinutesToTime_(storedStart, 60);
     if (dateKey_(values[index][dateColumn - 1]) === dateKey_(date)
       && storedStart === timeKey_(time)
-      && (!endTime || storedEnd === timeKey_(endTime))) return index + 2;
+      && (!endTime || storedEnd === timeKey_(endTime))) {
+      var storedLocation = String(values[index][locationColumn - 1] || '').trim();
+      if (!requestedLocation || storedLocation.toLowerCase() === requestedLocation) matchingRows.push(index + 2);
+    }
   }
-  return 0;
+  return matchingRows.length === 1 ? matchingRows[0] : matchingRows.length > 1 && !requestedLocation ? 0 : matchingRows[0] || 0;
 }
 
 /** Keep a requested slot reserved until Max marks the lead Declined or Booked. */
 function syncBookingStatus_(lead, status) {
   if (!lead.bookingDate || !lead.bookingTime) return;
   var sheet = getOrCreateSheet_(AVAILABILITY_SHEET_NAME, AVAILABILITY_HEADERS);
-  var row = findAvailabilityRow_(sheet, lead.bookingDate, lead.bookingTime, lead.bookingEndTime);
+  var row = findAvailabilityRow_(sheet, lead.bookingDate, lead.bookingTime, lead.bookingEndTime, lead.bookingLocation);
   if (!row) return;
   if (status === 'Declined') {
     markBookingSlot_(row, '', 'Available');
@@ -462,6 +509,9 @@ function sendCustomerConfirmation_(values) {
   if (values.bookingDate && values.bookingTime) {
     body.push('Requested booking: ' + values.bookingDate + ' from ' + values.bookingTime + (values.bookingEndTime ? ' to ' + values.bookingEndTime : ''));
   }
+  if (values.bookingLocation) body.push('Studio or location: ' + String(values.bookingLocation).trim());
+  if (values.bookingPrice) body.push('Price: £' + String(values.bookingPrice).trim() + ' per hour');
+  if (values.paymentUrl) body.push('Payment will be requested after Max confirms the booking: ' + String(values.paymentUrl).trim());
   if (values.projectUrl) body.push('Project link: ' + String(values.projectUrl).trim());
   body.push('', 'Your message:', String(values.message || '').trim());
   body.push('', 'Max will review your message and reply as soon as possible.',
@@ -549,6 +599,13 @@ function timeKey_(value) {
   var text = String(value || '').trim();
   var match = text.match(/^(\d{1,2}):(\d{2})/);
   return match ? ('0' + match[1]).slice(-2) + ':' + match[2] : text;
+}
+
+function priceKey_(value) {
+  var text = String(value || '').trim();
+  if (!text) return '';
+  var amount = Number(text.replace(/^£/, ''));
+  return isFinite(amount) && amount >= 0 ? amount.toFixed(2).replace(/\.00$/, '') : '';
 }
 
 // Prevent user values beginning with =, +, -, or @ from becoming formulas.

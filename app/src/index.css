@@ -1581,6 +1581,26 @@ textarea:focus-visible {
   opacity: 0.55;
 }
 
+.booking-location-field {
+  display: grid;
+  gap: 0.45rem;
+}
+
+.booking-selection-summary {
+  display: grid;
+  gap: 0.2rem;
+  border-left: 2px solid var(--accent);
+  padding: 0.55rem 0.7rem;
+  background: rgba(148, 185, 255, 0.08);
+  color: var(--text-main);
+  font-size: 0.78rem;
+  line-height: 1.4;
+}
+
+.booking-selection-summary span {
+  color: var(--text-muted);
+}
+
 .contact-collaboration-field {
   display: grid;
   gap: 0.45rem;

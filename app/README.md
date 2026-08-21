@@ -32,7 +32,10 @@ The canonical editable content is in `public/content/`:
 
 The public site sends FormSubmit enquiries as the primary delivery path and
 makes a best-effort copy to the Max-owned Google Sheet endpoint configured in
-`socials.json`. The private enquiry dashboard is not bundled here; it lives in
+`socials.json`. Booking windows returned by that endpoint can include a
+studio/location, GBP hourly price, and payment URL. The public form displays
+those details but payment is intentionally requested only after Max confirms an
+enquiry. The private enquiry dashboard is not bundled here; it lives in
 `integrations/google-sheets/Admin.html` and is served by Max's restricted Apps
 Script deployment. The site only sends anonymous page ID/path/timestamp events
 for aggregate dashboard view counts.
