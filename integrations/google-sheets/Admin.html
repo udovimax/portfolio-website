@@ -141,7 +141,7 @@
 
       <section class="panel" style="margin-bottom:16px">
         <div class="panel-heading"><h2>Booking availability</h2><button class="button" id="refresh-availability" type="button">Refresh</button></div>
-        <p class="availability-note">Choose a day to see its booking windows. Only green Available windows appear on the public booking form; Requested and Booked windows are locked. Marking an unused window unavailable keeps it in the history and it can be restored.</p>
+        <p class="availability-note">Choose a day to see its booking windows. Only green Available windows appear on the public booking form; Requested and Booked windows are locked. Each published window carries its studio/location, optional GBP hourly price, and optional payment link. Payment is requested only after you confirm the booking.</p>
         <div class="availability-legend" aria-label="Availability status legend">
           <span class="available"><i></i>Available</span>
           <span class="requested"><i></i>Requested</span>
@@ -159,11 +159,14 @@
           <div class="availability-list" id="availability-day-list"></div>
         </div>
         <form class="availability-form" id="availability-form">
-          <p class="availability-form-title">Publish a new window. A date range creates the same time window on each day.</p>
+          <p class="availability-form-title">Publish a new window. A date range creates the same time window, location, price, and payment details on each day.</p>
           <label>From date<input name="fromDate" type="date" required></label>
           <label>To date<input name="toDate" type="date"></label>
           <label>Start time<input name="startTime" type="time" required></label>
           <label>End time<input name="endTime" type="time" required></label>
+          <label>Studio or location<input name="location" type="text" placeholder="e.g. Kingston University studio" required></label>
+          <label>Price · GBP/hour<input name="price" type="number" min="0" step="0.01" placeholder="Leave blank for quote"></label>
+          <label>Payment link<input name="paymentUrl" type="url" placeholder="https://…"></label>
           <button class="button" type="submit">Publish availability</button>
         </form>
         <div class="availability-list" id="availability-list"></div>
@@ -344,7 +347,11 @@
           var row = node('div', 'availability-row');
           var main = node('div', 'availability-row-main');
           main.appendChild(node('strong', '', slot.startTime + '–' + slot.endTime));
-          main.appendChild(node('small', '', slot.status + (slot.leadRow ? ' · enquiry row ' + slot.leadRow : '')));
+          var details = [slot.status];
+          if (slot.location) details.push(slot.location);
+          if (slot.price) details.push('£' + slot.price + '/hour');
+          if (slot.leadRow) details.push('enquiry row ' + slot.leadRow);
+          main.appendChild(node('small', '', details.join(' · ')));
           row.appendChild(main);
           if (slot.status === 'Available' || slot.status === 'Unavailable') {
             var actionLabel = slot.status === 'Available' ? 'Mark unavailable' : 'Restore';
@@ -419,15 +426,18 @@
           if (lead.bookingEndTime) booking += ' to ' + lead.bookingEndTime;
           metaItems.push(['Requested booking', booking]);
         }
+        if (lead.bookingLocation) metaItems.push(['Studio or location', lead.bookingLocation]);
+        if (lead.bookingPrice) metaItems.push(['Price', '£' + lead.bookingPrice + ' / hour']);
+        if (lead.paymentUrl) metaItems.push(['Payment URL', lead.paymentUrl]);
         if (lead.confirmationSent) metaItems.push(['Customer confirmation', lead.confirmationSent]);
         if (lead.projectUrl) metaItems.push(['Project URL', lead.projectUrl]);
         metaItems.forEach(function (item) {
           var wrapper = node('div', 'meta-item');
           wrapper.appendChild(node('span', '', item[0]));
-          if (item[0] === 'Email' || item[0] === 'Project URL') {
+          if (item[0] === 'Email' || item[0] === 'Project URL' || item[0] === 'Payment URL') {
             var link = node('a', '', item[1]);
             link.href = item[0] === 'Email' ? 'mailto:' + item[1] : item[1];
-            if (item[0] === 'Project URL') {
+            if (item[0] === 'Project URL' || item[0] === 'Payment URL') {
               link.target = '_blank';
               link.rel = 'noreferrer';
             }
@@ -538,7 +548,7 @@
       document.getElementById('availability-form').addEventListener('submit', function (event) {
         event.preventDefault();
         var values = new FormData(event.currentTarget);
-        serverCall('saveAvailabilitySlots', values.get('fromDate'), values.get('toDate'), values.get('startTime'), values.get('endTime'))
+        serverCall('saveAvailabilitySlots', values.get('fromDate'), values.get('toDate'), values.get('startTime'), values.get('endTime'), values.get('location'), values.get('price'), values.get('paymentUrl'))
           .then(function (next) {
             state.data.availability = next;
             var firstDate = values.get('fromDate');

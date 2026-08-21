@@ -8,10 +8,20 @@ const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/i
 
 type AvailabilityResponse = {
   ok: boolean
-  slots?: Array<{ date: string; ranges?: Array<{ start: string; end: string }>; times?: string[] }>
+  slots?: Array<{
+    date: string
+    ranges?: Array<{
+      start: string
+      end: string
+      location?: string
+      price?: string
+      paymentUrl?: string
+    }>
+    times?: string[]
+  }>
 }
 
-type BookingRange = { start: string; end: string }
+type BookingRange = { start: string; end: string; location: string; price: string; paymentUrl: string }
 
 function dateKey(date: Date) {
   return new Date(date.getTime() - date.getTimezoneOffset() * 60_000).toISOString().slice(0, 10)
@@ -59,6 +69,7 @@ export function ContactDrawer({
   const [bookingDate, setBookingDate] = useState('')
   const [bookingTime, setBookingTime] = useState('')
   const [bookingEndTime, setBookingEndTime] = useState('')
+  const [bookingLocation, setBookingLocation] = useState('')
   const [calendarMonth, setCalendarMonth] = useState(() => new Date())
   const [availability, setAvailability] = useState<Record<string, BookingRange[]>>({})
   const [availabilityState, setAvailabilityState] = useState<'idle' | 'loading' | 'ready' | 'error'>('idle')
@@ -67,7 +78,14 @@ export function ContactDrawer({
   const isBooking = interest === BOOKING_INTEREST
   const isCollaboration = interest === COLLABORATION_INTEREST
   const availableRanges = bookingDate ? availability[bookingDate] || [] : []
-  const availableEndTimes = availableRanges.filter((range) => range.start === bookingTime).map((range) => range.end)
+  const availableLocations = [...new Set(availableRanges.map((range) => range.location).filter(Boolean))]
+  const selectedLocationRanges = bookingLocation
+    ? availableRanges.filter((range) => range.location === bookingLocation)
+    : availableLocations.length > 1
+      ? []
+      : availableRanges
+  const availableEndTimes = selectedLocationRanges.filter((range) => range.start === bookingTime).map((range) => range.end)
+  const selectedRange = selectedLocationRanges.find((range) => range.start === bookingTime && range.end === bookingEndTime)
   const availableDates = new Set(Object.keys(availability))
   const calendarStart = new Date(calendarMonth.getFullYear(), calendarMonth.getMonth(), 1)
   const calendarOffset = (calendarStart.getDay() + 6) % 7
@@ -102,7 +120,15 @@ export function ContactDrawer({
     const windowWithCallback = window as typeof window & Record<string, unknown>
     windowWithCallback[callbackName] = (response: AvailabilityResponse) => {
       const nextAvailability = (response.slots || []).reduce<Record<string, BookingRange[]>>((result, slot) => {
-        result[slot.date] = slot.ranges || (slot.times || []).map((time) => ({ start: time, end: time }))
+        const rawRanges: NonNullable<AvailabilityResponse['slots']>[number]['ranges'] =
+          slot.ranges || (slot.times || []).map((time) => ({ start: time, end: time }))
+        result[slot.date] = (rawRanges || []).map((range) => ({
+          start: range.start,
+          end: range.end,
+          location: range.location || '',
+          price: range.price || '',
+          paymentUrl: range.paymentUrl || '',
+        }))
         return result
       }, {})
       setAvailability(nextAvailability)
@@ -134,6 +160,7 @@ export function ContactDrawer({
       setBookingDate('')
       setBookingTime('')
       setBookingEndTime('')
+      setBookingLocation('')
       setAvailability({})
       setAvailabilityState('idle')
       return
@@ -143,6 +170,7 @@ export function ContactDrawer({
     setBookingDate('')
     setBookingTime('')
     setBookingEndTime('')
+    setBookingLocation('')
 
     const isTouchDevice = window.matchMedia('(pointer: coarse)').matches || 'ontouchstart' in window
     const focusFrame = isTouchDevice
@@ -217,9 +245,14 @@ export function ContactDrawer({
         setSubmitError('Choose an available booking date and time before sending.')
         return
       }
-      if (isBooking && !availableRanges.some((range) => range.start === bookingTime && range.end === bookingEndTime)) {
+      if (isBooking && !selectedLocationRanges.some((range) => range.start === bookingTime && range.end === bookingEndTime)) {
         setIsSubmitting(false)
         setSubmitError('That booking time is no longer available. Please choose another slot.')
+        return
+      }
+      if (isBooking && availableLocations.length > 1 && !bookingLocation) {
+        setIsSubmitting(false)
+        setSubmitError('Choose a studio or location before sending.')
         return
       }
       const emailSubmission = fetch(formAction, {
@@ -254,6 +287,7 @@ export function ContactDrawer({
       setBookingDate('')
       setBookingTime('')
       setBookingEndTime('')
+      setBookingLocation('')
     }
   }
 
@@ -446,6 +480,9 @@ export function ContactDrawer({
                               setBookingDate(key)
                               setBookingTime('')
                               setBookingEndTime('')
+                              const nextRanges = availability[key] || []
+                              const nextLocations = [...new Set(nextRanges.map((range) => range.location).filter(Boolean))]
+                              setBookingLocation(nextLocations.length === 1 ? nextLocations[0] : '')
                             }}
                             aria-pressed={isSelected}
                             aria-label={`${day.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}${isAvailable ? ', available' : ', unavailable'}`}
@@ -457,6 +494,26 @@ export function ContactDrawer({
                     </div>
                   </div>
                   <input type="hidden" name="bookingDate" value={bookingDate} />
+                  <input type="hidden" name="bookingLocation" value={bookingLocation} />
+                  {availableLocations.length > 1 ? (
+                    <div className="booking-location-field">
+                      <label htmlFor="drawer-booking-location">Studio or location</label>
+                      <select
+                        id="drawer-booking-location"
+                        value={bookingLocation}
+                        onChange={(event) => {
+                          setBookingLocation(event.target.value)
+                          setBookingTime('')
+                          setBookingEndTime('')
+                        }}
+                        disabled={!bookingDate || availabilityState !== 'ready'}
+                        required
+                      >
+                        <option value="">Choose a location</option>
+                        {availableLocations.map((location) => <option key={location} value={location}>{location}</option>)}
+                      </select>
+                    </div>
+                  ) : null}
                   <div className="booking-time-fields">
                     <div>
                       <label htmlFor="drawer-booking-time">Start time</label>
@@ -468,11 +525,11 @@ export function ContactDrawer({
                           setBookingTime(event.target.value)
                           setBookingEndTime('')
                         }}
-                        disabled={!bookingDate || availabilityState !== 'ready' || availableRanges.length === 0}
+                        disabled={!bookingDate || availabilityState !== 'ready' || selectedLocationRanges.length === 0}
                         required
                       >
                         <option value="">Choose a start</option>
-                        {[...new Set(availableRanges.map((range) => range.start))].map((time) => <option key={time} value={time}>{time}</option>)}
+                        {[...new Set(selectedLocationRanges.map((range) => range.start))].map((time) => <option key={time} value={time}>{time}</option>)}
                       </select>
                     </div>
                     <div>
@@ -490,11 +547,18 @@ export function ContactDrawer({
                       </select>
                     </div>
                   </div>
+                  {bookingDate && selectedRange ? (
+                    <div className="booking-selection-summary" role="status">
+                      <strong>{selectedRange.location || 'Location to be confirmed'}</strong>
+                      <span>{selectedRange.price ? `£${selectedRange.price} per hour` : 'Price confirmed after enquiry'}</span>
+                      {selectedRange.paymentUrl ? <span>Payment is requested after Max confirms the booking.</span> : null}
+                    </div>
+                  ) : null}
                   <p className="contact-drawer-field-note" role="status">
                     {availabilityState === 'error'
                       ? 'Booking availability is temporarily unavailable. Please email Max directly.'
                       : availabilityState === 'ready'
-                        ? 'Choose a highlighted day, then select an available start and end time.'
+                        ? 'Choose a highlighted day, then select the location and available start/end time.'
                         : 'Loading Max’s available dates…'}
                   </p>
                 </div>
