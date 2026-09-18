@@ -8,7 +8,7 @@
     "build": "tsc -b && vite build",
     "typecheck": "tsc -b --pretty false",
     "lint": "oxlint",
-    "test": "echo \"No automated tests configured yet\"",
+    "test": "node --test \"src/**/*.test.ts\"",
     "preview": "vite preview"
   },
   "dependencies": {

@@ -295,6 +295,7 @@ function App() {
   const [contactOpen, setContactOpen] = useState(false)
   const [contactInterest, setContactInterest] = useState('')
   const [videoResumePoints, setVideoResumePoints] = useState<Record<string, number>>({})
+  const contactTriggerRef = useRef<HTMLButtonElement>(null)
 
   usePageAnalytics(content?.socials.googleSheetsEndpoint, currentPage)
 
@@ -654,6 +655,7 @@ function App() {
         activePage={currentPage}
         contactOpen={contactOpen}
         onContactOpenChange={handleContactOpenChange}
+        contactTriggerRef={contactTriggerRef}
         player={
           <Player
             track={activeTrack}
@@ -1113,6 +1115,7 @@ function App() {
           paypalQr={content.socials.paypalQr ? assetUrl(content.socials.paypalQr) : undefined}
           googleSheetsEndpoint={content.socials.googleSheetsEndpoint}
           initialInterest={contactInterest}
+          contactTriggerRef={contactTriggerRef}
           onClose={closeContact}
         />
       ) : null}

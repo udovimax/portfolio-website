@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type ReactNode } from 'react'
+import { useEffect, useRef, useState, type ReactNode, type RefObject } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import type { NavSection } from '../types/content'
 
@@ -6,6 +6,7 @@ interface FloatingNavProps {
   activePage: NavSection
   contactOpen: boolean
   onContactOpenChange: (open: boolean) => void
+  contactTriggerRef?: RefObject<HTMLButtonElement | null>
   player?: ReactNode
 }
 
@@ -17,7 +18,7 @@ const links: Array<{ id: NavSection; label: string }> = [
   { id: 'about', label: 'About' },
 ]
 
-export function FloatingNav({ activePage, contactOpen, onContactOpenChange, player }: FloatingNavProps) {
+export function FloatingNav({ activePage, contactOpen, onContactOpenChange, contactTriggerRef, player }: FloatingNavProps) {
   const [menuOpen, setMenuOpen] = useState(false)
   const menuTriggerRef = useRef<HTMLButtonElement>(null)
   const menuPanelRef = useRef<HTMLElement>(null)
@@ -172,6 +173,7 @@ export function FloatingNav({ activePage, contactOpen, onContactOpenChange, play
 
         <button
           type="button"
+          ref={contactTriggerRef}
           className="site-nav-button magnetic-btn"
           aria-expanded={contactOpen}
           aria-controls="contact-drawer"

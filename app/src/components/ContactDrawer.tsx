@@ -1,10 +1,13 @@
-import { useEffect, useRef, useState, type FormEvent } from 'react'
+import { useEffect, useRef, useState, type FormEvent, type RefObject } from 'react'
 import { createPortal } from 'react-dom'
 import { AnimatePresence, motion } from 'framer-motion'
+import { getFocusLoopTarget } from '../utils/focusTrap'
 
 const BOOKING_INTEREST = 'Booking / studio session'
 const COLLABORATION_INTEREST = 'Artist / music collaboration'
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/i
+const FOCUSABLE_SELECTOR =
+  'a[href], button:not([disabled]), input:not([disabled]), textarea:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
 
 type AvailabilityResponse = {
   ok: boolean
@@ -46,6 +49,7 @@ interface ContactDrawerProps {
   paypalQr?: string
   googleSheetsEndpoint?: string
   initialInterest?: string
+  contactTriggerRef?: RefObject<HTMLButtonElement | null>
   onClose: () => void
 }
 
@@ -57,9 +61,11 @@ export function ContactDrawer({
   paypalQr,
   googleSheetsEndpoint,
   initialInterest = '',
+  contactTriggerRef,
   onClose,
 }: ContactDrawerProps) {
   const firstFieldRef = useRef<HTMLInputElement>(null)
+  const drawerRef = useRef<HTMLElement>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isSubmitted, setIsSubmitted] = useState(false)
   const [showThankYou, setShowThankYou] = useState(false)
@@ -172,6 +178,9 @@ export function ContactDrawer({
     setBookingEndTime('')
     setBookingLocation('')
 
+    const pageRoot = document.getElementById('root')
+    pageRoot?.setAttribute('inert', '')
+
     const isTouchDevice = window.matchMedia('(pointer: coarse)').matches || 'ontouchstart' in window
     const focusFrame = isTouchDevice
       ? null
@@ -180,6 +189,17 @@ export function ContactDrawer({
       if (event.key === 'Escape') {
         event.preventDefault()
         onClose()
+        window.requestAnimationFrame(() => contactTriggerRef?.current?.focus())
+        return
+      }
+
+      if (event.key === 'Tab' && drawerRef.current) {
+        const focusable = Array.from(drawerRef.current.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR))
+        const target = getFocusLoopTarget(document.activeElement as HTMLElement | null, focusable, event.shiftKey)
+        if (target) {
+          event.preventDefault()
+          target.focus()
+        }
       }
     }
 
@@ -189,8 +209,14 @@ export function ContactDrawer({
         window.cancelAnimationFrame(focusFrame)
       }
       document.removeEventListener('keydown', onKeyDown)
+      pageRoot?.removeAttribute('inert')
     }
-  }, [initialInterest, isOpen, onClose])
+  }, [contactTriggerRef, initialInterest, isOpen, onClose])
+
+  const handleClose = () => {
+    onClose()
+    window.requestAnimationFrame(() => contactTriggerRef?.current?.focus())
+  }
 
   useEffect(() => {
     if (!showThankYou) {
@@ -306,10 +332,11 @@ export function ContactDrawer({
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            onClick={onClose}
+            onClick={handleClose}
           />
           <motion.aside
             id="contact-drawer"
+            ref={drawerRef}
             role="dialog"
             aria-modal="true"
             aria-labelledby="contact-drawer-title"
@@ -331,7 +358,7 @@ export function ContactDrawer({
               <button
                 type="button"
                 className="contact-drawer-close magnetic-btn"
-                onClick={onClose}
+                onClick={handleClose}
                 aria-label="Close contact panel"
               >
                 <span aria-hidden="true" />
@@ -341,34 +368,6 @@ export function ContactDrawer({
             <p className="contact-drawer-intro">
               Reach out for games, films, artist partnerships, and live performance concepts.
             </p>
-            <motion.div
-              layout
-              className={`contact-donate${isSupportExpanded ? ' contact-donate-expanded' : ''}`}
-              transition={{ layout: { duration: 0.65, ease: [0.22, 1, 0.36, 1] } }}
-            >
-              <div className="contact-donate-copy">
-                <p className="section-heading">Support / PayPal</p>
-                <h3>Support Max's work</h3>
-                <p>Help support future music, sound, and visual work.</p>
-                <a
-                  href={paypal}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="contact-donate-link magnetic-btn"
-                >
-                  Donate via PayPal
-                </a>
-              </div>
-              {paypalQr ? (
-                <img
-                  src={paypalQr}
-                  alt="PayPal donation QR code for Max Udovichenko"
-                  className="contact-donate-qr"
-                  loading="lazy"
-                  decoding="async"
-                />
-              ) : null}
-            </motion.div>
             <AnimatePresence mode="wait" initial={false}>
               {showThankYou ? (
                 <motion.div
@@ -578,6 +577,34 @@ export function ContactDrawer({
                 </motion.form>
               )}
             </AnimatePresence>
+            <motion.div
+              layout
+              className={`contact-donate${isSupportExpanded ? ' contact-donate-expanded' : ''}`}
+              transition={{ layout: { duration: 0.65, ease: [0.22, 1, 0.36, 1] } }}
+            >
+              <div className="contact-donate-copy">
+                <p className="section-heading">Support / PayPal</p>
+                <h3>Support Max's work</h3>
+                <p>Help support future music, sound, and visual work.</p>
+                <a
+                  href={paypal}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="contact-donate-link magnetic-btn"
+                >
+                  Donate via PayPal
+                </a>
+              </div>
+              {paypalQr ? (
+                <img
+                  src={paypalQr}
+                  alt="PayPal donation QR code for Max Udovichenko"
+                  className="contact-donate-qr"
+                  loading="lazy"
+                  decoding="async"
+                />
+              ) : null}
+            </motion.div>
           </motion.aside>
         </div>
       ) : null}
