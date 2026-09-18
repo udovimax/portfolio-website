@@ -85,6 +85,9 @@ export function InstagramEmbed({ permalink, label = 'Instagram content' }: Insta
           </a>
         </div>
       </blockquote>
+      <a className="instagram-embed-direct-link" href={permalink} target="_blank" rel="noreferrer">
+        View directly on Instagram
+      </a>
     </div>
   )
 }
