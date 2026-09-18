@@ -36,10 +36,16 @@ export function MediaArchive({ archive, onOpenVideo }: MediaArchiveProps) {
             <span className="archive-video-duration">{video.duration}</span>
           </div>
           <div className="archive-video-copy">
-            <p className="section-heading">Video / {String(index + 1).padStart(2, '0')}</p>
+            <p className="section-heading">Archive clip / {String(index + 1).padStart(2, '0')}</p>
             <h2>{video.title}</h2>
             <p>{video.description}</p>
-            <button type="button" className="magnetic-btn archive-open-button" onClick={() => onOpenVideo(video)}>
+            <p className="archive-video-format">Short moving fragment · {video.duration}</p>
+            <button
+              type="button"
+              className="magnetic-btn archive-open-button"
+              onClick={() => onOpenVideo(video)}
+              aria-label={`Open archive video ${video.title}`}
+            >
               Open video
             </button>
           </div>

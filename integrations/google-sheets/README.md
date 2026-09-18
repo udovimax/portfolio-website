@@ -53,9 +53,10 @@ Changing it to `Declined` releases the slot back to `Available`.
 New dashboard windows require a location. Price and payment URL are optional:
 leave price blank when Max needs to quote after reviewing the enquiry, and
 leave payment URL blank until the correct payment destination is confirmed.
-The booking record and customer confirmation email snapshot the location,
-price, and payment URL from the reserved row, so a later edit does not change
-the historical enquiry.
+The booking record snapshots the location, price, and payment URL from the
+reserved row, so a later edit does not change the historical enquiry. The
+customer confirmation mentions that payment is handled after Max confirms the
+booking; it does not expose the stored payment URL before that confirmation.
 
 The calendar is a dashboard view over the same `Availability` sheet; it is not
 a second source of truth. Clicking **Mark unavailable** changes an unused
@@ -78,6 +79,17 @@ that rate and the university permits the arrangement.
 The form also validates email addresses in the browser and again in Apps
 Script. A booking submission without a currently published slot is rejected by
 the Apps Script endpoint, even if someone bypasses the website UI.
+
+### Public availability health check
+
+The public web-app deployment must serve `doGet` from the current `Code.gs`
+version. A direct request with `action=availability`, a future `from` date, and
+a JSONP `callback` should return JavaScript containing `{ ok: true, slots: [] }`
+or the real published `Available` rows. If it instead returns `Script function
+not found: doGet`, the source file is newer than the live Apps Script
+deployment: save the files, create a new version, and update the public
+deployment while signed in to Max's account. Do not work around this by
+inventing public slots in the website bundle.
 
 ## Max-only dashboard
 

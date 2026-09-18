@@ -663,6 +663,13 @@ textarea:focus-visible {
   line-height: 1.5;
 }
 
+.archive-video-list-item .archive-video-copy .archive-video-format {
+  color: var(--accent);
+  font-size: 0.68rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
 .home-wip-section {
   display: grid;
   gap: 1rem;
@@ -2694,6 +2701,13 @@ textarea:focus {
   transition: opacity 180ms ease, transform 180ms ease, background-color 180ms ease;
 }
 
+@media (pointer: coarse) {
+  .player-action {
+    opacity: 1;
+    pointer-events: auto;
+  }
+}
+
 .player-shell:hover .player-action,
 .player-shell:focus-within .player-action,
 .player-shell.player-controls-revealed .player-action {
@@ -2950,6 +2964,12 @@ textarea:focus {
   padding: 2rem;
   color: var(--text-muted);
   text-align: center;
+}
+
+.instagram-embed-status {
+  margin: 0 0 0.65rem;
+  color: var(--text-muted);
+  font-size: 0.72rem;
 }
 
 .instagram-embed-fallback a {

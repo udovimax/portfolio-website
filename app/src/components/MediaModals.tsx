@@ -1,6 +1,5 @@
-import { AnimatePresence, motion } from 'framer-motion'
-import { FaTimes } from 'react-icons/fa'
 import type { ProjectItem, VideoItem } from '../types/content'
+import { ModalDialog } from './ModalDialog'
 
 interface VideoModalProps {
   video: VideoItem | null
@@ -24,33 +23,17 @@ export function VideoModal({
   resumeTime,
 }: VideoModalProps) {
   return (
-    <AnimatePresence>
-      {isOpen && video && (
-        <motion.div
-          className="fixed inset-0 z-[70] grid place-items-center bg-black/80 p-2 backdrop-blur-md sm:p-4"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          onClick={onClose}
-        >
-          <motion.div
-            initial={{ opacity: 0, y: 20, scale: 0.98 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 12, scale: 0.98 }}
-            transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
-            className="relative max-h-[calc(100dvh-1rem)] w-full max-w-5xl overflow-y-auto rounded-3xl border border-white/20 bg-neutral-950 p-3 sm:max-h-[calc(100vh-2rem)] sm:p-4"
-            onClick={(event) => event.stopPropagation()}
-          >
-            <button
-              type="button"
-              className="magnetic-btn absolute right-4 top-4 rounded-full border border-white/30 p-2 text-white"
-              onClick={onClose}
-              aria-label="Close video modal"
-            >
-              <FaTimes />
-            </button>
-            <h3 className="mb-1 pr-12 text-xl text-white">{video.title}</h3>
-            <p className="mb-3 text-sm text-white/70">{video.description}</p>
+    <ModalDialog
+      isOpen={isOpen && Boolean(video)}
+      titleId="video-modal-title"
+      title={video?.title || 'Video'}
+      description={video?.description}
+      closeLabel="Close video modal"
+      onClose={onClose}
+      panelClassName="relative max-h-[calc(100dvh-1rem)] w-full max-w-5xl overflow-y-auto rounded-3xl border border-white/20 bg-neutral-950 p-3 sm:max-h-[calc(100vh-2rem)] sm:p-4"
+    >
+      {video ? (
+        <>
             <video
               key={video.id}
               className="max-h-[58dvh] w-full rounded-2xl sm:max-h-[75vh]"
@@ -74,43 +57,31 @@ export function VideoModal({
                 <track kind="captions" src={video.captions} label="English" srcLang="en" default />
               ) : null}
             </video>
-          </motion.div>
-        </motion.div>
-      )}
-    </AnimatePresence>
+            <p className="mt-3 text-xs text-white/60" role="status">
+              {video.captions
+                ? 'English captions are available in the player settings.'
+                : 'Captions are not available for this video.'}
+            </p>
+        </>
+      ) : null}
+    </ModalDialog>
   )
 }
 
 export function ProjectModal({ project, isOpen, onClose }: ProjectModalProps) {
   return (
-    <AnimatePresence>
-      {isOpen && project && (
-        <motion.div
-          className="fixed inset-0 z-[65] grid place-items-center bg-black/70 p-2 backdrop-blur-md sm:p-4"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          onClick={onClose}
-        >
-          <motion.article
-            initial={{ opacity: 0, y: 20, scale: 0.98 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 12, scale: 0.98 }}
-            transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
-            className="relative max-h-[calc(100dvh-1rem)] w-full max-w-4xl overflow-y-auto rounded-3xl border border-white/20 bg-neutral-950 p-4 sm:max-h-[calc(100vh-2rem)] sm:p-6"
-            onClick={(event) => event.stopPropagation()}
-          >
-            <button
-              type="button"
-              className="magnetic-btn absolute right-4 top-4 rounded-full border border-white/30 p-2 text-white"
-              onClick={onClose}
-              aria-label="Close project modal"
-            >
-              <FaTimes />
-            </button>
+    <ModalDialog
+      isOpen={isOpen && Boolean(project)}
+      titleId="project-modal-title"
+      title={project?.title || 'Project'}
+      description={project?.description}
+      closeLabel="Close project modal"
+      onClose={onClose}
+      panelClassName="relative max-h-[calc(100dvh-1rem)] w-full max-w-4xl overflow-y-auto rounded-3xl border border-white/20 bg-neutral-950 p-4 sm:max-h-[calc(100vh-2rem)] sm:p-6"
+    >
+      {project ? (
+        <>
             <p className="mb-2 text-xs uppercase tracking-[0.2em] text-cyan-300">{project.type}</p>
-            <h3 className="mb-3 text-3xl text-white">{project.title}</h3>
-            <p className="mb-4 text-white/80">{project.description}</p>
             <ul className="mb-4 flex flex-wrap gap-2">
               {project.technologies.map((technology) => (
                 <li
@@ -132,9 +103,29 @@ export function ProjectModal({ project, isOpen, onClose }: ProjectModalProps) {
                 />
               ))}
             </div>
-          </motion.article>
-        </motion.div>
-      )}
-    </AnimatePresence>
+            {project.links.length > 0 ? (
+              <nav className="mt-5 flex flex-wrap gap-3" aria-label={`${project.title} links`}>
+                {project.links.map((link) => {
+                  const isExternal = /^https?:\/\//i.test(link.url)
+                  return (
+                    <a
+                      key={`${project.id}-${link.label}`}
+                      href={link.url}
+                      target={isExternal ? '_blank' : undefined}
+                      rel={isExternal ? 'noreferrer' : undefined}
+                      onClick={() => {
+                        if (!isExternal) onClose()
+                      }}
+                      className="magnetic-btn rounded-full border border-cyan-300/50 px-4 py-2 text-sm text-cyan-100 transition hover:bg-cyan-300/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-200"
+                    >
+                      {link.label}
+                    </a>
+                  )
+                })}
+              </nav>
+            ) : null}
+        </>
+      ) : null}
+    </ModalDialog>
   )
 }

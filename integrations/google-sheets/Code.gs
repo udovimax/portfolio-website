@@ -511,7 +511,7 @@ function sendCustomerConfirmation_(values) {
   }
   if (values.bookingLocation) body.push('Studio or location: ' + String(values.bookingLocation).trim());
   if (values.bookingPrice) body.push('Price: £' + String(values.bookingPrice).trim() + ' per hour');
-  if (values.paymentUrl) body.push('Payment will be requested after Max confirms the booking: ' + String(values.paymentUrl).trim());
+  if (values.paymentUrl) body.push('Payment will be discussed after Max confirms the booking.');
   if (values.projectUrl) body.push('Project link: ' + String(values.projectUrl).trim());
   body.push('', 'Your message:', String(values.message || '').trim());
   body.push('', 'Max will review your message and reply as soon as possible.',

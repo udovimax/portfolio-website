@@ -22,9 +22,8 @@ import { Player } from './components/Player'
 import { useLenis } from './hooks/useLenis'
 import { usePageAnalytics } from './hooks/usePageAnalytics'
 import { assetUrl, useSiteContent } from './hooks/useSiteContent'
+import { routeFromHash } from './utils/navigation'
 import type { NavSection, ProjectItem, Track, VideoItem } from './types/content'
-
-const pageIds: NavSection[] = ['home', 'music', 'projects', 'video', 'about']
 
 const VideoModal = lazy(() =>
   import('./components/MediaModals').then((module) => ({ default: module.VideoModal })),
@@ -32,19 +31,6 @@ const VideoModal = lazy(() =>
 const ProjectModal = lazy(() =>
   import('./components/MediaModals').then((module) => ({ default: module.ProjectModal })),
 )
-
-function getPageFromHash(): NavSection {
-  const hash = window.location.hash.replace(/^#\/?/, '')
-  const legacyPageMap: Record<string, NavSection> = {
-    work: 'music',
-    music: 'music',
-    projects: 'projects',
-    video: 'video',
-    contact: 'about',
-  }
-  const page = legacyPageMap[hash] ?? hash
-  return pageIds.includes(page as NavSection) ? (page as NavSection) : 'home'
-}
 
 const heroImageCycle = [
   { src: 'media/images/max-face/face-01.webp', alt: 'Portrait of Max Udovichenko', position: 'center center' },
@@ -277,7 +263,7 @@ function App() {
   const { content, error, isLoading } = useSiteContent()
 
   const [loadingProgress, setLoadingProgress] = useState(0)
-  const [currentPage, setCurrentPage] = useState<NavSection>(() => getPageFromHash())
+  const [currentPage, setCurrentPage] = useState<NavSection>(() => routeFromHash(window.location.hash).page)
   const [libraryMode, setLibraryMode] = useState<'local' | 'soundcloud'>('local')
   const [visualizerData, setVisualizerData] = useState<number[]>(
     Array.from({ length: 32 }, () => 0.2),
@@ -292,7 +278,7 @@ function App() {
 
   const [activeVideo, setActiveVideo] = useState<VideoItem | null>(null)
   const [activeProject, setActiveProject] = useState<ProjectItem | null>(null)
-  const [contactOpen, setContactOpen] = useState(false)
+  const [contactOpen, setContactOpen] = useState(() => routeFromHash(window.location.hash).opensContact)
   const [contactInterest, setContactInterest] = useState('')
   const [videoResumePoints, setVideoResumePoints] = useState<Record<string, number>>({})
   const contactTriggerRef = useRef<HTMLButtonElement>(null)
@@ -345,12 +331,9 @@ function App() {
 
   useEffect(() => {
     const onHashChange = () => {
-      setCurrentPage(getPageFromHash())
-      if (window.location.hash.replace(/^#\/?/, '') === 'contact') {
-        window.requestAnimationFrame(() => {
-          document.getElementById('contact')?.scrollIntoView({ behavior: shouldReduceMotion ? 'auto' : 'smooth' })
-        })
-      }
+      const route = routeFromHash(window.location.hash)
+      setCurrentPage(route.page)
+      setContactOpen(route.opensContact)
     }
 
     window.addEventListener('hashchange', onHashChange)
@@ -358,13 +341,6 @@ function App() {
   }, [shouldReduceMotion])
 
   useEffect(() => {
-    if (window.location.hash.replace(/^#\/?/, '') === 'contact') {
-      window.requestAnimationFrame(() => {
-        document.getElementById('contact')?.scrollIntoView({ behavior: 'auto' })
-      })
-      return
-    }
-
     window.scrollTo({ top: 0, behavior: 'auto' })
   }, [currentPage, shouldReduceMotion])
 
@@ -853,6 +829,15 @@ function App() {
                       >
                         Play track
                       </button>
+                      {track.downloadLink ? (
+                        <a
+                          href={track.downloadLink}
+                          download
+                          className="magnetic-btn work-full-bleed-action"
+                        >
+                          Download track
+                        </a>
+                      ) : null}
                     </div>
                   </article>
                 </Reveal>
@@ -1110,6 +1095,7 @@ function App() {
         <ContactDrawer
           isOpen={contactOpen}
           endpointEmail={content.socials.formsubmit.endpointEmail}
+          contactEmail={content.socials.email}
           subject={content.socials.formsubmit.subject}
           paypal={content.socials.paypal}
           paypalQr={content.socials.paypalQr ? assetUrl(content.socials.paypalQr) : undefined}
@@ -1133,6 +1119,7 @@ function App() {
             <a href="#music" className="footer-text-link magnetic-btn">Music</a>
             <a href="#projects" className="footer-text-link magnetic-btn">Projects</a>
             <a href="#video" className="footer-text-link magnetic-btn">Video</a>
+            <a href="#about" className="footer-text-link magnetic-btn">About</a>
           </nav>
         </div>
         {content?.socials ? (

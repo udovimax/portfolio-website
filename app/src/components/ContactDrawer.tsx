@@ -2,29 +2,13 @@ import { useEffect, useRef, useState, type FormEvent, type RefObject } from 'rea
 import { createPortal } from 'react-dom'
 import { AnimatePresence, motion } from 'framer-motion'
 import { getFocusLoopTarget } from '../utils/focusTrap'
+import { buildAvailabilityUrl, normaliseAvailabilityResponse, type BookingRange } from '../utils/availability'
 
 const BOOKING_INTEREST = 'Booking / studio session'
 const COLLABORATION_INTEREST = 'Artist / music collaboration'
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/i
 const FOCUSABLE_SELECTOR =
   'a[href], button:not([disabled]), input:not([disabled]), textarea:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
-
-type AvailabilityResponse = {
-  ok: boolean
-  slots?: Array<{
-    date: string
-    ranges?: Array<{
-      start: string
-      end: string
-      location?: string
-      price?: string
-      paymentUrl?: string
-    }>
-    times?: string[]
-  }>
-}
-
-type BookingRange = { start: string; end: string; location: string; price: string; paymentUrl: string }
 
 function dateKey(date: Date) {
   return new Date(date.getTime() - date.getTimezoneOffset() * 60_000).toISOString().slice(0, 10)
@@ -44,6 +28,7 @@ function addMonths(date: Date, amount: number) {
 interface ContactDrawerProps {
   isOpen: boolean
   endpointEmail: string
+  contactEmail: string
   subject: string
   paypal: string
   paypalQr?: string
@@ -56,6 +41,7 @@ interface ContactDrawerProps {
 export function ContactDrawer({
   isOpen,
   endpointEmail,
+  contactEmail,
   subject,
   paypal,
   paypalQr,
@@ -114,31 +100,18 @@ export function ContactDrawer({
 
     const callbackName = `maxAvailability_${Date.now()}`
     const script = document.createElement('script')
-    const endpoint = new URL(googleSheetsEndpoint)
-    endpoint.searchParams.set('action', 'availability')
-    endpoint.searchParams.set('from', minimumBookingDate)
-    endpoint.searchParams.set('days', '120')
-    endpoint.searchParams.set('callback', callbackName)
-    script.src = endpoint.toString()
+    script.src = buildAvailabilityUrl(googleSheetsEndpoint, minimumBookingDate, 120, callbackName)
     script.async = true
     setAvailabilityState('loading')
 
     const windowWithCallback = window as typeof window & Record<string, unknown>
-    windowWithCallback[callbackName] = (response: AvailabilityResponse) => {
-      const nextAvailability = (response.slots || []).reduce<Record<string, BookingRange[]>>((result, slot) => {
-        const rawRanges: NonNullable<AvailabilityResponse['slots']>[number]['ranges'] =
-          slot.ranges || (slot.times || []).map((time) => ({ start: time, end: time }))
-        result[slot.date] = (rawRanges || []).map((range) => ({
-          start: range.start,
-          end: range.end,
-          location: range.location || '',
-          price: range.price || '',
-          paymentUrl: range.paymentUrl || '',
-        }))
-        return result
-      }, {})
+    windowWithCallback[callbackName] = (response: unknown) => {
+      const responseRecord = response && typeof response === 'object'
+        ? response as Record<string, unknown>
+        : null
+      const nextAvailability = normaliseAvailabilityResponse(response)
       setAvailability(nextAvailability)
-      setAvailabilityState(response.ok ? 'ready' : 'error')
+      setAvailabilityState(responseRecord?.ok === true ? 'ready' : 'error')
       delete windowWithCallback[callbackName]
       script.remove()
     }
@@ -385,6 +358,9 @@ export function ContactDrawer({
                   <p>
                     A confirmation email should arrive at the address you entered. Max will read your message and respond as soon as he can. Please check your spam or junk folder if you do not see his reply.
                   </p>
+                  <p>
+                    If the form does not complete, <a href={`mailto:${contactEmail}`}>email Max directly</a>.
+                  </p>
                 </motion.div>
               ) : isSubmitted ? null : (
                 <motion.form
@@ -550,7 +526,7 @@ export function ContactDrawer({
                     <div className="booking-selection-summary" role="status">
                       <strong>{selectedRange.location || 'Location to be confirmed'}</strong>
                       <span>{selectedRange.price ? `£${selectedRange.price} per hour` : 'Price confirmed after enquiry'}</span>
-                      {selectedRange.paymentUrl ? <span>Payment is requested after Max confirms the booking.</span> : null}
+                      {selectedRange.paymentUrl ? <span>Payment is handled after Max confirms the booking; nothing is charged on this form.</span> : null}
                     </div>
                   ) : null}
                   <p className="contact-drawer-field-note" role="status">
