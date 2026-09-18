@@ -54,7 +54,7 @@
 - [x] **Step 1: Extend the focus-loop tests with an active-element-outside case and verify the existing helper still passes.**
 - [x] **Step 2: Implement `ModalDialog` by adapting the existing contact-drawer behavior, including a dedicated header row so the close button cannot overlap the title.**
 - [x] **Step 3: Replace both media overlay wrappers with `ModalDialog`, add `aria-labelledby`, and keep backdrop click and explicit close buttons.**
-- [ ] **Step 4: Run tests, typecheck, and a live browser check for Tab wrap, Shift+Tab wrap, Escape, backdrop close, and focus return.**
+- [x] **Step 4: Run tests, typecheck, and a live browser check for Tab wrap, Shift+Tab wrap, Escape, backdrop close, and focus return.**
 
 ### Task 3: Surface configured actions and improve truthful feedback
 
@@ -75,7 +75,7 @@
 - [x] **Step 1: Add accessible action labels and fallback copy in the affected components, preserving external-link safety and no real form submission in tests.**
 - [x] **Step 2: Make the player’s primary action discoverable without hover-only behavior and expose media loading/error status through `role="status"` or `role="alert"` where appropriate.**
 - [x] **Step 3: Clarify booking payment copy as post-confirmation handling and ensure the frontend never exposes a payment link before Max confirms the booking.**
-- [ ] **Step 4: Add component-level source checks or browser assertions for download link, project link, fallback, and status presence.**
+- [x] **Step 4: Add component-level source checks or browser assertions for download link, project link, fallback, and status presence.**
 
 ### Task 4: Strengthen global navigation, routing, and footer wayfinding
 
@@ -93,7 +93,7 @@
 - [x] **Step 1: Write a failing navigation test for legacy `#contact` normalization/open behavior.**
 - [x] **Step 2: Implement route normalization and root inertness while preserving the menu focus loop and Escape return.**
 - [x] **Step 3: Add About to footer wayfinding and verify desktop/mobile keyboard focus rings.**
-- [ ] **Step 4: Run the focused tests and live browser checks at desktop and 390px mobile widths.**
+- [x] **Step 4: Run the focused tests and live browser checks at desktop and 390px mobile widths.**
 
 ### Task 5: Improve content structure without inventing portfolio facts
 
@@ -110,7 +110,7 @@
 
 - [x] **Step 1: Identify only factual metadata already present in the repository and remove misleadingly specific wording where it is not supported.**
 - [x] **Step 2: Improve archive hierarchy and distinguishable labels in the component/CSS without requiring unsupported content claims.**
-- [ ] **Step 3: Verify the full video archive remains readable and responsive without horizontal overflow.**
+- [x] **Step 3: Verify the full video archive remains readable and responsive without horizontal overflow.**
 
 ### Task 6: Test, deploy, and verify live state
 
@@ -119,8 +119,17 @@
 - Modify: `integrations/google-sheets/Admin.html` only if the live dashboard needs matching status copy
 - No committed changes to generated audit screenshots
 
-- [ ] **Step 1: Run `npm run lint`, `npm run typecheck`, `npm test`, `npm run build`, and `git diff --check`.**
+- [x] **Step 1: Run `npm run lint`, `npm run typecheck`, `npm test`, `npm run build`, and `git diff --check`.**
 - [ ] **Step 2: Deploy the updated Apps Script from Max’s authenticated Apps Script project, only if the user’s current authenticated session permits it; record the deployment outcome separately from source changes.**
-- [ ] **Step 3: Commit scoped source changes, push `main`, and wait for the GitHub Pages workflow to complete successfully.**
-- [ ] **Step 4: Capture fresh live evidence for every route, menu, contact, booking error/ready state, project modal, video modal, player, mobile, and reduced-motion state.**
-- [ ] **Step 5: Re-run the original booking endpoint check and confirm the live response is not `Script function not found: doGet`; if no live sheet slots exist, report that as a truthful data-state rather than a deployment failure.**
+- [x] **Step 3: Commit scoped source changes, push `main`, and wait for the GitHub Pages workflow to complete successfully.**
+- [x] **Step 4: Capture fresh live evidence for every route, menu, contact, booking error/ready state, project modal, video modal, player, mobile, and reduced-motion state.**
+- [x] **Step 5: Re-run the original booking endpoint check; it still returns `Script function not found: doGet`, so the Apps Script deployment remains a release blocker rather than a no-slots data state.**
+
+### Current external blocker
+
+The repository source contains the required public `doGet` availability route,
+but the live public Apps Script deployment still returns `Script function not
+found: doGet`. No authenticated Apps Script editor/deployment session was
+available in this run, so updating that deployment requires Max's Google
+account session. The GitHub Pages frontend is deployed and truthfully shows the
+unavailable state until that external deployment is updated.
