@@ -26,12 +26,16 @@ async function loadJson<T>(path: string): Promise<T> {
   return (await response.json()) as T
 }
 
-export function assetUrl(path: string) {
+export function resolveAssetUrl(path: string, baseUrl: string, documentBase: string) {
   if (/^(https?:|data:|blob:|#)/i.test(path)) {
     return path
   }
 
-  return `${import.meta.env.BASE_URL}${path.replace(/^\/+/, '')}`
+  return new URL(`${baseUrl}${path.replace(/^\/+/, '')}`, documentBase).href
+}
+
+export function assetUrl(path: string) {
+  return resolveAssetUrl(path, import.meta.env.BASE_URL, document.baseURI)
 }
 
 function resolveContentAssets(
