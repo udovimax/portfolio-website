@@ -547,7 +547,8 @@
       });
       document.getElementById('availability-form').addEventListener('submit', function (event) {
         event.preventDefault();
-        var values = new FormData(event.currentTarget);
+        var form = event.currentTarget;
+        var values = new FormData(form);
         serverCall('saveAvailabilitySlots', values.get('fromDate'), values.get('toDate'), values.get('startTime'), values.get('endTime'), values.get('location'), values.get('price'), values.get('paymentUrl'))
           .then(function (next) {
             state.data.availability = next;
@@ -558,7 +559,7 @@
               state.selectedAvailabilityDate = firstDate;
             }
             renderAvailability(next);
-            event.currentTarget.reset();
+            form.reset();
             showNotice('Availability published.', 'success');
           })
           .catch(function (error) { showNotice(error.message, 'error'); });
