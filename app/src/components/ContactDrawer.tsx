@@ -3,9 +3,11 @@ import { createPortal } from 'react-dom'
 import { AnimatePresence, motion } from 'framer-motion'
 import { getFocusLoopTarget } from '../utils/focusTrap'
 import { buildAvailabilityUrl, normaliseAvailabilityResponse, type BookingRange } from '../utils/availability'
-
-const BOOKING_INTEREST = 'Booking / studio session'
-const COLLABORATION_INTEREST = 'Artist / music collaboration'
+import {
+  BOOKING_INTEREST,
+  COLLABORATION_INTEREST,
+  CONTACT_INTEREST_OPTIONS,
+} from '../utils/contactInterests'
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/i
 const FOCUSABLE_SELECTOR =
   'a[href], button:not([disabled]), input:not([disabled]), textarea:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
@@ -390,10 +392,9 @@ export function ContactDrawer({
                   setSubmitError(null)
                 }}
               >
-                <option value="">General enquiry</option>
-                <option value={BOOKING_INTEREST}>Booking / studio session</option>
-                <option value="Producer / engineer / sound designer">Producer / engineer / sound designer</option>
-                <option value={COLLABORATION_INTEREST}>{COLLABORATION_INTEREST}</option>
+                {CONTACT_INTEREST_OPTIONS.map((option) => (
+                  <option key={option.value || 'general'} value={option.value}>{option.label}</option>
+                ))}
               </select>
               <label htmlFor="drawer-name">Name</label>
               <input

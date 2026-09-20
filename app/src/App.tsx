@@ -15,6 +15,7 @@ import { Howl, Howler } from 'howler'
 import { FaBandcamp, FaEnvelope, FaInstagram, FaLinkedin, FaPaypal, FaSoundcloud, FaSpotify } from 'react-icons/fa'
 import { SiBandlab } from 'react-icons/si'
 import { ContactDrawer } from './components/ContactDrawer'
+import { PRODUCER_INTEREST } from './utils/contactInterests'
 import { FloatingNav } from './components/FloatingNav'
 import { InstagramEmbed } from './components/InstagramEmbed'
 import { MediaArchive } from './components/MediaArchive'
@@ -722,7 +723,7 @@ function App() {
               <button
                 type="button"
                 className="home-funnel-card magnetic-btn"
-                onClick={() => openContact('Producer / engineer / sound designer')}
+                onClick={() => openContact(PRODUCER_INTEREST)}
               >
                 <span className="section-heading">Work with Max / 01</span>
                 <strong>Producer, engineer, sound designer</strong>
