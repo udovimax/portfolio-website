@@ -16,6 +16,16 @@ function plain(value) {
   return JSON.parse(JSON.stringify(value))
 }
 
+function fakeGmailMessage({ id, from, date, body, draft = false }) {
+  return {
+    getId: () => id,
+    getFrom: () => from,
+    getDate: () => new Date(date),
+    getPlainBody: () => body,
+    isDraft: () => draft,
+  }
+}
+
 test('same exact location has no travel requirement', () => {
   assert.deepEqual(plain(context.travelRequirement_('Camden studio', 'Camden studio', [])), {
     configured: true, minutes: 0, fee: 0,
@@ -120,4 +130,125 @@ test('public transit range reveals only neutral workload metadata', () => {
     start: '15:00', end: '15:45', status: 'travel',
     publicLocation: 'Transit', bookingType: 'Travel / transit',
   })
+})
+
+test('latest customer reply ignores Max messages and returns the newest external message', () => {
+  const result = plain(context.latestCustomerReply_([
+    fakeGmailMessage({
+      id: 'max-1', from: 'Max Udovichenko <maxudovichenko.prod@gmail.com>',
+      date: '2026-09-21T09:00:00.000Z', body: 'Thanks for getting in touch.',
+    }),
+    fakeGmailMessage({
+      id: 'customer-1', from: 'Customer <customer@example.com>',
+      date: '2026-09-21T10:00:00.000Z', body: 'Here is the project brief.',
+    }),
+    fakeGmailMessage({
+      id: 'customer-2', from: 'customer@example.com',
+      date: '2026-09-21T11:00:00.000Z', body: 'I can do Thursday instead.',
+    }),
+  ], 'maxudovichenko.prod@gmail.com'))
+
+  assert.deepEqual(result, {
+    messageId: 'customer-2',
+    at: '2026-09-21T11:00:00.000Z',
+    body: 'I can do Thursday instead.',
+  })
+})
+
+test('lead projection exposes stored Gmail thread and customer reply fields', () => {
+  const row = Array(27).fill('')
+  row[23] = 'thread-123'
+  row[24] = vm.runInContext("new Date('2026-09-21T11:00:00.000Z')", context)
+  row[25] = 'I can do Thursday instead.'
+  row[26] = 'customer-2'
+
+  const result = plain(context.leadFromRow_(row, 7))
+
+  assert.equal(result.gmailThreadId, 'thread-123')
+  assert.equal(result.customerReplyAt, '2026-09-21')
+  assert.equal(result.customerReply, 'I can do Thursday instead.')
+  assert.equal(result.customerReplyId, 'customer-2')
+})
+
+test('Gmail reply helper replies to the latest customer message in the stored thread', () => {
+  const calls = []
+  const customerMessage = fakeGmailMessage({
+    id: 'customer-2', from: 'customer@example.com',
+    date: '2026-09-21T11:00:00.000Z', body: 'I can do Thursday instead.',
+  })
+  const thread = {
+    getId: () => 'thread-123',
+    getMessages: () => [customerMessage],
+  }
+  const sentMessage = { getThread: () => thread }
+  const draft = { send: () => sentMessage }
+  context.GmailApp = {
+    getThreadById: (id) => {
+      calls.push(['thread', id])
+      return thread
+    },
+  }
+  customerMessage.createDraftReply = (body, options) => {
+    calls.push(['reply', body, options])
+    return draft
+  }
+
+  const result = plain(context.sendGmailReply_({
+    email: 'customer@example.com', gmailThreadId: 'thread-123',
+  }, 'Re: Portfolio enquiry', 'Thanks — Thursday works.'))
+
+  assert.equal(result.threadId, 'thread-123')
+  assert.deepEqual(plain(calls), [
+    ['thread', 'thread-123'],
+    ['reply', 'Thanks — Thursday works.', { name: 'Max Udovichenko' }],
+  ])
+})
+
+test('customer reply sync writes the newest external Gmail message to the lead row', () => {
+  const row = Array(27).fill('')
+  row[23] = 'thread-123'
+  const headers = context.LEAD_HEADERS
+  const writes = []
+  const sheet = {
+    getLastColumn: () => headers.length,
+    getRange: (rowNumber, column, rowCount, columnCount) => ({
+      getValues: () => rowNumber === 1 ? [headers] : [row],
+      setValue: (value) => {
+        writes.push([rowNumber, column, value])
+        row[column - 1] = value
+      },
+    }),
+  }
+  const customerMessage = fakeGmailMessage({
+    id: 'customer-3', from: 'customer@example.com',
+    date: '2026-09-21T12:00:00.000Z', body: 'Can we move this to Friday?',
+  })
+  context.GmailApp = { getThreadById: () => ({ getMessages: () => [customerMessage] }) }
+
+  const result = context.syncCustomerReply_(sheet, 2, {
+    gmailThreadId: 'thread-123', customerReplyAt: '', customerReply: '', customerReplyId: '',
+  })
+
+  assert.equal(result.customerReply, 'Can we move this to Friday?')
+  assert.equal(result.customerReplyId, 'customer-3')
+  assert.equal(writes.length, 3)
+})
+
+test('customer confirmation captures the Gmail thread created for a new enquiry', () => {
+  const sentMessage = { getThread: () => ({ getId: () => 'thread-new' }) }
+  const calls = []
+  context.GmailApp = {
+    createDraft: (recipient, subject, body, options) => {
+      calls.push({ recipient, subject, body, options })
+      return { send: () => sentMessage }
+    },
+  }
+
+  const result = plain(context.sendCustomerConfirmation_({
+    email: 'customer@example.com', name: 'Customer', message: 'Hello',
+  }))
+
+  assert.deepEqual(result, { sent: true, threadId: 'thread-new' })
+  assert.equal(calls[0].recipient, 'customer@example.com')
+  assert.equal(calls[0].options.replyTo, 'maxudovichenko.prod@gmail.com')
 })
