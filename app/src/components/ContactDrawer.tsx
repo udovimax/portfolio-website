@@ -2,7 +2,13 @@ import { useEffect, useRef, useState, type FormEvent, type RefObject } from 'rea
 import { createPortal } from 'react-dom'
 import { AnimatePresence, motion } from 'framer-motion'
 import { getFocusLoopTarget } from '../utils/focusTrap'
-import { buildAvailabilityUrl, normaliseAvailabilityResponse, type BookingRange } from '../utils/availability'
+import {
+  buildAvailabilityUrl,
+  formatBookingEstimate,
+  isSelectableBookingRange,
+  normaliseAvailabilityResponse,
+  type BookingRange,
+} from '../utils/availability'
 import {
   BOOKING_INTEREST,
   COLLABORATION_INTEREST,
@@ -25,6 +31,12 @@ function addMonths(date: Date, amount: number) {
   next.setDate(1)
   next.setMonth(next.getMonth() + amount)
   return next
+}
+
+function durationHours(range: BookingRange) {
+  const [startHours, startMinutes] = range.start.split(':').map(Number)
+  const [endHours, endMinutes] = range.end.split(':').map(Number)
+  return Math.max(0, ((endHours * 60 + endMinutes) - (startHours * 60 + startMinutes)) / 60)
 }
 
 interface ContactDrawerProps {
@@ -64,6 +76,7 @@ export function ContactDrawer({
   const [bookingTime, setBookingTime] = useState('')
   const [bookingEndTime, setBookingEndTime] = useState('')
   const [bookingLocation, setBookingLocation] = useState('')
+  const [bookingTypeChoice, setBookingTypeChoice] = useState('')
   const [calendarMonth, setCalendarMonth] = useState(() => new Date())
   const [availability, setAvailability] = useState<Record<string, BookingRange[]>>({})
   const [availabilityState, setAvailabilityState] = useState<'idle' | 'loading' | 'ready' | 'error'>('idle')
@@ -72,14 +85,20 @@ export function ContactDrawer({
   const isBooking = interest === BOOKING_INTEREST
   const isCollaboration = interest === COLLABORATION_INTEREST
   const availableRanges = bookingDate ? availability[bookingDate] || [] : []
-  const availableLocations = [...new Set(availableRanges.map((range) => range.location).filter(Boolean))]
+  const selectableRanges = availableRanges.filter(isSelectableBookingRange)
+  const availableLocations = [...new Set(selectableRanges.map((range) => range.publicLocation).filter(Boolean))]
   const selectedLocationRanges = bookingLocation
-    ? availableRanges.filter((range) => range.location === bookingLocation)
+    ? selectableRanges.filter((range) => range.publicLocation === bookingLocation)
     : availableLocations.length > 1
       ? []
-      : availableRanges
+      : selectableRanges
   const availableEndTimes = selectedLocationRanges.filter((range) => range.start === bookingTime).map((range) => range.end)
-  const selectedRange = selectedLocationRanges.find((range) => range.start === bookingTime && range.end === bookingEndTime)
+  const bookingTypeOptions = [...new Set(selectedLocationRanges
+    .filter((range) => range.start === bookingTime && range.end === bookingEndTime)
+    .map((range) => range.bookingType))]
+  const selectedRange = selectedLocationRanges.find((range) => range.start === bookingTime
+    && range.end === bookingEndTime
+    && (bookingTypeOptions.length < 2 || range.bookingType === bookingTypeChoice))
   const availableDates = new Set(Object.keys(availability))
   const calendarStart = new Date(calendarMonth.getFullYear(), calendarMonth.getMonth(), 1)
   const calendarOffset = (calendarStart.getDay() + 6) % 7
@@ -142,6 +161,7 @@ export function ContactDrawer({
       setBookingTime('')
       setBookingEndTime('')
       setBookingLocation('')
+      setBookingTypeChoice('')
       setAvailability({})
       setAvailabilityState('idle')
       return
@@ -152,6 +172,7 @@ export function ContactDrawer({
     setBookingTime('')
     setBookingEndTime('')
     setBookingLocation('')
+    setBookingTypeChoice('')
 
     const pageRoot = document.getElementById('root')
     pageRoot?.setAttribute('inert', '')
@@ -246,7 +267,7 @@ export function ContactDrawer({
         setSubmitError('Choose an available booking date and time before sending.')
         return
       }
-      if (isBooking && !selectedLocationRanges.some((range) => range.start === bookingTime && range.end === bookingEndTime)) {
+      if (isBooking && (!selectedRange || !isSelectableBookingRange(selectedRange))) {
         setIsSubmitting(false)
         setSubmitError('That booking time is no longer available. Please choose another slot.')
         return
@@ -289,6 +310,7 @@ export function ContactDrawer({
       setBookingTime('')
       setBookingEndTime('')
       setBookingLocation('')
+      setBookingTypeChoice('')
     }
   }
 
@@ -389,6 +411,7 @@ export function ContactDrawer({
                   setBookingDate('')
                   setBookingTime('')
                   setBookingEndTime('')
+                  setBookingTypeChoice('')
                   setSubmitError(null)
                 }}
               >
@@ -443,7 +466,8 @@ export function ContactDrawer({
                       {calendarDays.map((day) => {
                         const key = dateKey(day)
                         const isCurrentMonth = day.getMonth() === calendarMonth.getMonth()
-                        const isAvailable = availableDates.has(key)
+                        const hasSchedule = availableDates.has(key)
+                        const hasSelectableWindow = (availability[key] || []).some(isSelectableBookingRange)
                         const isSelected = key === bookingDate
                         const isPast = key < minimumBookingDate
                         return (
@@ -451,17 +475,18 @@ export function ContactDrawer({
                             type="button"
                             key={key}
                             className={isSelected ? 'is-selected' : ''}
-                            disabled={!isCurrentMonth || !isAvailable || isPast || availabilityState !== 'ready'}
+                            disabled={!isCurrentMonth || !hasSchedule || isPast || availabilityState !== 'ready'}
                             onClick={() => {
                               setBookingDate(key)
                               setBookingTime('')
                               setBookingEndTime('')
-                              const nextRanges = availability[key] || []
-                              const nextLocations = [...new Set(nextRanges.map((range) => range.location).filter(Boolean))]
+                              setBookingTypeChoice('')
+                              const nextRanges = (availability[key] || []).filter(isSelectableBookingRange)
+                              const nextLocations = [...new Set(nextRanges.map((range) => range.publicLocation).filter(Boolean))]
                               setBookingLocation(nextLocations.length === 1 ? nextLocations[0] : '')
                             }}
                             aria-pressed={isSelected}
-                            aria-label={`${day.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}${isAvailable ? ', available' : ', unavailable'}`}
+                            aria-label={`${day.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}${hasSelectableWindow ? ', available to request' : hasSchedule ? ', busy or in transit' : ', unavailable'}`}
                           >
                             {day.getDate()}
                           </button>
@@ -470,7 +495,8 @@ export function ContactDrawer({
                     </div>
                   </div>
                   <input type="hidden" name="bookingDate" value={bookingDate} />
-                  <input type="hidden" name="bookingLocation" value={bookingLocation} />
+                  <input type="hidden" name="bookingToken" value={selectedRange?.bookingToken || ''} />
+                  <input type="hidden" name="bookingPublicLocation" value={bookingLocation} />
                   {availableLocations.length > 1 ? (
                     <div className="booking-location-field">
                       <label htmlFor="drawer-booking-location">Studio or location</label>
@@ -481,6 +507,7 @@ export function ContactDrawer({
                           setBookingLocation(event.target.value)
                           setBookingTime('')
                           setBookingEndTime('')
+                          setBookingTypeChoice('')
                         }}
                         disabled={!bookingDate || availabilityState !== 'ready'}
                         required
@@ -500,6 +527,7 @@ export function ContactDrawer({
                         onChange={(event) => {
                           setBookingTime(event.target.value)
                           setBookingEndTime('')
+                          setBookingTypeChoice('')
                         }}
                         disabled={!bookingDate || availabilityState !== 'ready' || selectedLocationRanges.length === 0}
                         required
@@ -514,7 +542,10 @@ export function ContactDrawer({
                         id="drawer-booking-end-time"
                         name="bookingEndTime"
                         value={bookingEndTime}
-                        onChange={(event) => setBookingEndTime(event.target.value)}
+                        onChange={(event) => {
+                          setBookingEndTime(event.target.value)
+                          setBookingTypeChoice('')
+                        }}
                         disabled={!bookingTime || availableEndTimes.length === 0}
                         required
                       >
@@ -523,18 +554,45 @@ export function ContactDrawer({
                       </select>
                     </div>
                   </div>
+                  {bookingTypeOptions.length > 1 ? (
+                    <div className="booking-location-field">
+                      <label htmlFor="drawer-booking-type">Booking type</label>
+                      <select
+                        id="drawer-booking-type"
+                        value={bookingTypeChoice}
+                        onChange={(event) => setBookingTypeChoice(event.target.value)}
+                        required
+                      >
+                        <option value="">Choose a booking type</option>
+                        {bookingTypeOptions.map((type) => <option key={type} value={type}>{type}</option>)}
+                      </select>
+                    </div>
+                  ) : null}
+                  {bookingDate && availableRanges.length > 0 ? (
+                    <div className="booking-public-schedule" aria-label={`Max's schedule for ${bookingDate}`}>
+                      <strong>Max’s schedule</strong>
+                      {availableRanges.map((range) => (
+                        <div className={`booking-public-range is-${range.status}`} key={`${range.start}-${range.end}-${range.status}-${range.publicLocation}-${range.bookingToken || 'busy'}`}>
+                          <span>{range.start}–{range.end}</span>
+                          <span>{range.status === 'available' ? 'Available to request' : range.status === 'travel' ? 'Travel / transit' : range.status}</span>
+                          <small>{range.publicLocation} · {range.bookingType}</small>
+                        </div>
+                      ))}
+                    </div>
+                  ) : null}
                   {bookingDate && selectedRange ? (
                     <div className="booking-selection-summary" role="status">
-                      <strong>{selectedRange.location || 'Location to be confirmed'}</strong>
-                      <span>{selectedRange.price ? `£${selectedRange.price} per hour` : 'Price confirmed after enquiry'}</span>
-                      {selectedRange.paymentUrl ? <span>Payment is handled after Max confirms the booking; nothing is charged on this form.</span> : null}
+                      <strong>{selectedRange.publicLocation}</strong>
+                      <span>{selectedRange.bookingType}</span>
+                      <span>{formatBookingEstimate(selectedRange, durationHours(selectedRange))}</span>
+                      <span>Provisional estimate only. Max confirms the final price and travel requirements; this form never charges you.</span>
                     </div>
                   ) : null}
                   <p className="contact-drawer-field-note" role="status">
                     {availabilityState === 'error'
                       ? 'Booking availability is temporarily unavailable. Please email Max directly.'
                       : availabilityState === 'ready'
-                        ? 'Choose a highlighted day, then select the location and available start/end time.'
+                        ? 'Busy and travel windows are shown for context. Choose an available window to request a booking estimate.'
                         : 'Loading Max’s available dates…'}
                   </p>
                 </div>
