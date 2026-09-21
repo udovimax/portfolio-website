@@ -100,6 +100,7 @@
       .availability-row { display: flex; justify-content: space-between; align-items: center; gap: 12px; border: 1px solid var(--line); border-radius: 12px; background: rgba(255,255,255,.035); padding: 10px 12px; }
       .availability-row-main { display: grid; gap: 2px; }
       .availability-row small { color: var(--muted); }
+      .availability-row-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 8px; }
       .availability-form { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 10px; align-items: end; margin-top: 18px; border-top: 1px solid var(--line); padding-top: 16px; }
       .availability-form .button { min-height: 42px; }
       .availability-form-title { grid-column: 1 / -1; margin: 0; color: var(--muted); font-size: 13px; }
@@ -353,7 +354,24 @@
           if (slot.leadRow) details.push('enquiry row ' + slot.leadRow);
           main.appendChild(node('small', '', details.join(' · ')));
           row.appendChild(main);
+          var actions = node('div', 'availability-row-actions');
           if (slot.status === 'Available' || slot.status === 'Unavailable') {
+            var edit = node('button', 'button', 'Edit price');
+            edit.type = 'button';
+            edit.addEventListener('click', function () {
+              var nextPrice = window.prompt('Price in GBP per hour. Enter 1000 for £1,000; leave blank for price on request.', slot.price || '');
+              if (nextPrice === null) return;
+              edit.disabled = true;
+              serverCall('updateAvailabilityPrice', slot.row, nextPrice)
+                .then(function (next) {
+                  state.data.availability = next;
+                  renderAvailability(next);
+                  showNotice('Price updated.', 'success');
+                })
+                .catch(function (error) { showNotice(error.message, 'error'); })
+                .then(function () { edit.disabled = false; });
+            });
+            actions.appendChild(edit);
             var actionLabel = slot.status === 'Available' ? 'Mark unavailable' : 'Restore';
             var action = node('button', 'button', actionLabel);
             action.type = 'button';
@@ -369,8 +387,9 @@
                 showNotice(slot.status === 'Available' ? 'Window marked unavailable.' : 'Window restored.', 'success');
               }).catch(function (error) { showNotice(error.message, 'error'); });
             });
-            row.appendChild(action);
-          } else row.appendChild(node('span', 'badge', slot.status));
+            actions.appendChild(action);
+          } else actions.appendChild(node('span', 'badge', slot.status));
+          row.appendChild(actions);
           container.appendChild(row);
         });
       }

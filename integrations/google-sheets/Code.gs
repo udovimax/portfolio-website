@@ -172,10 +172,7 @@ function saveAvailabilitySlots(fromDate, toDate, startTime, endTime, location, p
   var finish = validateTimeKey_(endTime, 'Choose a valid end time.');
   var studio = String(location || '').trim();
   if (!studio) throw new Error('Enter the studio or location for this window.');
-  if (String(price || '').trim() && !/^\d+(?:\.\d{1,2})?$/.test(String(price).trim())) {
-    throw new Error('Price must be a positive GBP amount, or left blank for price on request.');
-  }
-  var amount = priceKey_(price);
+  var amount = normalisePrice_(price);
   var payment = String(paymentUrl || '').trim();
   if (payment && !/^https?:\/\/\S+$/i.test(payment)) throw new Error('Payment link must begin with https://.');
   if (finish <= start) throw new Error('The end time must be later than the start time.');
@@ -208,6 +205,22 @@ function saveAvailabilitySlots(fromDate, toDate, startTime, endTime, location, p
   } finally {
     lock.releaseLock();
   }
+}
+
+/** Update the price on an unused availability row without changing its history. */
+function updateAvailabilityPrice(rowNumber, price) {
+  requireAdmin_();
+  var sheet = getOrCreateSheet_(AVAILABILITY_SHEET_NAME, AVAILABILITY_HEADERS);
+  var row = normaliseRowNumber_(rowNumber);
+  var status = String(sheet.getRange(row, availabilityColumn_(sheet, 'Status')).getValue() || 'Available').trim();
+  if (['Available', 'Unavailable'].indexOf(status) < 0) {
+    throw new Error('Only Available or Unavailable windows can be edited.');
+  }
+
+  var amount = normalisePrice_(price);
+  sheet.getRange(row, availabilityColumn_(sheet, 'Price')).setValue(amount);
+  sheet.getRange(row, availabilityColumn_(sheet, 'Updated at')).setValue(new Date());
+  return readAdminAvailability_();
 }
 
 /** Hide an unused availability row without deleting its audit history. */
@@ -569,6 +582,15 @@ function validateTimeKey_(value, message) {
 function timeMinutes_(value) {
   var parts = String(value || '').split(':');
   return Number(parts[0]) * 60 + Number(parts[1]);
+}
+
+function normalisePrice_(value) {
+  var text = value == null ? '' : String(value).trim().replace(/^£/, '').replace(/,/g, '');
+  if (!text) return '';
+  if (!/^\d+(?:\.\d{1,2})?$/.test(text)) {
+    throw new Error('Price must be a positive GBP amount, or left blank for price on request.');
+  }
+  return priceKey_(text);
 }
 
 function EMAIL_PATTERN_() {
