@@ -2,6 +2,7 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 import {
   buildAvailabilityUrl,
+  formatBookingEstimate,
   isSelectableBookingRange,
   normaliseAvailabilityResponse,
 } from './availability.ts'
@@ -73,6 +74,14 @@ test('only available windows with an opaque booking token are selectable', () =>
   assert.equal(isSelectableBookingRange(ranges[1]), false)
   assert.equal(isSelectableBookingRange(ranges[2]), false)
   assert.equal(isSelectableBookingRange(ranges[3]), false)
+})
+
+test('formats estimates only for available ranges', () => {
+  assert.equal(formatBookingEstimate({
+    status: 'available', estimatedHourlyPrice: '40', estimatedTravelFee: '18', estimatedTotal: '98',
+  }, 2), 'Estimated £40/hour + £18 travel · £98 total')
+  assert.equal(formatBookingEstimate({ status: 'booked' }, 4), '')
+  assert.equal(formatBookingEstimate({ status: 'available' }, 2), 'Price to be confirmed by Max')
 })
 
 test('builds the JSONP availability request without changing the configured endpoint', () => {

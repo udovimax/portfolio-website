@@ -1594,6 +1594,58 @@ textarea:focus-visible {
   gap: 0.45rem;
 }
 
+.booking-public-schedule {
+  display: grid;
+  gap: 0.45rem;
+  padding: 0.7rem;
+  border: 1px solid rgba(205, 255, 216, 0.16);
+  border-radius: 0.65rem;
+  background: rgba(9, 12, 16, 0.32);
+}
+
+.booking-public-schedule > strong {
+  color: var(--text-main);
+  font-size: 0.78rem;
+  font-weight: 500;
+}
+
+.booking-public-range {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.15rem 0.55rem;
+  padding: 0.45rem 0.55rem;
+  border-left: 2px solid rgba(247, 244, 239, 0.25);
+  color: var(--text-muted);
+  font-size: 0.72rem;
+}
+
+.booking-public-range > span:first-child {
+  color: var(--text-main);
+  font-variant-numeric: tabular-nums;
+}
+
+.booking-public-range small {
+  grid-column: 1 / -1;
+  color: var(--text-muted);
+  font-size: 0.68rem;
+}
+
+.booking-public-range.is-available {
+  border-left-color: rgba(205, 255, 216, 0.8);
+}
+
+.booking-public-range.is-requested {
+  border-left-color: rgba(246, 212, 138, 0.8);
+}
+
+.booking-public-range.is-booked {
+  border-left-color: rgba(255, 157, 157, 0.8);
+}
+
+.booking-public-range.is-travel {
+  border-left-color: rgba(148, 185, 255, 0.8);
+}
+
 .booking-selection-summary {
   display: grid;
   gap: 0.2rem;

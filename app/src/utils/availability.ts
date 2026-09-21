@@ -115,6 +115,27 @@ export function isSelectableBookingRange(range: BookingRange): boolean {
   return range.status === 'available' && Boolean(range.bookingToken)
 }
 
+export function formatBookingEstimate(
+  range: Pick<BookingRange, 'status' | 'estimatedHourlyPrice' | 'estimatedTravelFee' | 'estimatedTotal'>,
+  durationHours: number,
+): string {
+  if (range.status !== 'available') return ''
+
+  const hourly = optionalString(range.estimatedHourlyPrice)
+  if (!hourly) return 'Price to be confirmed by Max'
+
+  const travel = optionalString(range.estimatedTravelFee)
+  let total = optionalString(range.estimatedTotal)
+  const duration = Math.max(0, Number(durationHours) || 0)
+  if (!total && duration > 0 && Number.isFinite(Number(hourly))) {
+    const travelAmount = Number(travel) || 0
+    total = String(Number(hourly) * duration + travelAmount)
+  }
+  const travelPart = travel && Number(travel) > 0 ? ` + £${travel} travel` : ''
+  const totalPart = total ? ` · £${total} total` : ''
+  return `Estimated £${hourly}/hour${travelPart}${totalPart}`
+}
+
 export function buildAvailabilityUrl(
   endpoint: string,
   from: string,
