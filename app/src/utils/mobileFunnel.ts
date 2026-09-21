@@ -1,5 +1,11 @@
 export const MOBILE_PHONE_MEDIA_QUERY = '(max-width: 760px)'
 
+export type ContactSurface = 'mobile' | 'desktop'
+
+export function contactSurfaceForPhone(isPhoneLayout: boolean): ContactSurface {
+  return isPhoneLayout ? 'mobile' : 'desktop'
+}
+
 export const MOBILE_FUNNEL_STEPS = ['intro', 'routes'] as const
 export type MobileFunnelStep = typeof MOBILE_FUNNEL_STEPS[number]
 

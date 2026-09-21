@@ -27,7 +27,7 @@ import { usePageAnalytics } from './hooks/usePageAnalytics'
 import { useMediaQuery } from './hooks/useMediaQuery'
 import { assetUrl, useSiteContent } from './hooks/useSiteContent'
 import { routeFromHash } from './utils/navigation'
-import { MOBILE_PHONE_MEDIA_QUERY } from './utils/mobileFunnel'
+import { contactSurfaceForPhone, MOBILE_PHONE_MEDIA_QUERY } from './utils/mobileFunnel'
 import type { NavSection, ProjectItem, Track, VideoItem } from './types/content'
 
 const VideoModal = lazy(() =>
@@ -264,6 +264,7 @@ function ScrollGuide({ currentPage }: { currentPage: NavSection }) {
 function App() {
   const shouldReduceMotion = useReducedMotion()
   const isPhoneLayout = useMediaQuery(MOBILE_PHONE_MEDIA_QUERY)
+  const contactSurface = contactSurfaceForPhone(isPhoneLayout)
   useLenis(!shouldReduceMotion && !isPhoneLayout)
 
   const { content, error, isLoading } = useSiteContent()
@@ -288,6 +289,15 @@ function App() {
   const [contactInterest, setContactInterest] = useState('')
   const [videoResumePoints, setVideoResumePoints] = useState<Record<string, number>>({})
   const contactTriggerRef = useRef<HTMLButtonElement>(null)
+  const contactSurfaceRef = useRef(contactSurface)
+
+  useEffect(() => {
+    if (contactSurfaceRef.current !== contactSurface) {
+      contactSurfaceRef.current = contactSurface
+      setContactOpen(false)
+      setContactInterest('')
+    }
+  }, [contactSurface])
 
   usePageAnalytics(content?.socials.googleSheetsEndpoint, currentPage)
 
@@ -638,7 +648,7 @@ function App() {
         contactOpen={contactOpen}
         onContactOpenChange={handleContactOpenChange}
         contactTriggerRef={contactTriggerRef}
-        contactControlId={isPhoneLayout ? 'mobile-enquiry-flow' : 'contact-drawer'}
+        contactControlId={contactSurface === 'mobile' ? 'mobile-enquiry-flow' : 'contact-drawer'}
         player={
           <Player
             track={activeTrack}
@@ -1109,7 +1119,7 @@ function App() {
         </AnimatePresence>
       </main>
 
-      {content?.socials && isPhoneLayout ? (
+      {content?.socials && contactSurface === 'mobile' ? (
         <MobileEnquiryFlow
           isOpen={contactOpen}
           endpointEmail={content.socials.formsubmit.endpointEmail}

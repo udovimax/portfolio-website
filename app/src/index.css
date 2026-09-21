@@ -3067,10 +3067,10 @@ textarea:focus {
     min-width: 0;
     min-height: 0;
     flex-direction: column;
-    justify-content: space-between;
+    justify-content: flex-start;
     gap: 1rem;
     padding: 1.15rem 1rem 0.9rem;
-    overflow-y: auto;
+    overflow: hidden;
     overscroll-behavior: contain;
   }
 
@@ -3079,10 +3079,15 @@ textarea:focus {
     align-content: start;
     gap: 0.8rem;
     min-height: 0;
+    flex: 1 1 auto;
+    overflow: auto;
+    overscroll-behavior: contain;
+    padding-bottom: 0.5rem;
   }
 
   .mobile-funnel-intro-content {
     grid-template-columns: minmax(0, 1fr) minmax(7.6rem, 10rem);
+    grid-template-rows: auto auto minmax(13rem, auto) minmax(0, auto) auto auto auto;
     column-gap: 0.9rem;
     align-items: start;
   }
@@ -3093,6 +3098,18 @@ textarea:focus {
   .mobile-funnel-intro-content > .mobile-funnel-primary,
   .mobile-funnel-intro-content > .mobile-funnel-swipe-copy {
     grid-column: 1 / -1;
+  }
+
+  .mobile-funnel-intro-content > .mobile-funnel-intro-copy {
+    grid-row: 5;
+  }
+
+  .mobile-funnel-intro-content > .mobile-funnel-primary {
+    grid-row: 6;
+  }
+
+  .mobile-funnel-intro-content > .mobile-funnel-swipe-copy {
+    grid-row: 7;
   }
 
   .mobile-funnel-name {
@@ -3108,7 +3125,7 @@ textarea:focus {
 
   .mobile-funnel-portrait {
     grid-column: 2;
-    grid-row: 3 / span 3;
+    grid-row: 3;
     aspect-ratio: 0.78;
     align-self: start;
     overflow: hidden;
@@ -3267,6 +3284,8 @@ textarea:focus {
     display: grid;
     grid-template-columns: minmax(0, 1fr) auto;
     gap: 0.6rem;
+    flex-shrink: 0;
+    margin-top: auto;
     padding: 0.65rem 0 max(0.2rem, env(safe-area-inset-bottom));
   }
 
@@ -3772,6 +3791,21 @@ textarea:focus {
     color: #ffb4b4;
     font-size: 0.78rem;
     line-height: 1.4;
+  }
+}
+
+@media (max-width: 380px) {
+  .mobile-funnel-intro-content {
+    grid-template-rows: auto auto minmax(7.2rem, auto) minmax(0, auto) auto auto auto;
+  }
+
+  .mobile-funnel-portrait {
+    aspect-ratio: 1.35;
+  }
+
+  .mobile-funnel-intro-copy {
+    font-size: 0.86rem;
+    line-height: 1.35;
   }
 }
 
