@@ -1,6 +1,7 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import { validateContactFlowStep } from './contactFlow.ts'
+import { GENERAL_INTEREST } from './contactInterests.ts'
 
 test('requires intent, message, identity, and valid email on their respective steps', () => {
   assert.match(validateContactFlowStep('intent', { interest: '' }) ?? '', /choose/i)
@@ -13,6 +14,10 @@ test('requires intent, message, identity, and valid email on their respective st
     name: 'A',
     email: 'max@example.com',
   }), null)
+})
+
+test('allows the explicit general enquiry intent to continue', () => {
+  assert.equal(validateContactFlowStep('intent', { interest: GENERAL_INTEREST }), null)
 })
 
 test('requires an opaque selectable booking before booking flow review', () => {

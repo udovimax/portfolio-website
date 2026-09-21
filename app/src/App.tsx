@@ -685,6 +685,7 @@ function App() {
               name={content?.about.name ?? ''}
               roles={content?.about.roles ?? []}
               intro={content?.about.intro ?? ''}
+              heroImages={heroImageCycle}
               supportHref={content?.socials.paypal ?? '#'}
               onOpenContact={() => openContact(PRODUCER_INTEREST)}
               onNavigate={(hash) => { window.location.hash = hash }}
@@ -749,18 +750,27 @@ function App() {
               <button
                 type="button"
                 className="home-funnel-card magnetic-btn"
+                style={{ '--funnel-art': `url("${assetUrl(filmPhotoBackgrounds[0])}")` } as CSSProperties}
                 onClick={() => openContact(PRODUCER_INTEREST)}
               >
                 <span className="section-heading">Work with Max / 01</span>
                 <strong>Producer, engineer, sound designer</strong>
                 <span>Book a session or discuss a brief</span>
               </button>
-              <a href="#music" className="home-funnel-card magnetic-btn">
+              <a
+                href="#music"
+                className="home-funnel-card magnetic-btn"
+                style={{ '--funnel-art': `url("${assetUrl(filmPhotoBackgrounds[1])}")` } as CSSProperties}
+              >
                 <span className="section-heading">Hear Max / 02</span>
                 <strong>Artist and music maker</strong>
                 <span>Listen to original music and spatial work</span>
               </a>
-              <a href="#about" className="home-funnel-card magnetic-btn">
+              <a
+                href="#about"
+                className="home-funnel-card magnetic-btn"
+                style={{ '--funnel-art': `url("${assetUrl(filmPhotoBackgrounds[2])}")` } as CSSProperties}
+              >
                 <span className="section-heading">Explore the practice / 03</span>
                 <strong>Researcher and photographer</strong>
                 <span>Find the story, skills, experience, and 35mm work</span>

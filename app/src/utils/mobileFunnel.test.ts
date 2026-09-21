@@ -26,6 +26,7 @@ test('describes the two mobile screens and three route actions', () => {
   assert.deepEqual(MOBILE_ROUTE_OPTIONS.map((option) => option.action), ['work', 'hear', 'explore'])
   assert.equal(MOBILE_ROUTE_OPTIONS.map((option) => option.label).join('|'), 'Work with Max|Hear Max|Explore the practice')
   assert.ok(MOBILE_ROUTE_OPTIONS.every((option) => option.description))
+  assert.equal(new Set(MOBILE_ROUTE_OPTIONS.map((option) => option.artwork)).size, 3)
 })
 
 test('selects exactly one contact presentation for the current viewport', () => {
