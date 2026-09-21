@@ -19,6 +19,8 @@ interface CarouselProps extends PropsWithChildren {
   onActiveIndexChange?: (index: number) => void
   showSwipeHint?: boolean
   autoAdvanceMs?: number
+  hideControls?: boolean
+  showProgress?: boolean
 }
 
 function getCardPositions(track: HTMLDivElement) {
@@ -33,6 +35,8 @@ export function Carousel({
   onActiveIndexChange,
   showSwipeHint = false,
   autoAdvanceMs,
+  hideControls = false,
+  showProgress = false,
   children,
 }: CarouselProps) {
   const trackRef = useRef<HTMLDivElement>(null)
@@ -40,6 +44,7 @@ export function Carousel({
   const scrollEndTimerRef = useRef<number | null>(null)
   const [canScrollPrevious, setCanScrollPrevious] = useState(false)
   const [canScrollNext, setCanScrollNext] = useState(false)
+  const [activeIndex, setActiveIndex] = useState(0)
   const [isAutoPaused, setIsAutoPaused] = useState(false)
   const shouldReduceMotion = useReducedMotion()
 
@@ -64,6 +69,7 @@ export function Carousel({
 
     if (nearestIndex !== activeIndexRef.current) {
       activeIndexRef.current = nearestIndex
+      setActiveIndex(nearestIndex)
       onActiveIndexChange?.(nearestIndex)
     }
   }, [onActiveIndexChange])
@@ -89,6 +95,7 @@ export function Carousel({
 
     if (nextActiveIndex !== activeIndexRef.current) {
       activeIndexRef.current = nextActiveIndex
+      setActiveIndex(nextActiveIndex)
       onActiveIndexChange?.(nextActiveIndex)
     }
   }, [onActiveIndexChange])
@@ -100,6 +107,7 @@ export function Carousel({
     }
 
     activeIndexRef.current = 0
+    setActiveIndex(0)
     onActiveIndexChange?.(0)
     updateScrollBounds()
     const handleScroll = () => {
@@ -146,6 +154,7 @@ export function Carousel({
     const targetPosition = Math.min(Math.max(cardPositions[targetIndex], 0), maxScrollLeft)
 
     activeIndexRef.current = targetIndex
+    setActiveIndex(targetIndex)
     onActiveIndexChange?.(targetIndex)
 
     track.scrollTo({
@@ -170,6 +179,7 @@ export function Carousel({
       const nextIndex = activeIndexRef.current >= cardPositions.length - 1 ? 0 : activeIndexRef.current + 1
       const targetPosition = Math.min(Math.max(cardPositions[nextIndex], 0), maxScrollLeft)
       activeIndexRef.current = nextIndex
+      setActiveIndex(nextIndex)
       onActiveIndexChange?.(nextIndex)
       track.scrollTo({ left: targetPosition, behavior: 'smooth' })
     }, autoAdvanceMs)
@@ -204,35 +214,39 @@ export function Carousel({
       >
         {children}
       </div>
-      <div className="carousel-controls" role="group" aria-label={`${label} controls`}>
-        <span className="carousel-count">{count} {countLabel}</span>
-        {showSwipeHint ? (
-          <span className="carousel-swipe-hint" aria-hidden="true">
-            <span>{canScrollNext || !canScrollPrevious ? 'Swipe' : 'Back'}</span>
-            {canScrollNext || !canScrollPrevious ? <FaArrowRight /> : <FaArrowLeft />}
+      {hideControls ? null : (
+        <div className="carousel-controls" role="group" aria-label={`${label} controls`}>
+          <span className="carousel-count" aria-live="polite">
+            {showProgress ? `${activeIndex + 1} / ${count}` : `${count} ${countLabel}`}
           </span>
-        ) : null}
-        <div className="flex items-center gap-2">
-          <button
-            type="button"
-            className="carousel-button magnetic-btn"
-            aria-label={`Previous ${label}`}
-            disabled={!canScrollPrevious}
-            onClick={() => scrollByCard(-1)}
-          >
-            <FaArrowLeft aria-hidden="true" />
-          </button>
-          <button
-            type="button"
-            className="carousel-button magnetic-btn"
-            aria-label={`Next ${label}`}
-            disabled={!canScrollNext}
-            onClick={() => scrollByCard(1)}
-          >
-            <FaArrowRight aria-hidden="true" />
-          </button>
+          {showSwipeHint ? (
+            <span className="carousel-swipe-hint" aria-hidden="true">
+              <span>{canScrollNext || !canScrollPrevious ? 'Swipe' : 'Back'}</span>
+              {canScrollNext || !canScrollPrevious ? <FaArrowRight /> : <FaArrowLeft />}
+            </span>
+          ) : null}
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              className="carousel-button magnetic-btn"
+              aria-label={`Previous ${label}`}
+              disabled={!canScrollPrevious}
+              onClick={() => scrollByCard(-1)}
+            >
+              <FaArrowLeft aria-hidden="true" />
+            </button>
+            <button
+              type="button"
+              className="carousel-button magnetic-btn"
+              aria-label={`Next ${label}`}
+              disabled={!canScrollNext}
+              onClick={() => scrollByCard(1)}
+            >
+              <FaArrowRight aria-hidden="true" />
+            </button>
+          </div>
         </div>
-      </div>
+      )}
     </div>
   )
 }

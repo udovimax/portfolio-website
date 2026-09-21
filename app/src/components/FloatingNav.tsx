@@ -8,6 +8,7 @@ interface FloatingNavProps {
   contactOpen: boolean
   onContactOpenChange: (open: boolean) => void
   contactTriggerRef?: RefObject<HTMLButtonElement | null>
+  contactControlId?: string
   player?: ReactNode
 }
 
@@ -19,7 +20,7 @@ const links: Array<{ id: NavSection; label: string }> = [
   { id: 'about', label: 'About' },
 ]
 
-export function FloatingNav({ activePage, contactOpen, onContactOpenChange, contactTriggerRef, player }: FloatingNavProps) {
+export function FloatingNav({ activePage, contactOpen, onContactOpenChange, contactTriggerRef, contactControlId = 'contact-drawer', player }: FloatingNavProps) {
   const [menuOpen, setMenuOpen] = useState(false)
   const menuTriggerRef = useRef<HTMLButtonElement>(null)
   const menuPanelRef = useRef<HTMLElement>(null)
@@ -93,7 +94,7 @@ export function FloatingNav({ activePage, contactOpen, onContactOpenChange, cont
   useEffect(() => {
     const onTouchStart = (event: TouchEvent) => {
       const target = event.target as HTMLElement | null
-      if (target?.closest('.contact-drawer-layer, .site-menu, .carousel-track, .player-shell, .player-reopen, input, textarea, [contenteditable="true"]')) {
+      if (target?.closest('.contact-drawer-layer, .mobile-enquiry-layer, .site-menu, .carousel-track, .player-shell, .player-reopen, input, textarea, [contenteditable="true"]')) {
         touchStartRef.current = null
         return
       }
@@ -243,7 +244,7 @@ export function FloatingNav({ activePage, contactOpen, onContactOpenChange, cont
           ref={contactTriggerRef}
           className="site-nav-button magnetic-btn"
           aria-expanded={contactOpen}
-          aria-controls="contact-drawer"
+          aria-controls={contactControlId}
           aria-haspopup="dialog"
           onClick={() => {
             setMenuOpen(false)

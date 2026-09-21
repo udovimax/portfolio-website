@@ -194,7 +194,7 @@ Reject with a travel_not_configured reason when a different-location rule is mis
 estimated total = duration hours * hourly price + previous-to-candidate fee + candidate-to-next fee
 ~~~
 
-Use two decimal GBP normalization and return a neutral ineligible result when the base price is blank.
+Use two decimal GBP normalization. A blank base price does not make a slot ineligible: return an eligible slot with no estimate fields so the visitor sees “price to be confirmed” while the travel checks still apply.
 
 - [ ] Step 5: Replace the public response with the safe workload projection
 

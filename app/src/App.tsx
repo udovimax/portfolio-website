@@ -15,6 +15,8 @@ import { Howl, Howler } from 'howler'
 import { FaBandcamp, FaEnvelope, FaInstagram, FaLinkedin, FaPaypal, FaSoundcloud, FaSpotify } from 'react-icons/fa'
 import { SiBandlab } from 'react-icons/si'
 import { ContactDrawer } from './components/ContactDrawer'
+import { MobileEnquiryFlow } from './components/MobileEnquiryFlow'
+import { MobileLandingFunnel } from './components/MobileLandingFunnel'
 import { PRODUCER_INTEREST } from './utils/contactInterests'
 import { FloatingNav } from './components/FloatingNav'
 import { InstagramEmbed } from './components/InstagramEmbed'
@@ -22,8 +24,10 @@ import { MediaArchive } from './components/MediaArchive'
 import { Player } from './components/Player'
 import { useLenis } from './hooks/useLenis'
 import { usePageAnalytics } from './hooks/usePageAnalytics'
+import { useMediaQuery } from './hooks/useMediaQuery'
 import { assetUrl, useSiteContent } from './hooks/useSiteContent'
 import { routeFromHash } from './utils/navigation'
+import { contactSurfaceForPhone, MOBILE_PHONE_MEDIA_QUERY } from './utils/mobileFunnel'
 import type { NavSection, ProjectItem, Track, VideoItem } from './types/content'
 
 const VideoModal = lazy(() =>
@@ -259,7 +263,9 @@ function ScrollGuide({ currentPage }: { currentPage: NavSection }) {
 
 function App() {
   const shouldReduceMotion = useReducedMotion()
-  useLenis(!shouldReduceMotion)
+  const isPhoneLayout = useMediaQuery(MOBILE_PHONE_MEDIA_QUERY)
+  const contactSurface = contactSurfaceForPhone(isPhoneLayout)
+  useLenis(!shouldReduceMotion && !isPhoneLayout)
 
   const { content, error, isLoading } = useSiteContent()
 
@@ -283,6 +289,15 @@ function App() {
   const [contactInterest, setContactInterest] = useState('')
   const [videoResumePoints, setVideoResumePoints] = useState<Record<string, number>>({})
   const contactTriggerRef = useRef<HTMLButtonElement>(null)
+  const contactSurfaceRef = useRef(contactSurface)
+
+  useEffect(() => {
+    if (contactSurfaceRef.current !== contactSurface) {
+      contactSurfaceRef.current = contactSurface
+      setContactOpen(false)
+      setContactInterest('')
+    }
+  }, [contactSurface])
 
   usePageAnalytics(content?.socials.googleSheetsEndpoint, currentPage)
 
@@ -633,6 +648,7 @@ function App() {
         contactOpen={contactOpen}
         onContactOpenChange={handleContactOpenChange}
         contactTriggerRef={contactTriggerRef}
+        contactControlId={contactSurface === 'mobile' ? 'mobile-enquiry-flow' : 'contact-drawer'}
         player={
           <Player
             track={activeTrack}
@@ -664,6 +680,16 @@ function App() {
             className={`site-page page-${currentPage}`}
           >
         {currentPage === 'home' ? (
+          isPhoneLayout ? (
+            <MobileLandingFunnel
+              name={content?.about.name ?? ''}
+              roles={content?.about.roles ?? []}
+              intro={content?.about.intro ?? ''}
+              supportHref={content?.socials.paypal ?? '#'}
+              onOpenContact={() => openContact(PRODUCER_INTEREST)}
+              onNavigate={(hash) => { window.location.hash = hash }}
+            />
+          ) : (
           <section id="home" className="hero-section section-shell pt-28">
           <WordReveal text={content?.about.name ?? ''} />
           {content?.about.cv ? (
@@ -770,6 +796,7 @@ function App() {
             <p className="photo-credit">All photographs on this website are Max’s 35mm film photographs.</p>
           </Reveal>
           </section>
+          )
         ) : null}
 
         {currentPage === 'music' || currentPage === 'projects' || currentPage === 'video' ? (
@@ -1092,7 +1119,20 @@ function App() {
         </AnimatePresence>
       </main>
 
-      {content?.socials ? (
+      {content?.socials && contactSurface === 'mobile' ? (
+        <MobileEnquiryFlow
+          isOpen={contactOpen}
+          endpointEmail={content.socials.formsubmit.endpointEmail}
+          contactEmail={content.socials.email}
+          subject={content.socials.formsubmit.subject}
+          paypal={content.socials.paypal}
+          paypalQr={content.socials.paypalQr ? assetUrl(content.socials.paypalQr) : undefined}
+          googleSheetsEndpoint={content.socials.googleSheetsEndpoint}
+          initialInterest={contactInterest}
+          contactTriggerRef={contactTriggerRef}
+          onClose={closeContact}
+        />
+      ) : content?.socials ? (
         <ContactDrawer
           isOpen={contactOpen}
           endpointEmail={content.socials.formsubmit.endpointEmail}

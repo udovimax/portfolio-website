@@ -113,6 +113,9 @@ On the public site:
   hourly price, any required travel fee, and the estimated total for the
   selected duration. The UI must say that Max confirms the final price and
   travel requirements; submitting the form never charges the visitor.
+- An `Available` range with no base price remains bookable as “price to be
+  confirmed”; missing price must not hide a valid window or bypass travel
+  checks.
 - Requested and booked ranges never show their historical estimate or price.
 - The hidden form value sends `bookingToken`, not the internal location. The
   Apps Script reservation checks that token, date, time, and availability status
