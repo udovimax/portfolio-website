@@ -593,6 +593,81 @@ function normalisePrice_(value) {
   return priceKey_(text);
 }
 
+/** Resolve the private travel requirement between two exact locations. */
+function travelRequirement_(fromLocation, toLocation, rules) {
+  var from = String(fromLocation || '').trim().toLowerCase();
+  var to = String(toLocation || '').trim().toLowerCase();
+  if (!from || !to || from === to) return { configured: true, minutes: 0, fee: 0 };
+
+  var match = (rules || []).find(function (rule) {
+    return String(rule.fromLocation || '').trim().toLowerCase() === from
+      && String(rule.toLocation || '').trim().toLowerCase() === to;
+  });
+  if (!match) return { configured: false, minutes: 0, fee: '' };
+
+  return {
+    configured: true,
+    minutes: Math.max(0, Math.floor(Number(match.minutes) || 0)),
+    fee: priceKey_(match.fee),
+  };
+}
+
+/** Calculate travel eligibility and a provisional estimate for an available row. */
+function estimateAvailability_(slot, previousBusy, nextBusy, rules) {
+  var previousTravel = previousBusy
+    ? travelRequirement_(previousBusy.location, slot.location, rules)
+    : { configured: true, minutes: 0, fee: 0 };
+  var nextTravel = nextBusy
+    ? travelRequirement_(slot.location, nextBusy.location, rules)
+    : { configured: true, minutes: 0, fee: 0 };
+  if (!previousTravel.configured || !nextTravel.configured) {
+    return { eligible: false, reason: 'travel_not_configured', travelMinutes: 0, travelFee: '' };
+  }
+
+  var start = timeMinutes_(slot.startTime);
+  var end = timeMinutes_(slot.endTime);
+  if (previousBusy && timeMinutes_(previousBusy.endTime) + previousTravel.minutes > start) {
+    return { eligible: false, reason: 'travel_conflict', travelMinutes: previousTravel.minutes, travelFee: previousTravel.fee };
+  }
+  if (nextBusy && end + nextTravel.minutes > timeMinutes_(nextBusy.startTime)) {
+    return { eligible: false, reason: 'travel_conflict', travelMinutes: nextTravel.minutes, travelFee: nextTravel.fee };
+  }
+
+  var hourlyPrice = priceKey_(slot.price);
+  if (!hourlyPrice) {
+    return { eligible: false, reason: 'price_missing', travelMinutes: previousTravel.minutes + nextTravel.minutes, travelFee: '' };
+  }
+
+  var durationHours = Math.max(0, end - start) / 60;
+  var travelFee = Number(previousTravel.fee || 0) + Number(nextTravel.fee || 0);
+  return {
+    eligible: true,
+    travelMinutes: previousTravel.minutes + nextTravel.minutes,
+    travelFee: priceKey_(travelFee),
+    hourlyPrice: hourlyPrice,
+    total: priceKey_(Number(hourlyPrice) * durationHours + travelFee),
+  };
+}
+
+/** Serialize only safe public availability fields. */
+function toPublicAvailabilityRange_(slot, estimate) {
+  var status = String(slot.status || 'Available').trim().toLowerCase();
+  var result = {
+    start: String(slot.startTime || ''),
+    end: String(slot.endTime || ''),
+    status: status,
+    publicLocation: String(slot.publicLocation || 'Location to be confirmed').trim(),
+    bookingType: String(slot.bookingType || 'Booking details to be confirmed').trim(),
+  };
+  if (status === 'available' && estimate && estimate.eligible) {
+    result.bookingToken = String(slot.bookingKey || '').trim();
+    result.estimatedHourlyPrice = estimate.hourlyPrice;
+    result.estimatedTravelFee = estimate.travelFee;
+    result.estimatedTotal = estimate.total;
+  }
+  return result;
+}
+
 function EMAIL_PATTERN_() {
   return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/i;
 }
