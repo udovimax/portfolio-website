@@ -29,34 +29,61 @@ studio session`. Max controls the published slots in an `Availability` tab in
 the same Sheet. The script creates the tab automatically. The easiest way to
 publish availability is the **Booking availability** calendar at the top of the
 private dashboard. Choose a month, click a day, then inspect that day’s windows
-underneath the calendar. Green days contain public `Available` windows;
-`Requested` and `Booked` days are shown separately, and `Unavailable` days
-remain visible as history. The **Publish a new window** form can still create
-one window or repeat the same window across a date range. Max can mark an
-unused window unavailable and later use **Restore** to reopen it; requested or
-booked rows remain locked so the booking history is not lost.
+underneath the calendar. Shift-click selects an inclusive date range; the
+visible **Edit selected windows** button and the day context menu open the same
+bulk editor. `Requested` and `Booked` rows are shown but locked, while
+`Unavailable` rows remain private history. The **Publish a new window** form
+can create one window or repeat the same window across a date range. Max can
+mark an unused window unavailable and later use **Restore** to reopen it.
 
 The Sheet remains the source of truth and can also be edited manually when
 needed, using:
 
-`Date` = `2026-09-05`, `Time` = `14:00`, `End time` = `16:00`, `Status` = `Available`, `Location` = `Kingston University studio`, `Price` = `20`, `Payment URL` = `https://paypal.me/maksosshelbe`
+`Date` = `2026-09-05`, `Time` = `14:00`, `End time` = `16:00`, `Status` = `Available`, `Location` = `Kingston University studio`, `Price` = `20`, `Payment URL` = `https://paypal.me/maksosshelbe`, `Public location` = `Kingston`, `Booking type` = `Studio session`
 
-Only rows marked `Available` are shown on the site. The visitor chooses a
-date, then a start and end time from an available window. If a day contains
-windows at more than one location, the visitor chooses the location first.
-When a visitor
-submits a booking request, the script locks and changes that row to `Requested`,
-which prevents another visitor from selecting it. In the private dashboard,
-changing the enquiry status to `Booked` or `Complete` keeps it unavailable.
-Changing it to `Declined` releases the slot back to `Available`.
+The existing `Availability` columns stay in place. The script appends `Public
+location`, `Booking type`, and an opaque `Booking key`; older rows receive a
+key automatically on the next read. `Location`, `Price`, `Payment URL`, `Lead
+row`, and the key are private fields. A missing public label uses neutral
+fallback text and never copies the exact internal location.
 
-New dashboard windows require a location. Price and payment URL are optional:
-leave price blank when Max needs to quote after reviewing the enquiry, and
-leave payment URL blank until the correct payment destination is confirmed.
-The booking record snapshots the location, price, and payment URL from the
-reserved row, so a later edit does not change the historical enquiry. The
-customer confirmation mentions that payment is handled after Max confirms the
-booking; it does not expose the stored payment URL before that confirmation.
+The public availability response includes future `Available`, `Requested`,
+`Booked`, and neutral `Travel / transit` ranges. `Unavailable` rows remain
+private. Busy and travel ranges expose only their duration, rough public
+location, and booking type; they never expose `price`, `paymentUrl`, exact
+`location`, `leadRow`, names, email addresses, or messages. Available ranges
+carry only their own opaque `bookingToken` and, when a price is configured,
+clearly-labelled provisional hourly, travel-fee, and duration-total estimates.
+An available row with no price remains bookable as “price to be confirmed”.
+
+The visitor chooses a date, then an available start/end window and, when
+needed, a rough public location or booking type. The form submits
+`bookingToken`, never the internal `Location`, as the reservation identity.
+The Apps Script lock rechecks the token, date/time, status, and travel fit
+before creating a lead. When a visitor submits a booking request, the script
+locks and changes that row to `Requested`, which prevents another visitor from
+selecting it. In the private dashboard, changing the enquiry status to
+`Booked` or `Complete` keeps it unavailable. Changing it to `Declined` releases
+the slot back to `Available`.
+
+New dashboard windows require an exact internal location, a rough public
+location, and a booking type. Price and payment URL are optional: leave price
+blank when Max needs to quote after reviewing the enquiry, and leave payment
+URL blank until the correct payment destination is confirmed. The booking
+record snapshots the location, price, payment URL, public metadata, travel fee,
+and provisional total from the reserved row, so later edits do not change the
+historical enquiry. The customer confirmation states that the amount is an
+estimate subject to Max’s confirmation, that no payment was taken, and that
+the stored payment URL is not exposed before confirmation.
+
+Travel rules are stored privately in a `Travel rules` tab with columns `From
+location`, `To location`, `Minutes`, `Fee`, and `Updated at`. A transition
+between the same exact internal location is automatically zero minutes and
+zero fee. A different-location transition needs its configured one-way rule;
+without one, the candidate stays confirmation-required and is not offered as
+an automatically bookable public window. When a configured travel buffer sits
+between busy windows, the public feed shows only a neutral `Travel / transit`
+range and never shows the fee or destination.
 
 The calendar is a dashboard view over the same `Availability` sheet; it is not
 a second source of truth. Clicking **Mark unavailable** changes an unused
@@ -85,11 +112,12 @@ the Apps Script endpoint, even if someone bypasses the website UI.
 The public web-app deployment must serve `doGet` from the current `Code.gs`
 version. A direct request with `action=availability`, a future `from` date, and
 a JSONP `callback` should return JavaScript containing `{ ok: true, slots: [] }`
-or the real published `Available` rows. If it instead returns `Script function
-not found: doGet`, the source file is newer than the live Apps Script
-deployment: save the files, create a new version, and update the public
-deployment while signed in to Max's account. Do not work around this by
-inventing public slots in the website bundle.
+or the current safe public ranges. If it instead returns `Script function not
+found: doGet`, the source file is newer than the live Apps Script deployment:
+save the files, create a new version, and update the public deployment while
+signed in to Max's account. Do not work around this by inventing public slots
+in the website bundle. Inspect the response before reporting it as live: busy
+ranges must contain no payment URL, exact location, price, or lead data.
 
 ## Max-only dashboard
 
@@ -138,7 +166,8 @@ The first successful enquiry creates or extends a `Leads` tab with these columns
 `Received at`, `Name`, `Email`, `Interest`, `Message`, `Subject`, `Status`,
 `Priority`, `Notes`, `Follow-up`, `Last replied at`, `Booking date`,
 `Booking time`, `Confirmation sent`, `Project URL`, `Booking end time`,
-`Booking location`, `Booking price`, `Payment URL`
+`Booking location`, `Booking price`, `Payment URL`, `Booking travel fee`,
+`Booking estimate total`, `Booking type`, `Booking public location`
 
 The `Interest` field is supplied by the contact form. Artist/music
 collaboration enquiries require a `Project URL`; general, booking, and
