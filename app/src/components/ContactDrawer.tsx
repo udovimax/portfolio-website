@@ -1,43 +1,14 @@
-import { useEffect, useRef, useState, type FormEvent, type RefObject } from 'react'
+import { useEffect, useRef, type FormEvent, type RefObject } from 'react'
 import { createPortal } from 'react-dom'
 import { AnimatePresence, motion } from 'framer-motion'
 import { getFocusLoopTarget } from '../utils/focusTrap'
+import { isSelectableBookingRange } from '../utils/availability'
 import {
-  buildAvailabilityUrl,
-  formatBookingEstimate,
-  isSelectableBookingRange,
-  normaliseAvailabilityResponse,
-  type BookingRange,
-} from '../utils/availability'
-import {
-  BOOKING_INTEREST,
-  COLLABORATION_INTEREST,
   CONTACT_INTEREST_OPTIONS,
 } from '../utils/contactInterests'
-const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/i
+import { dateKey, durationHours, monthLabel, addMonths, useContactFlow } from '../hooks/useContactFlow'
 const FOCUSABLE_SELECTOR =
   'a[href], button:not([disabled]), input:not([disabled]), textarea:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
-
-function dateKey(date: Date) {
-  return new Date(date.getTime() - date.getTimezoneOffset() * 60_000).toISOString().slice(0, 10)
-}
-
-function monthLabel(date: Date) {
-  return new Intl.DateTimeFormat('en-GB', { month: 'long', year: 'numeric' }).format(date)
-}
-
-function addMonths(date: Date, amount: number) {
-  const next = new Date(date)
-  next.setDate(1)
-  next.setMonth(next.getMonth() + amount)
-  return next
-}
-
-function durationHours(range: BookingRange) {
-  const [startHours, startMinutes] = range.start.split(':').map(Number)
-  const [endHours, endMinutes] = range.end.split(':').map(Number)
-  return Math.max(0, ((endHours * 60 + endMinutes) - (startHours * 60 + startMinutes)) / 60)
-}
 
 interface ContactDrawerProps {
   isOpen: boolean
@@ -66,113 +37,47 @@ export function ContactDrawer({
 }: ContactDrawerProps) {
   const firstFieldRef = useRef<HTMLInputElement>(null)
   const drawerRef = useRef<HTMLElement>(null)
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const [isSubmitted, setIsSubmitted] = useState(false)
-  const [showThankYou, setShowThankYou] = useState(false)
-  const [isSupportExpanded, setIsSupportExpanded] = useState(false)
-  const [submitError, setSubmitError] = useState<string | null>(null)
-  const [interest, setInterest] = useState(initialInterest)
-  const [bookingDate, setBookingDate] = useState('')
-  const [bookingTime, setBookingTime] = useState('')
-  const [bookingEndTime, setBookingEndTime] = useState('')
-  const [bookingLocation, setBookingLocation] = useState('')
-  const [bookingTypeChoice, setBookingTypeChoice] = useState('')
-  const [calendarMonth, setCalendarMonth] = useState(() => new Date())
-  const [availability, setAvailability] = useState<Record<string, BookingRange[]>>({})
-  const [availabilityState, setAvailabilityState] = useState<'idle' | 'loading' | 'ready' | 'error'>('idle')
 
-  const formAction = `https://formsubmit.co/${endpointEmail}`
-  const isBooking = interest === BOOKING_INTEREST
-  const isCollaboration = interest === COLLABORATION_INTEREST
-  const availableRanges = bookingDate ? availability[bookingDate] || [] : []
-  const selectableRanges = availableRanges.filter(isSelectableBookingRange)
-  const availableLocations = [...new Set(selectableRanges.map((range) => range.publicLocation).filter(Boolean))]
-  const selectedLocationRanges = bookingLocation
-    ? selectableRanges.filter((range) => range.publicLocation === bookingLocation)
-    : availableLocations.length > 1
-      ? []
-      : selectableRanges
-  const availableEndTimes = selectedLocationRanges.filter((range) => range.start === bookingTime).map((range) => range.end)
-  const bookingTypeOptions = [...new Set(selectedLocationRanges
-    .filter((range) => range.start === bookingTime && range.end === bookingEndTime)
-    .map((range) => range.bookingType))]
-  const selectedRange = selectedLocationRanges.find((range) => range.start === bookingTime
-    && range.end === bookingEndTime
-    && (bookingTypeOptions.length < 2 || range.bookingType === bookingTypeChoice))
-  const availableDates = new Set(Object.keys(availability))
-  const calendarStart = new Date(calendarMonth.getFullYear(), calendarMonth.getMonth(), 1)
-  const calendarOffset = (calendarStart.getDay() + 6) % 7
-  const calendarDays = Array.from({ length: 42 }, (_, index) => {
-    const day = new Date(calendarStart)
-    day.setDate(1 + index - calendarOffset)
-    return day
-  })
-  const localToday = new Date()
-  const minimumBookingDate = new Date(localToday.getTime() - localToday.getTimezoneOffset() * 60_000)
-    .toISOString()
-    .slice(0, 10)
-
-  useEffect(() => {
-    if (!isOpen || !isBooking || !googleSheetsEndpoint) {
-      setAvailability({})
-      setAvailabilityState('idle')
-      return
-    }
-
-    const callbackName = `maxAvailability_${Date.now()}`
-    const script = document.createElement('script')
-    script.src = buildAvailabilityUrl(googleSheetsEndpoint, minimumBookingDate, 120, callbackName)
-    script.async = true
-    setAvailabilityState('loading')
-
-    const windowWithCallback = window as typeof window & Record<string, unknown>
-    windowWithCallback[callbackName] = (response: unknown) => {
-      const responseRecord = response && typeof response === 'object'
-        ? response as Record<string, unknown>
-        : null
-      const nextAvailability = normaliseAvailabilityResponse(response)
-      setAvailability(nextAvailability)
-      setAvailabilityState(responseRecord?.ok === true ? 'ready' : 'error')
-      delete windowWithCallback[callbackName]
-      script.remove()
-    }
-    script.onerror = () => {
-      setAvailabilityState('error')
-      delete windowWithCallback[callbackName]
-      script.remove()
-    }
-    document.body.appendChild(script)
-
-    return () => {
-      delete windowWithCallback[callbackName]
-      script.remove()
-    }
-  }, [googleSheetsEndpoint, isBooking, isOpen, minimumBookingDate])
+  const {
+    isSubmitting,
+    isSubmitted,
+    showThankYou,
+    isSupportExpanded,
+    submitError,
+    interest,
+    isBooking,
+    isCollaboration,
+    bookingDate,
+    bookingTime,
+    bookingEndTime,
+    bookingLocation,
+    bookingTypeChoice,
+    calendarMonth,
+    calendarDays,
+    minimumBookingDate,
+    availability,
+    availabilityState,
+    availableDates,
+    availableRanges,
+    availableLocations,
+    selectedLocationRanges,
+    availableEndTimes,
+    bookingTypeOptions,
+    selectedRange,
+    setInterest,
+    selectBookingDate,
+    setBookingTime,
+    setBookingEndTime,
+    setBookingLocation,
+    setBookingTypeChoice,
+    setCalendarMonth,
+    submit,
+  } = useContactFlow({ isOpen, endpointEmail, subject, googleSheetsEndpoint, initialInterest })
 
   useEffect(() => {
     if (!isOpen) {
-      setIsSubmitting(false)
-      setIsSubmitted(false)
-      setShowThankYou(false)
-      setIsSupportExpanded(false)
-      setSubmitError(null)
-      setInterest('')
-      setBookingDate('')
-      setBookingTime('')
-      setBookingEndTime('')
-      setBookingLocation('')
-      setBookingTypeChoice('')
-      setAvailability({})
-      setAvailabilityState('idle')
       return
     }
-
-    setInterest(initialInterest)
-    setBookingDate('')
-    setBookingTime('')
-    setBookingEndTime('')
-    setBookingLocation('')
-    setBookingTypeChoice('')
 
     const pageRoot = document.getElementById('root')
     pageRoot?.setAttribute('inert', '')
@@ -214,104 +119,27 @@ export function ContactDrawer({
     window.requestAnimationFrame(() => contactTriggerRef?.current?.focus())
   }
 
-  useEffect(() => {
-    if (!showThankYou) {
-      return
-    }
-
-    const fadeTimer = window.setTimeout(() => {
-      setShowThankYou(false)
-      setIsSupportExpanded(true)
-    }, 3600)
-    return () => window.clearTimeout(fadeTimer)
-  }, [showThankYou])
-
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
     if (isSubmitting || isSubmitted) {
       return
     }
 
-    setIsSubmitting(true)
-    setSubmitError(null)
     const form = event.currentTarget
-
-    try {
-      // FormSubmit accepts a regular FormData POST. no-cors keeps the drawer
-      // in place while the external service receives the message.
-      const formData = new FormData(form)
-      const email = String(formData.get('email') || '').trim()
-      if (!EMAIL_PATTERN.test(email)) {
-        setIsSubmitting(false)
-        setSubmitError('Please enter a valid email address so Max can reply.')
-        return
-      }
-      const projectUrl = String(formData.get('projectUrl') || '').trim()
-      if (isCollaboration && !projectUrl) {
-        setIsSubmitting(false)
-        setSubmitError('Add a link to the project you want to discuss.')
-        return
-      }
-      if (projectUrl) {
-        try {
-          const parsedUrl = new URL(projectUrl)
-          if (!['http:', 'https:'].includes(parsedUrl.protocol)) throw new Error('Unsupported URL protocol')
-        } catch {
-          setIsSubmitting(false)
-          setSubmitError('Please enter a valid project link beginning with https://.')
-          return
-        }
-      }
-      if (isBooking && (!bookingDate || !bookingTime || !bookingEndTime)) {
-        setIsSubmitting(false)
-        setSubmitError('Choose an available booking date and time before sending.')
-        return
-      }
-      if (isBooking && (!selectedRange || !isSelectableBookingRange(selectedRange))) {
-        setIsSubmitting(false)
-        setSubmitError('That booking time is no longer available. Please choose another slot.')
-        return
-      }
-      if (isBooking && availableLocations.length > 1 && !bookingLocation) {
-        setIsSubmitting(false)
-        setSubmitError('Choose a studio or location before sending.')
-        return
-      }
-      const emailSubmission = fetch(formAction, {
-        method: 'POST',
-        body: formData,
-        mode: 'no-cors',
-      })
-      if (googleSheetsEndpoint) {
-        const sheetData = new FormData(form)
-        void fetch(googleSheetsEndpoint, {
-            method: 'POST',
-            body: sheetData,
-            mode: 'no-cors',
-          }).catch(() => undefined)
-      }
-
-      // Email delivery remains authoritative. A missing Sheet must never make
-      // a real enquiry look unsuccessful to the visitor.
-      await emailSubmission
-    } catch {
-      setIsSubmitting(false)
-      setSubmitError('The message could not be sent. Please try again or email Max directly.')
-      return
-    }
-
-    {
-      form.reset()
-      setIsSubmitting(false)
-      setIsSubmitted(true)
-      setShowThankYou(true)
-      setIsSupportExpanded(false)
-      setBookingDate('')
-      setBookingTime('')
-      setBookingEndTime('')
-      setBookingLocation('')
-      setBookingTypeChoice('')
-    }
+    const formData = new FormData(form)
+    const value = (name: string) => String(formData.get(name) || '')
+    const didSubmit = await submit({
+      interest: value('interest'),
+      name: value('name'),
+      email: value('email'),
+      message: value('message'),
+      projectUrl: value('projectUrl'),
+      bookingDate: value('bookingDate'),
+      bookingTime: value('bookingTime'),
+      bookingEndTime: value('bookingEndTime'),
+      bookingToken: value('bookingToken'),
+    })
+    if (didSubmit) form.reset()
   }
 
   if (typeof document === 'undefined') {
@@ -408,11 +236,6 @@ export function ContactDrawer({
                 value={interest}
                 onChange={(event) => {
                   setInterest(event.target.value)
-                  setBookingDate('')
-                  setBookingTime('')
-                  setBookingEndTime('')
-                  setBookingTypeChoice('')
-                  setSubmitError(null)
                 }}
               >
                 {CONTACT_INTEREST_OPTIONS.map((option) => (
@@ -477,13 +300,7 @@ export function ContactDrawer({
                             className={isSelected ? 'is-selected' : ''}
                             disabled={!isCurrentMonth || !hasSchedule || isPast || availabilityState !== 'ready'}
                             onClick={() => {
-                              setBookingDate(key)
-                              setBookingTime('')
-                              setBookingEndTime('')
-                              setBookingTypeChoice('')
-                              const nextRanges = (availability[key] || []).filter(isSelectableBookingRange)
-                              const nextLocations = [...new Set(nextRanges.map((range) => range.publicLocation).filter(Boolean))]
-                              setBookingLocation(nextLocations.length === 1 ? nextLocations[0] : '')
+                              selectBookingDate(key)
                             }}
                             aria-pressed={isSelected}
                             aria-label={`${day.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}${hasSelectableWindow ? ', available to request' : hasSchedule ? ', busy or in transit' : ', unavailable'}`}
@@ -583,9 +400,8 @@ export function ContactDrawer({
                   {bookingDate && selectedRange ? (
                     <div className="booking-selection-summary" role="status">
                       <strong>{selectedRange.publicLocation}</strong>
-                      <span>{selectedRange.bookingType}</span>
-                      <span>{formatBookingEstimate(selectedRange, durationHours(selectedRange))}</span>
-                      <span>Provisional estimate only. Max confirms the final price and travel requirements; this form never charges you.</span>
+                      <span>{selectedRange.bookingType} · {durationHours(selectedRange)} hour request</span>
+                      <span>Max confirms the final price and travel requirements after reviewing the request; this form never charges you.</span>
                     </div>
                   ) : null}
                   <p className="contact-drawer-field-note" role="status">

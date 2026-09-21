@@ -14,3 +14,14 @@ test('requires intent, message, identity, and valid email on their respective st
     email: 'max@example.com',
   }), null)
 })
+
+test('requires an opaque selectable booking before booking flow review', () => {
+  assert.match(validateContactFlowStep('details', {
+    interest: 'Booking / studio session',
+    message: 'Session request',
+    bookingDate: '2026-10-04',
+    bookingTime: '10:00',
+    bookingEndTime: '11:00',
+    bookingToken: '',
+  }) ?? '', /available booking/i)
+})

@@ -1,10 +1,17 @@
 import type { MobileEnquiryStep } from './mobileFunnel'
 
+const BOOKING_INTEREST = 'Booking / studio session'
+
 export interface ContactFlowValues {
   interest?: string
   message?: string
   name?: string
   email?: string
+  projectUrl?: string
+  bookingDate?: string
+  bookingTime?: string
+  bookingEndTime?: string
+  bookingToken?: string
 }
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/i
@@ -19,7 +26,19 @@ export function validateContactFlowStep(step: MobileEnquiryStep, values: Contact
   }
 
   if (step === 'details') {
-    return hasValue(values.message) ? null : 'Add a message so Max knows what you would like to discuss.'
+    if (!hasValue(values.message)) {
+      return 'Add a message so Max knows what you would like to discuss.'
+    }
+
+    if (values.interest === BOOKING_INTEREST
+      && (!hasValue(values.bookingDate)
+        || !hasValue(values.bookingTime)
+        || !hasValue(values.bookingEndTime)
+        || !hasValue(values.bookingToken))) {
+      return 'Choose an available booking date and time before continuing.'
+    }
+
+    return null
   }
 
   if (step === 'identity') {
