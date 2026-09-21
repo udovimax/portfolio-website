@@ -8,3 +8,4 @@ soundcloudwidget.html
 # Generated output and local tooling.
 app/dist/
 .DS_Store
+.worktrees/
