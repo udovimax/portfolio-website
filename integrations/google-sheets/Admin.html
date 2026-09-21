@@ -58,6 +58,7 @@
       .meta-item span, label { display: block; margin-bottom: 5px; color: var(--muted); font-size: 11px; letter-spacing: .12em; text-transform: uppercase; }
       .meta-item strong, .meta-item a { color: var(--text); font-weight: 450; overflow-wrap: anywhere; }
       .message { margin: 0; border-left: 2px solid var(--accent); background: rgba(255,255,255,.03); padding: 12px 14px; white-space: pre-wrap; }
+      .customer-reply { border-left-color: var(--success); }
       .form-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
       .field-full { grid-column: 1 / -1; }
       input, select, textarea { width: 100%; border: 1px solid var(--line); border-radius: 10px; background: rgba(0,0,0,.24); color: var(--text); padding: 10px 11px; }
@@ -695,6 +696,13 @@
         });
         panel.appendChild(meta);
         panel.appendChild(node('p', 'message', lead.message || 'No message supplied.'));
+        if (lead.customerReply) {
+          var customerReply = node('section', 'detail');
+          customerReply.appendChild(node('p', 'eyebrow', 'Latest customer reply'));
+          customerReply.appendChild(node('p', 'message customer-reply', lead.customerReply));
+          customerReply.appendChild(node('p', 'muted', lead.customerReplyAt ? 'Received ' + lead.customerReplyAt : 'Received from customer'));
+          panel.appendChild(customerReply);
+        }
 
         var form = node('form', 'detail');
         form.addEventListener('submit', function (event) {

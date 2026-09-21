@@ -2,9 +2,10 @@
 
 The website keeps FormSubmit as its fallback enquiry delivery path and also
 records each enquiry in Max's Google Sheet. The Apps Script sends the customer
-an acknowledgement from Max's Gmail account, so the customer has a real email
-thread they can mark as safe. The Sheet and Apps Script must be owned by Max so
-he controls the lead data, replies, booking slots, and deployments.
+an acknowledgement from Max's Gmail account, stores the Gmail thread ID, and
+syncs the latest customer reply back into the private dashboard. The Sheet and
+Apps Script must be owned by Max so he controls the lead data, replies, booking
+slots, and deployments.
 
 ## Max’s one-time setup
 
@@ -155,7 +156,17 @@ The dashboard lets Max:
 - filter the lead list by status in the workflow he controls;
 - update status, priority, notes, and follow-up date;
 - write and send a reply from his Gmail account;
+- see the latest customer reply from the linked Gmail thread after refreshing;
 - see anonymous page-view totals for the last 30 days by page.
+
+New enquiries are linked to their Gmail conversation automatically. A dashboard
+reply uses the latest customer message in that conversation when one exists;
+otherwise it creates a new tracked conversation and stores its thread ID. On
+each dashboard refresh, the script reads the linked thread, ignores messages
+sent by Max, and writes the newest external message and timestamp into the
+`Leads` tab. Older rows created before Gmail thread tracking have no safe way to
+be matched to a conversation automatically; sending a new reply from the
+dashboard links that row for future customer replies.
 
 The dashboard is hosted by Apps Script rather than the public GitHub Pages
 bundle. The public site may link to it later, but the private deployment and
@@ -167,7 +178,8 @@ The first successful enquiry creates or extends a `Leads` tab with these columns
 `Priority`, `Notes`, `Follow-up`, `Last replied at`, `Booking date`,
 `Booking time`, `Confirmation sent`, `Project URL`, `Booking end time`,
 `Booking location`, `Booking price`, `Payment URL`, `Booking travel fee`,
-`Booking estimate total`, `Booking type`, `Booking public location`
+`Booking estimate total`, `Booking type`, `Booking public location`,
+`Gmail thread ID`, `Customer reply at`, `Customer reply`, `Customer reply ID`
 
 The `Interest` field is supplied by the contact form. Artist/music
 collaboration enquiries require a `Project URL`; general, booking, and

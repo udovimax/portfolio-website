@@ -19,3 +19,9 @@ test('dashboard has an accessible non-pointer bulk-edit path', () => {
   assert.match(html, /function getSelectedAvailabilityRows\(/)
   assert.match(html, /availabilityAnchorDate/)
 })
+
+test('dashboard renders the latest customer reply from the linked Gmail thread', () => {
+  assert.match(html, /Latest customer reply/)
+  assert.match(html, /lead\.customerReply/)
+  assert.match(html, /lead\.customerReplyAt/)
+})
