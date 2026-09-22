@@ -5,7 +5,7 @@ import { isGitLfsPointer, normalizeMediaRelativePath } from './pagesMedia.ts'
 test('recognises Git LFS pointer payloads before they reach Pages', () => {
   assert.equal(isGitLfsPointer('version https://git-lfs.github.com/spec/v1\noid sha256:abc\nsize 123\n'), true)
   assert.equal(isGitLfsPointer('not a Git LFS pointer'), false)
-  assert.equal(isGitLfsPointer(new TextEncoder().encode('version https://git-lfs.github.com/spec/v1\noid sha256:abc\n')), true)
+  assert.equal(isGitLfsPointer(Buffer.from('version https://git-lfs.github.com/spec/v1\noid sha256:abc\n')), true)
 })
 
 test('flattens repeated media folders from restored Pages artifacts', () => {
