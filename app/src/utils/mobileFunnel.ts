@@ -19,29 +19,39 @@ export type MobileRouteAction =
   | { kind: 'contact'; value: '' }
   | { kind: 'hash'; value: '#music' | '#about' }
 
+const MOBILE_FUNNEL_ARTWORK = [
+  'media/images/film/000006630015.jpg',
+  'media/images/film/000006630009.jpg',
+  'media/images/film/000006630020.jpg',
+] as const
+
 export const MOBILE_ROUTE_OPTIONS: Array<{
   action: MobileRoute
   label: string
   title: string
   description: string
+  artwork: string
 }> = [
   {
     action: 'work',
     label: 'Work with Max',
     title: 'Producer, engineer, sound designer',
     description: 'Book a session or discuss a brief.',
+    artwork: MOBILE_FUNNEL_ARTWORK[0],
   },
   {
     action: 'hear',
     label: 'Hear Max',
     title: 'Artist and music maker',
     description: 'Listen to original music and spatial work.',
+    artwork: MOBILE_FUNNEL_ARTWORK[1],
   },
   {
     action: 'explore',
     label: 'Explore the practice',
     title: 'Researcher and photographer',
     description: 'Find the story, skills, and 35mm work.',
+    artwork: MOBILE_FUNNEL_ARTWORK[2],
   },
 ]
 

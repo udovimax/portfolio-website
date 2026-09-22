@@ -3075,41 +3075,127 @@ textarea:focus {
   }
 
   .mobile-funnel-screen-content {
-    display: grid;
-    align-content: start;
-    gap: 0.8rem;
-    min-height: 0;
+    display: flex;
     flex: 1 1 auto;
-    overflow: auto;
-    overscroll-behavior: contain;
-    padding-bottom: 0.5rem;
+    min-height: 0;
+    flex-direction: column;
+    gap: 0;
+    overflow: hidden;
+    overscroll-behavior: none;
+    padding-bottom: 0.25rem;
+  }
+
+  .mobile-funnel-screen-content > * {
+    position: relative;
+    z-index: 1;
   }
 
   .mobile-funnel-intro-content {
-    grid-template-columns: minmax(0, 1fr) minmax(7.6rem, 10rem);
-    grid-template-rows: auto auto minmax(13rem, auto) minmax(0, auto) auto auto auto;
-    column-gap: 0.9rem;
-    align-items: start;
+    position: relative;
+    align-content: start;
+    padding-top: 0.1rem;
   }
 
-  .mobile-funnel-intro-content > .section-heading,
-  .mobile-funnel-intro-content > .mobile-funnel-name,
-  .mobile-funnel-intro-content > .mobile-funnel-intro-copy,
-  .mobile-funnel-intro-content > .mobile-funnel-primary,
-  .mobile-funnel-intro-content > .mobile-funnel-swipe-copy {
-    grid-column: 1 / -1;
+  .mobile-funnel-hero-art {
+    position: absolute;
+    inset: -1.15rem -1rem auto;
+    z-index: 0;
+    height: clamp(10.5rem, 31svh, 15rem);
+    overflow: hidden;
+    border-bottom: 1px solid rgba(158, 201, 255, 0.28);
+    border-radius: 0 0 1.35rem 1.35rem;
+    background: rgba(5, 7, 10, 0.72);
+    pointer-events: none;
+  }
+
+  .mobile-funnel-hero-art img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0;
+    filter: saturate(0.72) contrast(1.05);
+    transform: scale(1.02);
+    transition: opacity 700ms ease, transform 900ms ease;
+  }
+
+  .mobile-funnel-hero-art img.is-active {
+    opacity: 0.92;
+    transform: scale(1);
+  }
+
+  .mobile-funnel-hero-art-scrim {
+    position: absolute;
+    inset: 0;
+    background:
+      linear-gradient(180deg, rgba(5, 7, 10, 0.22), rgba(5, 7, 10, 0.72) 78%, rgba(5, 7, 10, 0.94)),
+      linear-gradient(90deg, rgba(5, 7, 10, 0.42), transparent 70%);
+  }
+
+  .mobile-funnel-intro-content > .section-heading {
+    margin: 0;
+  }
+
+  .mobile-funnel-intro-content > .mobile-funnel-name {
+    margin-top: 0.2rem;
+  }
+
+  .mobile-funnel-intro-content > .mobile-funnel-role-list {
+    margin-top: 0.85rem;
   }
 
   .mobile-funnel-intro-content > .mobile-funnel-intro-copy {
-    grid-row: 5;
+    margin-top: 0.8rem;
   }
 
   .mobile-funnel-intro-content > .mobile-funnel-primary {
-    grid-row: 6;
+    margin-top: 0.8rem;
   }
 
   .mobile-funnel-intro-content > .mobile-funnel-swipe-copy {
-    grid-row: 7;
+    margin-top: 0.55rem;
+  }
+
+  .mobile-funnel-intro-content > .mobile-funnel-hero-art {
+    z-index: 0;
+  }
+
+  .mobile-funnel-routes-content {
+    overflow: hidden;
+    overscroll-behavior: none;
+  }
+
+  .mobile-funnel-routes-content > .section-heading {
+    margin: 0;
+  }
+
+  .mobile-funnel-routes-content h2 {
+    margin-top: 0.35rem;
+  }
+
+  .mobile-funnel-routes-content .mobile-funnel-route-intro {
+    margin-top: 0.7rem;
+  }
+
+  .mobile-funnel-routes-content .mobile-funnel-route-list {
+    margin-top: 0.45rem;
+  }
+
+  .mobile-funnel-route {
+    isolation: isolate;
+  }
+
+  .mobile-funnel-intro-content > .mobile-funnel-name,
+  .mobile-funnel-intro-content > .mobile-funnel-role-list,
+  .mobile-funnel-intro-content > .mobile-funnel-intro-copy,
+  .mobile-funnel-intro-content > .mobile-funnel-primary,
+  .mobile-funnel-intro-content > .mobile-funnel-swipe-copy {
+    flex-shrink: 0;
+  }
+
+  .mobile-funnel-intro-content > .mobile-funnel-primary {
+    align-self: flex-start;
   }
 
   .mobile-funnel-name {
@@ -3123,28 +3209,8 @@ textarea:focus {
     overflow-wrap: anywhere;
   }
 
-  .mobile-funnel-portrait {
-    grid-column: 2;
-    grid-row: 3;
-    aspect-ratio: 0.78;
-    align-self: start;
-    overflow: hidden;
-    border: 1px solid rgba(158, 201, 255, 0.42);
-    border-radius: 1.1rem;
-    background: rgba(255, 255, 255, 0.06);
-  }
-
-  .mobile-funnel-portrait img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    filter: saturate(0.86) contrast(1.04);
-  }
-
   .mobile-funnel-role-list {
     display: grid;
-    grid-column: 1;
-    grid-row: 3;
     align-content: start;
     gap: 0.25rem;
     color: rgba(247, 244, 239, 0.78);
@@ -3237,7 +3303,7 @@ textarea:focus {
     inset: 0;
     z-index: -1;
     content: '';
-    background: url('/media/images/film/000006630020.jpg') center / cover;
+    background: var(--funnel-art, url('/media/images/film/000006630020.jpg')) center / cover;
     opacity: 0.17;
     filter: saturate(0.7) contrast(1.05);
     transition: opacity 220ms ease, transform 500ms ease;
@@ -3806,6 +3872,142 @@ textarea:focus {
   .mobile-funnel-intro-copy {
     font-size: 0.86rem;
     line-height: 1.35;
+  }
+}
+
+@media (max-width: 760px) and (max-height: 720px) {
+  .mobile-funnel-routes-content {
+    gap: 0.45rem;
+  }
+
+  .mobile-funnel-routes-content h2 {
+    font-size: clamp(1.85rem, 8.5vw, 3rem);
+  }
+
+  .mobile-funnel-routes-content .mobile-funnel-route-intro {
+    margin-top: 0.45rem;
+    font-size: 0.84rem;
+    line-height: 1.28;
+  }
+
+  .mobile-funnel-routes-content .mobile-funnel-route-list {
+    gap: 0.4rem;
+    margin-top: 0.25rem;
+  }
+
+  .mobile-funnel-route {
+    min-height: 4.25rem;
+    padding: 0.6rem 2.55rem 0.6rem 0.85rem;
+  }
+
+  .mobile-funnel-route strong {
+    font-size: 1rem;
+    line-height: 1;
+  }
+
+  .mobile-funnel-route > span:not(.section-heading):not(.mobile-funnel-route-arrow) {
+    font-size: 0.67rem;
+    line-height: 1.2;
+  }
+}
+
+@media (max-width: 380px) and (max-height: 620px) {
+  .mobile-funnel-screen {
+    gap: 0.55rem;
+    padding: 0.8rem 0.8rem 0.5rem;
+  }
+
+  .mobile-funnel-carousel .carousel-controls {
+    min-height: 3rem;
+    padding: 0.2rem 0.8rem max(0.25rem, env(safe-area-inset-bottom));
+  }
+
+  .mobile-funnel-hero-art {
+    inset: -0.8rem -0.8rem auto;
+    height: 9rem;
+  }
+
+  .mobile-funnel-name {
+    font-size: clamp(2.5rem, 14vw, 4rem);
+    line-height: 0.8;
+  }
+
+  .mobile-funnel-intro-content > .mobile-funnel-role-list {
+    margin-top: 0.55rem;
+  }
+
+  .mobile-funnel-role-list {
+    gap: 0.1rem;
+    font-size: 1.05rem;
+    line-height: 1;
+  }
+
+  .mobile-funnel-intro-content > .mobile-funnel-intro-copy {
+    margin-top: 0.55rem;
+  }
+
+  .mobile-funnel-intro-copy {
+    font-size: 0.76rem;
+    line-height: 1.18;
+  }
+
+  .mobile-funnel-intro-content > .mobile-funnel-primary {
+    margin-top: 0.55rem;
+  }
+
+  .mobile-funnel-primary,
+  .mobile-funnel-contact,
+  .mobile-funnel-support {
+    min-height: 2.65rem;
+    padding-block: 0.55rem;
+  }
+
+  .mobile-funnel-intro-content > .mobile-funnel-swipe-copy {
+    margin-top: 0.35rem;
+  }
+
+  .mobile-funnel-swipe-copy {
+    font-size: 0.58rem;
+  }
+
+  .mobile-funnel-routes-content {
+    gap: 0.25rem;
+  }
+
+  .mobile-funnel-routes-content h2 {
+    margin-top: 0.2rem;
+    font-size: 1.7rem;
+    line-height: 0.9;
+  }
+
+  .mobile-funnel-routes-content .mobile-funnel-route-intro {
+    margin-top: 0.35rem;
+    font-size: 0.72rem;
+    line-height: 1.15;
+  }
+
+  .mobile-funnel-routes-content .mobile-funnel-route-list {
+    gap: 0.28rem;
+    margin-top: 0.1rem;
+  }
+
+  .mobile-funnel-route {
+    min-height: 3.5rem;
+    padding: 0.42rem 2.25rem 0.42rem 0.7rem;
+  }
+
+  .mobile-funnel-route strong {
+    font-size: 0.86rem;
+    line-height: 0.96;
+  }
+
+  .mobile-funnel-route > span:not(.section-heading):not(.mobile-funnel-route-arrow) {
+    font-size: 0.58rem;
+    line-height: 1.12;
+  }
+
+  .mobile-funnel-route .section-heading {
+    font-size: 0.58rem;
   }
 }
 

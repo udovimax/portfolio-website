@@ -1,5 +1,5 @@
-import { useEffect, useRef, useState, type ReactNode } from 'react'
-import { motion } from 'framer-motion'
+import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react'
+import { motion, useReducedMotion } from 'framer-motion'
 import { Carousel } from './Carousel'
 import { assetUrl } from '../hooks/useSiteContent'
 import {
@@ -13,9 +13,16 @@ interface MobileLandingFunnelProps {
   name: string
   roles: string[]
   intro: string
+  heroImages: readonly MobileFunnelHeroImage[]
   supportHref: string
   onOpenContact: () => void
   onNavigate: (hash: '#music' | '#about') => void
+}
+
+interface MobileFunnelHeroImage {
+  src: string
+  alt: string
+  position: string
 }
 
 interface FunnelScreenProps {
@@ -49,6 +56,7 @@ function RouteButton({
   title,
   label,
   description,
+  artwork,
   onOpenContact,
   onNavigate,
 }: {
@@ -56,6 +64,7 @@ function RouteButton({
   title: string
   label: string
   description: string
+  artwork: string
   onOpenContact: () => void
   onNavigate: (hash: '#music' | '#about') => void
 }) {
@@ -70,7 +79,12 @@ function RouteButton({
   }
 
   return (
-    <button type="button" className={`mobile-funnel-route mobile-funnel-route-${action} magnetic-btn`} onClick={handleClick}>
+    <button
+      type="button"
+      className={`mobile-funnel-route mobile-funnel-route-${action} magnetic-btn`}
+      style={{ '--funnel-art': `url("${assetUrl(artwork)}")` } as CSSProperties}
+      onClick={handleClick}
+    >
       <span className="section-heading">{label}</span>
       <strong>{title}</strong>
       <span>{description}</span>
@@ -83,12 +97,27 @@ export function MobileLandingFunnel({
   name,
   roles,
   intro,
+  heroImages,
   supportHref,
   onOpenContact,
   onNavigate,
 }: MobileLandingFunnelProps) {
+  const shouldReduceMotion = useReducedMotion()
   const [activeIndex, setActiveIndex] = useState(0)
+  const [activeHeroImage, setActiveHeroImage] = useState(0)
   const screenRefs = useRef<Array<HTMLElement | null>>([])
+
+  useEffect(() => {
+    if (shouldReduceMotion || heroImages.length < 2) {
+      return
+    }
+
+    const timer = window.setInterval(() => {
+      setActiveHeroImage((previous) => (previous + 1) % heroImages.length)
+    }, 8000)
+
+    return () => window.clearInterval(timer)
+  }, [heroImages.length, shouldReduceMotion])
 
   useEffect(() => {
     screenRefs.current.forEach((screen, index) => {
@@ -120,11 +149,22 @@ export function MobileLandingFunnel({
       >
         <FunnelScreen screenRef={screenRef(0)}>
           <div className="mobile-funnel-screen-content mobile-funnel-intro-content">
+            <div className="mobile-funnel-hero-art" aria-hidden="true">
+              {heroImages.map((image, index) => (
+                <img
+                  key={image.src}
+                  src={assetUrl(image.src)}
+                  alt=""
+                  loading={index === 0 ? 'eager' : 'lazy'}
+                  decoding="async"
+                  className={index === activeHeroImage ? 'is-active' : ''}
+                  style={{ objectPosition: image.position }}
+                />
+              ))}
+              <div className="mobile-funnel-hero-art-scrim" />
+            </div>
             <p className="section-heading">{MOBILE_FUNNEL_SCREEN_LABELS[0]}</p>
             <h1 className="mobile-funnel-name">{name}</h1>
-            <div className="mobile-funnel-portrait" aria-hidden="true">
-              <img src={assetUrl('media/images/max-face/face-01.webp')} alt="" loading="eager" decoding="async" />
-            </div>
             <div className="mobile-funnel-role-list" aria-label="Max's roles">
               {roles.map((role) => <span key={role}>{role}.</span>)}
             </div>

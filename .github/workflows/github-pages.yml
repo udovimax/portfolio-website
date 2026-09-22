@@ -103,7 +103,13 @@ jobs:
         run: |
           mkdir -p ../previous-pages/extracted
           tar -xf ../previous-pages/github-pages/artifact.tar -C ../previous-pages/extracted ./media
-          cp -R ../previous-pages/extracted/media dist/media
+          # Older runs copied a restored media directory into an existing
+          # dist/media folder, so flatten every nested copy and ignore LFS
+          # pointer files while rebuilding the public media root.
+          node scripts/restore-pages-media.mjs ../previous-pages/extracted/media dist/media
+
+      - name: Verify public media payloads
+        run: node scripts/verify-public-media.mjs dist
 
       - name: SPA fallback
         run: cp dist/index.html dist/404.html
