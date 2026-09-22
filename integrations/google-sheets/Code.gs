@@ -22,6 +22,7 @@ var LEAD_HEADERS = [
   'Booking date', 'Booking time', 'Confirmation sent', 'Project URL', 'Booking end time',
   'Booking location', 'Booking price', 'Payment URL',
   'Booking travel fee', 'Booking estimate total', 'Booking type', 'Booking public location',
+  'Gmail thread ID', 'Customer reply at', 'Customer reply', 'Customer reply ID',
 ];
 var ANALYTICS_HEADERS = ['Received at', 'Page', 'Path'];
 var AVAILABILITY_HEADERS = [
@@ -78,10 +79,11 @@ function doPost(event) {
       safeCell(values._subject || 'Portfolio enquiry'), 'New', 'Normal', '', '', '',
       safeCell(values.bookingDate), safeCell(values.bookingTime), '', safeCell(values.projectUrl), safeCell(values.bookingEndTime),
       bookingLocation, bookingPrice, paymentUrl, bookingTravelFee, bookingEstimateTotal, bookingType, bookingPublicLocation,
+      '', '', '', '',
     ]);
 
     if (reservation) markBookingSlot_(reservation.row, leadRow, 'Requested');
-    var confirmationSent = sendCustomerConfirmation_(Object.assign({}, values, {
+    var confirmation = sendCustomerConfirmation_(Object.assign({}, values, {
       bookingLocation: bookingLocation,
       bookingPublicLocation: bookingPublicLocation,
       bookingType: bookingType,
@@ -91,9 +93,12 @@ function doPost(event) {
       bookingEstimateTotal: bookingEstimateTotal,
     }));
     sheet.getRange(leadRow, headerColumn_(sheet, 'Confirmation sent'))
-      .setValue(confirmationSent ? 'Sent' : 'Unavailable');
+      .setValue(confirmation.sent ? 'Sent' : 'Unavailable');
+    if (confirmation.threadId) {
+      sheet.getRange(leadRow, headerColumn_(sheet, 'Gmail thread ID')).setValue(confirmation.threadId);
+    }
 
-    return jsonResponse_({ ok: true, recorded: 'lead', confirmationSent: confirmationSent });
+    return jsonResponse_({ ok: true, recorded: 'lead', confirmationSent: confirmation.sent });
   } finally {
     lock.releaseLock();
   }
@@ -469,12 +474,38 @@ function sendLeadReply(rowNumber, subject, message) {
   if (!String(message || '').trim()) throw new Error('Write a reply before sending.');
 
   var replySubject = String(subject || '').trim() || ('Re: ' + (lead.subject || 'Portfolio enquiry'));
-  GmailApp.sendEmail(lead.email, replySubject, String(message).trim(), {
-    name: 'Max Udovichenko', replyTo: ADMIN_EMAIL,
-  });
+  var sent = sendGmailReply_(lead, replySubject, String(message).trim());
+  if (sent.threadId) sheet.getRange(row, headerColumn_(sheet, 'Gmail thread ID')).setValue(sent.threadId);
   sheet.getRange(row, headerColumn_(sheet, 'Status')).setValue('Replied');
   sheet.getRange(row, headerColumn_(sheet, 'Last replied at')).setValue(new Date());
   return readLeadAt_(sheet, row);
+}
+
+/** Send in the existing customer conversation when it exists, otherwise create one. */
+function sendGmailReply_(lead, subject, message) {
+  var thread = null;
+  if (lead.gmailThreadId) {
+    try {
+      thread = GmailApp.getThreadById(String(lead.gmailThreadId));
+    } catch (error) {
+      thread = null;
+    }
+  }
+
+  if (thread) {
+    var customerMessage = latestCustomerReplyMessage_(thread.getMessages(), ADMIN_EMAIL);
+    if (customerMessage && typeof customerMessage.createDraftReply === 'function') {
+      var replyDraft = customerMessage.createDraftReply(message, { name: 'Max Udovichenko' });
+      var replyMessage = replyDraft.send();
+      return { threadId: gmailThreadIdFromMessage_(replyMessage) || String(thread.getId() || '') };
+    }
+  }
+
+  var draft = GmailApp.createDraft(lead.email, subject, message, {
+    name: 'Max Udovichenko', replyTo: ADMIN_EMAIL,
+  });
+  var sentMessage = draft.send();
+  return { threadId: gmailThreadIdFromMessage_(sentMessage) };
 }
 
 /** Run once from the Apps Script editor to grant the script Gmail permission. */
@@ -494,7 +525,10 @@ function readLeads_() {
   var lastRow = sheet.getLastRow();
   if (lastRow < 2) return [];
   return sheet.getRange(2, 1, lastRow - 1, LEAD_HEADERS.length).getValues()
-    .map(function (row, index) { return leadFromRow_(row, index + 2); }).reverse();
+    .map(function (row, index) {
+      var rowNumber = index + 2;
+      return syncCustomerReply_(sheet, rowNumber, leadFromRow_(row, rowNumber));
+    }).reverse();
 }
 
 function readLeadAt_(sheet, rowNumber) {
@@ -514,7 +548,69 @@ function leadFromRow_(row, rowNumber) {
     bookingLocation: String(row[16] || ''), bookingPrice: priceKey_(row[17]), paymentUrl: String(row[18] || ''),
     bookingTravelFee: priceKey_(row[19]), bookingEstimateTotal: priceKey_(row[20]),
     bookingType: String(row[21] || ''), bookingPublicLocation: String(row[22] || ''),
+    gmailThreadId: String(row[23] || ''), customerReplyAt: formatDateOrText_(row[24]),
+    customerReply: String(row[25] || ''), customerReplyId: String(row[26] || ''),
   };
+}
+
+/** Pull the latest external message from a linked Gmail thread into the lead row. */
+function syncCustomerReply_(sheet, rowNumber, lead) {
+  if (!lead.gmailThreadId) return lead;
+  try {
+    var thread = GmailApp.getThreadById(lead.gmailThreadId);
+    if (!thread) return lead;
+    var latest = latestCustomerReply_(thread.getMessages(), ADMIN_EMAIL);
+    if (!latest) return lead;
+    if (lead.customerReplyId === latest.messageId && lead.customerReply === latest.body) return lead;
+
+    sheet.getRange(rowNumber, headerColumn_(sheet, 'Customer reply at')).setValue(new Date(latest.at));
+    sheet.getRange(rowNumber, headerColumn_(sheet, 'Customer reply')).setValue(latest.body);
+    sheet.getRange(rowNumber, headerColumn_(sheet, 'Customer reply ID')).setValue(latest.messageId);
+    return readLeadAt_(sheet, rowNumber);
+  } catch (error) {
+    return lead;
+  }
+}
+
+/** Return the newest non-draft message that was not sent by Max. */
+function latestCustomerReplyMessage_(messages, adminEmail) {
+  var latest = null;
+  (messages || []).forEach(function (message) {
+    if (!message || (typeof message.isDraft === 'function' && message.isDraft())) return;
+    if (gmailAddress_(message.getFrom && message.getFrom()) === gmailAddress_(adminEmail)) return;
+    var date = message.getDate && message.getDate();
+    date = date instanceof Date ? date : new Date(date);
+    if (isNaN(date.getTime())) return;
+    var body = String(message.getPlainBody ? message.getPlainBody() : '').trim();
+    if (!body) return;
+    if (!latest || date.getTime() > latest.date.getTime()) latest = { message: message, date: date };
+  });
+  return latest ? latest.message : null;
+}
+
+/** Return safe dashboard data for the newest customer message in a thread. */
+function latestCustomerReply_(messages, adminEmail) {
+  var message = latestCustomerReplyMessage_(messages, adminEmail);
+  if (!message) return null;
+  var date = message.getDate();
+  date = date instanceof Date ? date : new Date(date);
+  return {
+    messageId: String(message.getId ? message.getId() : ''),
+    at: date.toISOString(),
+    body: String(message.getPlainBody ? message.getPlainBody() : '').trim(),
+  };
+}
+
+function gmailThreadIdFromMessage_(message) {
+  if (!message || typeof message.getThread !== 'function') return '';
+  var thread = message.getThread();
+  return thread && typeof thread.getId === 'function' ? String(thread.getId() || '') : '';
+}
+
+function gmailAddress_(value) {
+  var text = String(value || '').trim().toLowerCase();
+  var match = text.match(/<([^>]+)>/);
+  return (match ? match[1] : text).trim();
 }
 
 function readPageViews_() {
@@ -799,7 +895,7 @@ function syncBookingStatus_(lead, status) {
 
 /** Send a real confirmation from Max's account so the customer can trust the thread. */
 function sendCustomerConfirmation_(values) {
-  if (!isValidEmail_(values.email) || values._honey) return false;
+  if (!isValidEmail_(values.email) || values._honey) return { sent: false, threadId: '' };
   var name = String(values.name || 'there').trim();
   var interest = String(values.interest || 'General enquiry').trim();
   var body = [
@@ -835,12 +931,13 @@ function sendCustomerConfirmation_(values) {
     '', '— Max Udovichenko');
 
   try {
-    GmailApp.sendEmail(String(values.email).trim(), 'We received your enquiry for Max Udovichenko', body.join('\n'), {
+    var draft = GmailApp.createDraft(String(values.email).trim(), 'We received your enquiry for Max Udovichenko', body.join('\n'), {
       name: 'Max Udovichenko', replyTo: ADMIN_EMAIL,
     });
-    return true;
+    var message = draft.send();
+    return { sent: true, threadId: gmailThreadIdFromMessage_(message) };
   } catch (error) {
-    return false;
+    return { sent: false, threadId: '' };
   }
 }
 
