@@ -31,7 +31,8 @@
 27. The public Apps Script deployment may accept anonymous lead/page-view POSTs, but must never expose lead reads or admin mutations.
 28. The private Apps Script dashboard must remain restricted to `maxudovichenko.prod@gmail.com`; a hidden URL is not an access control.
 29. `integrations/google-sheets/Admin.html` is hosted by Apps Script and uses `google.script.run`; it is not part of the public Vite bundle.
-30. Page analytics are intentionally aggregate and cookie-free: record only page ID, path, and timestamp; never add names, email addresses, IP addresses, or full referrers.
+30. Google Sheets page analytics remain intentionally aggregate and cookie-free: record only page ID, path, and timestamp; never add names, email addresses, IP addresses, or full referrers.
+31. Umami Cloud analytics may collect only anonymous, cookieless site metrics through the static production-domain tracker; never send names, email addresses, booking details, or custom personal-data payloads.
 
 ## Navigation map
 

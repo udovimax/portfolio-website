@@ -14,7 +14,7 @@ src/main.tsx
        ├─ MediaArchive ── highlight-video carousel
        ├─ MediaModals ── lazy-loaded video/project dialogs
        ├─ useSiteContent ── JSON loading and deploy-base asset resolution
-       └─ usePageAnalytics ── non-blocking aggregate page-view capture
+       └─ usePageAnalytics ── non-blocking aggregate Google Sheets page-view capture
 ```
 
 `App.tsx` is currently the composition root. It owns the hash-based page state (`home`, `music`, `projects`, `video`, `about`), Howler lifecycle, analyser data, modal state, and the global player. Page-specific markup remains there so navigation and cross-page media state stay coordinated. A future page split should preserve those ownership rules and be treated as a behavior change, not a formatting refactor.
@@ -37,8 +37,13 @@ studio/location, GBP hourly price, and payment URL. The public form displays
 those details but payment is intentionally requested only after Max confirms an
 enquiry. The private enquiry dashboard is not bundled here; it lives in
 `integrations/google-sheets/Admin.html` and is served by Max's restricted Apps
-Script deployment. The site only sends anonymous page ID/path/timestamp events
-for aggregate dashboard view counts.
+Script deployment. The site continues to send only anonymous
+page ID/path/timestamp events to Google Sheets for the existing dashboard
+view counts. It also loads the Umami Cloud tracker from `cloud.umami.is` for
+anonymous, cookieless page views, referrers, device type, and broad location.
+Umami is restricted to Max's production domains, respects the visitor's Do Not
+Track setting, and receives no enquiry fields, booking details, or custom
+personal-data payloads.
 
 Paths in those files are public-root paths such as `/media/...`; `useSiteContent.ts` resolves them through `assetUrl()` so GitHub Pages subpaths continue to work. Routine content changes should edit JSON and add the referenced file; components should not need changing.
 
