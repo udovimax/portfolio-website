@@ -252,3 +252,81 @@ test('customer confirmation captures the Gmail thread created for a new enquiry'
   assert.equal(calls[0].recipient, 'customer@example.com')
   assert.equal(calls[0].options.replyTo, 'maxudovichenko.prod@gmail.com')
 })
+
+test('work input normalises a stable slug and required public fields', () => {
+  const result = plain(context.normaliseWorkInput_({
+    title: '  Uni-Verse: Reimagined  ',
+    type: 'Student Game',
+    year: '2026',
+    description: '  Game audio composition. ',
+    technologies: 'Composition, Sound Design',
+    thumbnailPath: '/media/works/uni-verse/thumb.jpg',
+    galleryPaths: ['/media/works/uni-verse/thumb.jpg'],
+    videoUrl: 'https://cdn.example.test/uni-verse.mp4',
+    createdAt: '', updatedAt: '',
+  }))
+
+  assert.deepEqual(result, {
+    id: 'uni-verse-reimagined',
+    status: 'published',
+    title: 'Uni-Verse: Reimagined',
+    type: 'Student Game',
+    year: 2026,
+    description: 'Game audio composition.',
+    technologies: ['Composition', 'Sound Design'],
+    thumbnailPath: '/media/works/uni-verse/thumb.jpg',
+    galleryPaths: ['/media/works/uni-verse/thumb.jpg'],
+    videoUrl: 'https://cdn.example.test/uni-verse.mp4',
+    videoPoster: '',
+    videoCaptions: '',
+    links: [],
+    createdAt: '',
+    updatedAt: '',
+  })
+})
+
+test('work projection links optional direct video to the current site contracts', () => {
+  const work = plain(context.normaliseWorkInput_({
+    id: 'work-one', title: 'Work One', type: 'Film Score', year: 2026,
+    description: 'A score.', technologies: ['Composition'],
+    thumbnailPath: '/media/works/work-one/thumb.jpg',
+    galleryPaths: ['/media/works/work-one/thumb.jpg'],
+    videoUrl: 'https://cdn.example.test/work-one.webm',
+    videoPoster: '/media/works/work-one/poster.jpg',
+    videoCaptions: '/media/works/work-one/captions.vtt',
+    links: [{ label: 'Case study', url: 'https://example.test/work-one' }],
+  }))
+
+  assert.deepEqual(plain(context.projectFromWork_(work)), {
+    id: 'work-one', title: 'Work One', type: 'Film Score', year: 2026,
+    description: 'A score.', technologies: ['Composition'],
+    thumbnail: '/media/works/work-one/thumb.jpg',
+    gallery: ['/media/works/work-one/thumb.jpg'], videoId: 'work-one',
+    links: [{ label: 'Case study', url: 'https://example.test/work-one' }],
+  })
+  assert.deepEqual(plain(context.videoFromWork_(work)), {
+    id: 'work-one', title: 'Work One', description: 'A score.', duration: '',
+    poster: '/media/works/work-one/poster.jpg', src: 'https://cdn.example.test/work-one.webm',
+    captions: '/media/works/work-one/captions.vtt',
+  })
+})
+
+test('work migration preserves existing local media video paths', () => {
+  const result = plain(context.normaliseWorkInput_({
+    id: 'legacy-work', title: 'Legacy Work', type: 'Film', year: 2025,
+    description: 'Existing portfolio entry.',
+    thumbnailPath: '/media/works/legacy-work/thumb.jpg',
+    videoUrl: '/media/video/legacy-work.mp4',
+  }))
+
+  assert.equal(result.videoUrl, '/media/video/legacy-work.mp4')
+})
+
+test('unpublished works are excluded from public projections', () => {
+  const works = [
+    { id: 'live', status: 'published', title: 'Live', type: 'Project', year: 2026, description: 'Live', technologies: [], thumbnailPath: '/live.jpg', galleryPaths: [], videoUrl: '', videoPoster: '', videoCaptions: '', links: [] },
+    { id: 'hidden', status: 'unpublished', title: 'Hidden', type: 'Project', year: 2026, description: 'Hidden', technologies: [], thumbnailPath: '/hidden.jpg', galleryPaths: [], videoUrl: '', videoPoster: '', videoCaptions: '', links: [] },
+  ]
+
+  assert.deepEqual(plain(context.publicProjectsFromWorks_(works)).map((item) => item.id), ['live'])
+})

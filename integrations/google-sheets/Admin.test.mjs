@@ -25,3 +25,12 @@ test('dashboard renders the latest customer reply from the linked Gmail thread',
   assert.match(html, /lead\.customerReply/)
   assert.match(html, /lead\.customerReplyAt/)
 })
+
+test('dashboard exposes the private work publisher lifecycle', () => {
+  assert.match(html, /id="work-form"/)
+  assert.match(html, /saveWork/)
+  assert.match(html, /unpublishWork/)
+  assert.match(html, /bootstrapWorks/)
+  assert.match(html, /Direct video URL/)
+  assert.match(html, /GITHUB_TOKEN/)
+})

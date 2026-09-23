@@ -31,6 +31,16 @@ var AVAILABILITY_HEADERS = [
 ];
 var TRAVEL_RULES_SHEET_NAME = 'Travel rules';
 var TRAVEL_RULE_HEADERS = ['From location', 'To location', 'Minutes', 'Fee', 'Updated at'];
+var WORKS_SHEET_NAME = 'Works';
+var WORK_HEADERS = [
+  'ID', 'Status', 'Title', 'Type', 'Year', 'Description', 'Technologies',
+  'Thumbnail', 'Gallery', 'Video URL', 'Video Poster', 'Video Captions',
+  'Links', 'Created at', 'Updated at',
+];
+var WORKS_BOOTSTRAPPED_PROPERTY = 'WORKS_BOOTSTRAPPED';
+var GITHUB_API_ROOT = 'https://api.github.com';
+var GITHUB_MAX_FILE_BYTES = 8 * 1024 * 1024;
+var GITHUB_MAX_UPLOAD_BYTES = 20 * 1024 * 1024;
 
 /** Public entry point for anonymous website lead and page-view POSTs. */
 function doPost(event) {
@@ -148,6 +158,9 @@ function getDashboardData() {
     },
     availability: availability,
     travelRules: readTravelRules_(),
+    works: readWorks_(),
+    githubPublishingConfigured: githubPublishingConfigured_(),
+    worksCatalogBootstrapped: worksCatalogBootstrapped_(),
   };
 }
 
@@ -1084,6 +1097,268 @@ function availabilityColumn_(sheet, header) {
   var index = headers.indexOf(header);
   if (index < 0) throw new Error('Missing availability column: ' + header);
   return index + 1;
+}
+
+/** Return Max's content-management records without exposing GitHub secrets. */
+function readWorks_() {
+  var sheet = getOrCreateSheet_(WORKS_SHEET_NAME, WORK_HEADERS);
+  var lastRow = sheet.getLastRow();
+  if (lastRow < 2) return [];
+  var values = sheet.getRange(2, 1, lastRow - 1, WORK_HEADERS.length).getValues();
+  return values.map(function (row, index) {
+    return {
+      row: index + 2,
+      id: String(row[0] || ''), status: String(row[1] || 'unpublished'), title: String(row[2] || ''),
+      type: String(row[3] || ''), year: Number(row[4] || 0), description: String(row[5] || ''),
+      technologies: parseJsonArray_(row[6]), thumbnailPath: String(row[7] || ''),
+      galleryPaths: parseJsonArray_(row[8]), videoUrl: String(row[9] || ''),
+      videoPoster: String(row[10] || ''), videoCaptions: String(row[11] || ''),
+      links: parseJson_(row[12], []), createdAt: row[13] || '', updatedAt: row[14] || '',
+    };
+  }).filter(function (work) { return Boolean(work.id); });
+}
+
+function saveWork(payload) {
+  requireAdmin_();
+  if (!worksCatalogBootstrapped_()) throw new Error('Import the current public works before saving a new work.');
+  var prepared = prepareWorkPayload_(payload || {});
+  var work = normaliseWorkInput_(prepared.work);
+  var sheet = getOrCreateSheet_(WORKS_SHEET_NAME, WORK_HEADERS);
+  var existing = readWorks_().filter(function (item) { return item.id === work.id; })[0];
+  var now = new Date();
+  work.createdAt = existing && existing.createdAt ? existing.createdAt : now;
+  work.updatedAt = now;
+  var row = existing ? existing.row : sheet.getLastRow() + 1;
+  sheet.getRange(row, 1, 1, WORK_HEADERS.length).setValues([workToRow_(work)]);
+  var works = readWorks_();
+  if (work.status === 'published') publishWorksToGitHub_(works, prepared.files, work.id);
+  return { ok: true, work: work, works: readWorks_(), commit: work.status === 'published' ? 'published' : '' };
+}
+
+function unpublishWork(id) {
+  requireAdmin_();
+  if (!worksCatalogBootstrapped_()) throw new Error('Import the current public works before unpublishing a work.');
+  var sheet = getOrCreateSheet_(WORKS_SHEET_NAME, WORK_HEADERS);
+  var work = readWorks_().filter(function (item) { return item.id === String(id || ''); })[0];
+  if (!work) throw new Error('Work not found.');
+  sheet.getRange(work.row, 2).setValue('unpublished');
+  sheet.getRange(work.row, 15).setValue(new Date());
+  var works = readWorks_();
+  var commit = publishWorksToGitHub_(works, [], work.id);
+  return { ok: true, works: works, commit: commit.sha };
+}
+
+/** One-time migration of the current public project/video catalog into Works. */
+function bootstrapWorks() {
+  requireAdmin_();
+  var sheet = getOrCreateSheet_(WORKS_SHEET_NAME, WORK_HEADERS);
+  if (sheet.getLastRow() > 1) throw new Error('Works is already populated.');
+  var projects = githubJsonFile_('app/public/content/projects.json').projects || [];
+  var videos = githubJsonFile_('app/public/content/videos.json').videos || [];
+  var rows = projects.map(function (project) {
+    var video = videos.filter(function (item) { return item.id === project.videoId; })[0];
+    return workToRow_(normaliseWorkInput_({
+      id: project.id, status: 'published', title: project.title, type: project.type,
+      year: project.year, description: project.description, technologies: project.technologies,
+      thumbnailPath: project.thumbnail, galleryPaths: project.gallery, videoUrl: video ? video.src : '',
+      videoPoster: video ? video.poster : '', videoCaptions: video ? video.captions : '', links: project.links,
+      createdAt: new Date(), updatedAt: new Date(),
+    }));
+  });
+  if (rows.length) sheet.getRange(2, 1, rows.length, WORK_HEADERS.length).setValues(rows);
+  PropertiesService.getScriptProperties().setProperty(WORKS_BOOTSTRAPPED_PROPERTY, 'true');
+  return { ok: true, imported: rows.length, works: readWorks_() };
+}
+
+function worksCatalogBootstrapped_() {
+  return PropertiesService.getScriptProperties().getProperty(WORKS_BOOTSTRAPPED_PROPERTY) === 'true';
+}
+
+function normaliseWorkInput_(input) {
+  var value = input || {};
+  var title = String(value.title || '').trim();
+  var type = String(value.type || '').trim();
+  var description = String(value.description || '').trim();
+  var thumbnailPath = String(value.thumbnailPath || '').trim();
+  var year = Number(value.year);
+  if (!title || title.length > 120) throw new Error('Title is required and must be 120 characters or fewer.');
+  if (!type || type.length > 80) throw new Error('Work type is required and must be 80 characters or fewer.');
+  if (!Number.isInteger(year) || year < 1900 || year > 2100) throw new Error('Enter a valid work year.');
+  if (!description || description.length > 2000) throw new Error('Description is required and must be 2000 characters or fewer.');
+  if (!thumbnailPath || thumbnailPath.indexOf('/media/') !== 0) throw new Error('A public thumbnail path is required.');
+  var videoUrl = String(value.videoUrl || '').trim();
+  if (videoUrl && !/^(?:\/media\/|https?:\/\/)[^\s]+\.(mp4|webm)(?:[?#].*)?$/i.test(videoUrl)) {
+    throw new Error('Video URL must be a direct MP4 or WebM URL.');
+  }
+  return {
+    id: String(value.id || slugifyWork_(title)), status: value.status === 'unpublished' ? 'unpublished' : 'published',
+    title: title, type: type, year: year, description: description,
+    technologies: normaliseStringArray_(value.technologies), thumbnailPath: thumbnailPath,
+    galleryPaths: normaliseStringArray_(value.galleryPaths), videoUrl: videoUrl,
+    videoPoster: String(value.videoPoster || '').trim(), videoCaptions: String(value.videoCaptions || '').trim(),
+    links: normaliseLinks_(value.links), createdAt: value.createdAt || '', updatedAt: value.updatedAt || '',
+  };
+}
+
+function projectFromWork_(work) {
+  var result = {
+    id: work.id, title: work.title, type: work.type, year: work.year, description: work.description,
+    technologies: work.technologies, thumbnail: work.thumbnailPath, gallery: work.galleryPaths, links: work.links,
+  };
+  if (work.videoUrl) result.videoId = work.id;
+  return result;
+}
+
+function videoFromWork_(work) {
+  if (!work.videoUrl) return null;
+  var result = {
+    id: work.id, title: work.title, description: work.description, duration: '',
+    poster: work.videoPoster || work.thumbnailPath, src: work.videoUrl,
+  };
+  if (work.videoCaptions) result.captions = work.videoCaptions;
+  return result;
+}
+
+function publicProjectsFromWorks_(works) {
+  return works.filter(function (work) { return work.status === 'published'; }).map(projectFromWork_);
+}
+
+function publicVideosFromWorks_(works) {
+  return works.filter(function (work) { return work.status === 'published'; }).map(videoFromWork_).filter(Boolean);
+}
+
+function workToRow_(work) {
+  return [work.id, work.status, work.title, work.type, work.year, work.description,
+    JSON.stringify(work.technologies), work.thumbnailPath, JSON.stringify(work.galleryPaths), work.videoUrl,
+    work.videoPoster, work.videoCaptions, JSON.stringify(work.links), work.createdAt || new Date(), work.updatedAt || new Date()];
+}
+
+function prepareWorkPayload_(payload) {
+  var input = Object.assign({}, payload.work || {});
+  var id = String(input.id || slugifyWork_(input.title || '')).trim();
+  var files = Array.isArray(payload.files) ? payload.files : [];
+  var totalBytes = 0;
+  var uploaded = [];
+  var galleryIndex = 0;
+  files.forEach(function (file, index) {
+    var encoded = String(file.base64 || '').replace(/^data:[^;]+;base64,/, '');
+    var bytes = Utilities.base64Decode(encoded).length;
+    totalBytes += bytes;
+    if (bytes > GITHUB_MAX_FILE_BYTES) throw new Error('Each uploaded file must be 8 MB or smaller.');
+    if (!/^(image\/(jpeg|png|webp|gif)|text\/vtt)$/i.test(String(file.mimeType || ''))) {
+      throw new Error('Only image files and WebVTT captions can be uploaded.');
+    }
+    var extension = safeFileExtension_(file.name, file.mimeType);
+    var kind = String(file.kind || 'gallery');
+    if (['thumbnail', 'gallery', 'poster', 'captions'].indexOf(kind) === -1) {
+      throw new Error('Unsupported work upload type.');
+    }
+    if (kind === 'gallery') galleryIndex += 1;
+    var path = '/media/works/' + id + '/' + kind + (kind === 'gallery' ? '-' + galleryIndex : '') + extension;
+    if (kind === 'thumbnail') input.thumbnailPath = path;
+    if (kind === 'poster') input.videoPoster = path;
+    if (kind === 'captions') input.videoCaptions = path;
+    if (kind === 'gallery') input.galleryPaths = (input.galleryPaths || []).concat([path]);
+    uploaded.push({ path: path, base64: encoded });
+  });
+  if (totalBytes > GITHUB_MAX_UPLOAD_BYTES) throw new Error('The combined upload must be 20 MB or smaller.');
+  input.id = id;
+  return { work: input, files: uploaded };
+}
+
+function publishWorksToGitHub_(works, uploadedFiles, changedId) {
+  var files = (uploadedFiles || []).map(function (file) {
+    return { path: 'app/public' + file.path, base64: file.base64 };
+  });
+  files.push({ path: 'app/public/content/projects.json', text: JSON.stringify({ projects: publicProjectsFromWorks_(works) }, null, 2) + '\n' });
+  files.push({ path: 'app/public/content/videos.json', text: JSON.stringify({ videos: publicVideosFromWorks_(works) }, null, 2) + '\n' });
+  return githubCommitFiles_(files, 'content: publish work ' + changedId);
+}
+
+function githubPublishingConfigured_() {
+  try { return Boolean(githubConfig_().token); } catch (error) { return false; }
+}
+
+function githubConfig_() {
+  var properties = PropertiesService.getScriptProperties().getProperties();
+  return {
+    token: String(properties.GITHUB_TOKEN || ''), owner: String(properties.GITHUB_OWNER || 'udovimax'),
+    repo: String(properties.GITHUB_REPO || 'portfolio-website'), branch: String(properties.GITHUB_BRANCH || 'main'),
+  };
+}
+
+function githubRequest_(method, path, body) {
+  var config = githubConfig_();
+  if (!config.token) throw new Error('GitHub publishing is not configured. Add GITHUB_TOKEN to Apps Script Properties.');
+  var options = {
+    method: method, muteHttpExceptions: true,
+    headers: { Authorization: 'Bearer ' + config.token, Accept: 'application/vnd.github+json', 'X-GitHub-Api-Version': '2022-11-28' },
+  };
+  if (body !== undefined) { options.contentType = 'application/json'; options.payload = JSON.stringify(body); }
+  var response = UrlFetchApp.fetch(GITHUB_API_ROOT + path, options);
+  var code = response.getResponseCode();
+  var text = response.getContentText();
+  if (code < 200 || code >= 300) throw new Error('GitHub publishing failed (' + code + ').');
+  return text ? JSON.parse(text) : {};
+}
+
+function githubRepoPath_(path) {
+  return path.split('/').map(encodeURIComponent).join('/');
+}
+
+function githubJsonFile_(path) {
+  var config = githubConfig_();
+  var result = githubRequest_('get', '/repos/' + config.owner + '/' + config.repo + '/contents/' + githubRepoPath_(path) + '?ref=' + encodeURIComponent(config.branch));
+  return JSON.parse(Utilities.newBlob(Utilities.base64Decode(String(result.content || '').replace(/\n/g, ''))).getDataAsString('UTF-8'));
+}
+
+function githubCommitFiles_(files, message) {
+  var config = githubConfig_();
+  var repo = '/repos/' + config.owner + '/' + config.repo;
+  var reference = githubRequest_('get', repo + '/git/ref/heads/' + encodeURIComponent(config.branch));
+  var parentSha = reference.object.sha;
+  var parentCommit = githubRequest_('get', repo + '/git/commits/' + parentSha);
+  var treeEntries = files.map(function (file) {
+    var base64 = file.base64 || Utilities.base64Encode(Utilities.newBlob(file.text || '').getBytes());
+    var blob = githubRequest_('post', repo + '/git/blobs', { content: base64, encoding: 'base64' });
+    return { path: file.path, mode: '100644', type: 'blob', sha: blob.sha };
+  });
+  var tree = githubRequest_('post', repo + '/git/trees', { base_tree: parentCommit.tree.sha, tree: treeEntries });
+  var commit = githubRequest_('post', repo + '/git/commits', { message: message, tree: tree.sha, parents: [parentSha] });
+  githubRequest_('patch', repo + '/git/refs/heads/' + encodeURIComponent(config.branch), { sha: commit.sha, force: false });
+  return { sha: commit.sha, url: commit.html_url || '' };
+}
+
+function slugifyWork_(value) {
+  var slug = String(value || '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+  return slug || 'work-' + Utilities.getUuid().slice(0, 8);
+}
+
+function normaliseStringArray_(value) {
+  var values = Array.isArray(value) ? value : String(value || '').split(',');
+  return values.map(function (item) { return String(item || '').trim(); }).filter(Boolean);
+}
+
+function normaliseLinks_(value) {
+  if (!Array.isArray(value)) return [];
+  return value.map(function (link) {
+    return { label: String(link.label || '').trim(), url: String(link.url || '').trim() };
+  }).filter(function (link) { return link.label && /^https?:\/\//i.test(link.url); });
+}
+
+function parseJson_(value, fallback) {
+  try { return JSON.parse(String(value || '')); } catch (error) { return fallback; }
+}
+
+function parseJsonArray_(value) {
+  var result = parseJson_(value, []);
+  return Array.isArray(result) ? result : normaliseStringArray_(value);
+}
+
+function safeFileExtension_(name, mimeType) {
+  var match = String(name || '').toLowerCase().match(/\.(jpg|jpeg|png|webp|gif|vtt)$/);
+  if (match) return match[0] === '.jpeg' ? '.jpg' : match[0];
+  return mimeType === 'text/vtt' ? '.vtt' : mimeType === 'image/png' ? '.png' : mimeType === 'image/webp' ? '.webp' : '.jpg';
 }
 
 function travelColumn_(sheet, header) {

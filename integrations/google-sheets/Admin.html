@@ -124,16 +124,27 @@
       .travel-rule-list { display: grid; gap: 8px; margin-top: 12px; }
       .travel-rule { display: flex; justify-content: space-between; align-items: center; gap: 12px; border: 1px solid var(--line); border-radius: 10px; padding: 9px 11px; }
       .travel-rule small { color: var(--muted); }
+      .works-panel { margin-bottom: 16px; }
+      .works-list { display: grid; gap: 8px; margin-top: 14px; }
+      .work-row { display: flex; justify-content: space-between; align-items: center; gap: 12px; border: 1px solid var(--line); border-radius: 12px; background: rgba(255,255,255,.035); padding: 10px 12px; }
+      .work-row-main { display: grid; gap: 2px; min-width: 0; }
+      .work-row-main small { color: var(--muted); }
+      .work-row-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 8px; }
+      .work-form { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin-top: 16px; border-top: 1px solid var(--line); padding-top: 16px; }
+      .work-form .field-full { grid-column: 1 / -1; }
+      .work-form-actions { display: flex; flex-wrap: wrap; gap: 8px; grid-column: 1 / -1; }
+      .work-form-note { margin: 0; color: var(--muted); font-size: 13px; grid-column: 1 / -1; }
       @media (max-width: 800px) {
         .stats { grid-template-columns: repeat(2, 1fr); }
         .layout { grid-template-columns: 1fr; }
         .lead-list { max-height: 330px; }
         .availability-form, .bulk-editor-form, .travel-rule-form { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        .work-form { grid-template-columns: 1fr; }
       }
       @media (max-width: 480px) {
         .shell { width: min(100% - 22px, 1180px); padding-top: 18px; }
         header { align-items: start; flex-direction: column; }
-        .stats, .detail-meta, .form-grid, .availability-form, .bulk-editor-form, .travel-rule-form { grid-template-columns: 1fr; }
+        .stats, .detail-meta, .form-grid, .availability-form, .bulk-editor-form, .travel-rule-form, .work-form { grid-template-columns: 1fr; }
         .availability-day { min-height: 62px; padding: 6px; }
         .availability-day-summary { font-size: 10px; }
         .availability-toolbar .button { min-width: 0; padding-inline: 10px; }
@@ -231,6 +242,33 @@
         </section>
       </section>
 
+      <section class="panel works-panel">
+        <div class="panel-heading"><h2>Works publisher</h2><span class="muted" id="github-status">Checking GitHub setup…</span></div>
+        <p class="availability-note">Add or edit a project without touching code. Images and captions are copied to GitHub; videos must be direct MP4/WebM URLs. Publishing triggers the normal Pages deployment.</p>
+        <div class="works-list" id="works-list"></div>
+        <form class="work-form" id="work-form">
+          <input name="id" type="hidden">
+          <label>Title<input name="title" type="text" maxlength="120" required></label>
+          <label>Type<input name="type" type="text" maxlength="80" placeholder="Film score, student game…" required></label>
+          <label>Year<input name="year" type="number" min="1900" max="2100" step="1" required></label>
+          <label>Status<select name="status"><option value="published">Publish immediately</option><option value="unpublished">Save unpublished</option></select></label>
+          <label class="field-full">Description<textarea name="description" maxlength="2000" required></textarea></label>
+          <label>Technologies<input name="technologies" type="text" placeholder="Composition, Sound Design"></label>
+          <label>Direct video URL<input name="videoUrl" type="url" placeholder="https://cdn.example.com/work.mp4"></label>
+          <label>Thumbnail<input name="thumbnail" type="file" accept="image/jpeg,image/png,image/webp,image/gif"></label>
+          <label>Gallery images<input name="gallery" type="file" accept="image/jpeg,image/png,image/webp,image/gif" multiple></label>
+          <label>Video poster<input name="poster" type="file" accept="image/jpeg,image/png,image/webp,image/gif"></label>
+          <label>Captions (.vtt)<input name="captions" type="file" accept="text/vtt,.vtt"></label>
+          <label class="field-full">Links <span class="muted">one per line: label | https://…</span><textarea name="links" placeholder="View case study | https://example.com"></textarea></label>
+          <p class="work-form-note">Each file: maximum 8 MB. Combined upload: maximum 20 MB. Existing media is retained when replaced.</p>
+          <div class="work-form-actions">
+            <button class="button" type="submit">Save work</button>
+            <button class="button" id="work-form-reset" type="button">Clear form</button>
+            <button class="button" id="works-bootstrap" type="button">Import current works</button>
+          </div>
+        </form>
+      </section>
+
       <div class="layout">
         <section class="panel">
           <div class="panel-heading"><h2>Enquiries</h2><span class="muted" id="lead-count"></span></div>
@@ -255,6 +293,7 @@
         selectedAvailabilityDates: [],
         contextMenu: null,
         bulkEditorOpen: false,
+        editingWork: null,
       };
 
       function serverCall(name) {
@@ -312,6 +351,112 @@
           item.appendChild(document.createTextNode(String(stats.viewsByPage[page])));
           container.appendChild(item);
         });
+      }
+
+      function renderWorks(works, configured, bootstrapped) {
+        document.getElementById('github-status').textContent = !configured
+          ? 'Add GITHUB_TOKEN in Apps Script Properties'
+          : !bootstrapped
+            ? 'Import the current public works before saving or publishing'
+            : 'GitHub publishing ready';
+        var container = document.getElementById('works-list');
+        container.replaceChildren();
+        if (!works || !works.length) {
+          container.appendChild(node('p', 'empty', 'No Works records yet. Import the current portfolio before adding new work.'));
+          return;
+        }
+        works.forEach(function (work) {
+          var row = node('div', 'work-row');
+          var main = node('div', 'work-row-main');
+          main.appendChild(node('strong', '', work.title));
+          main.appendChild(node('small', '', work.type + ' · ' + work.year + ' · ' + work.status));
+          row.appendChild(main);
+          var actions = node('div', 'work-row-actions');
+          var edit = node('button', 'button', 'Edit');
+          edit.type = 'button';
+          edit.addEventListener('click', function () { populateWorkForm(work); });
+          actions.appendChild(edit);
+          if (work.status === 'published') {
+            var unpublish = node('button', 'button', 'Unpublish');
+            unpublish.type = 'button';
+            unpublish.addEventListener('click', function () {
+              if (!window.confirm('Unpublish “' + work.title + '”? It will disappear from the public site but remain recoverable here.')) return;
+              unpublish.disabled = true;
+              serverCall('unpublishWork', work.id).then(function () {
+                showNotice('Work unpublished. GitHub Pages will update shortly.', 'success');
+                return refresh();
+              }).catch(function (error) { showNotice(error.message, 'error'); })
+                .then(function () { unpublish.disabled = false; });
+            });
+            actions.appendChild(unpublish);
+          }
+          row.appendChild(actions);
+          container.appendChild(row);
+        });
+      }
+
+      function populateWorkForm(work) {
+        state.editingWork = work;
+        var form = document.getElementById('work-form');
+        form.elements.id.value = work.id || '';
+        form.elements.title.value = work.title || '';
+        form.elements.type.value = work.type || '';
+        form.elements.year.value = work.year || '';
+        form.elements.status.value = work.status || 'published';
+        form.elements.description.value = work.description || '';
+        form.elements.technologies.value = (work.technologies || []).join(', ');
+        form.elements.videoUrl.value = work.videoUrl || '';
+        form.elements.links.value = (work.links || []).map(function (link) { return link.label + ' | ' + link.url; }).join('\n');
+        form.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+
+      function clearWorkForm() {
+        state.editingWork = null;
+        document.getElementById('work-form').reset();
+      }
+
+      function filePayload(file, kind) {
+        return new Promise(function (resolve, reject) {
+          if (!file) { resolve(null); return; }
+          var reader = new FileReader();
+          reader.onload = function () { resolve({ kind: kind, name: file.name, mimeType: file.type || 'application/octet-stream', base64: reader.result }); };
+          reader.onerror = function () { reject(new Error('Could not read ' + file.name + '.')); };
+          reader.readAsDataURL(file);
+        });
+      }
+
+      function selectedFilePayloads(form) {
+        var jobs = [];
+        if (form.elements.thumbnail.files[0]) jobs.push(filePayload(form.elements.thumbnail.files[0], 'thumbnail'));
+        Array.prototype.forEach.call(form.elements.gallery.files || [], function (file) { jobs.push(filePayload(file, 'gallery')); });
+        if (form.elements.poster.files[0]) jobs.push(filePayload(form.elements.poster.files[0], 'poster'));
+        if (form.elements.captions.files[0]) jobs.push(filePayload(form.elements.captions.files[0], 'captions'));
+        return Promise.all(jobs);
+      }
+
+      function parseWorkLinks(value) {
+        return String(value || '').split('\n').map(function (line) {
+          var parts = line.split('|');
+          return { label: (parts.shift() || '').trim(), url: parts.join('|').trim() };
+        }).filter(function (link) { return link.label && /^https?:\/\//i.test(link.url); });
+      }
+
+      function submitWork(form) {
+        selectedFilePayloads(form).then(function (files) {
+          var current = state.editingWork || {};
+          var work = {
+            id: form.elements.id.value || '', title: form.elements.title.value, type: form.elements.type.value,
+            year: form.elements.year.value, status: form.elements.status.value, description: form.elements.description.value,
+            technologies: form.elements.technologies.value, thumbnailPath: current.thumbnailPath || '',
+            galleryPaths: current.galleryPaths || [], videoUrl: form.elements.videoUrl.value,
+            videoPoster: current.videoPoster || '', videoCaptions: current.videoCaptions || '', links: parseWorkLinks(form.elements.links.value),
+          };
+          return serverCall('saveWork', { work: work, files: files.filter(Boolean) });
+        }).then(function () {
+          showNotice('Work saved. GitHub Pages will update shortly.', 'success');
+          clearWorkForm();
+          return refresh();
+        }).catch(function (error) { showNotice(error.message, 'error'); });
       }
 
       function pad(value) { return String(value).padStart(2, '0'); }
@@ -774,6 +919,7 @@
         document.getElementById('account').textContent = 'Signed in as ' + state.data.adminEmail;
         renderStats(state.data.stats);
         renderPages(state.data.stats);
+        renderWorks(state.data.works || [], state.data.githubPublishingConfigured, state.data.worksCatalogBootstrapped);
         renderAvailability(state.data.availability);
         renderLeads(state.data.leads);
         renderDetail();
@@ -791,6 +937,20 @@
 
       document.getElementById('refresh').addEventListener('click', refresh);
       document.getElementById('refresh-availability').addEventListener('click', refresh);
+      document.getElementById('work-form').addEventListener('submit', function (event) {
+        event.preventDefault();
+        submitWork(event.currentTarget);
+      });
+      document.getElementById('work-form-reset').addEventListener('click', clearWorkForm);
+      document.getElementById('works-bootstrap').addEventListener('click', function (event) {
+        if (!window.confirm('Import the current public projects and videos into the Works editor?')) return;
+        event.currentTarget.disabled = true;
+        serverCall('bootstrapWorks').then(function () {
+          showNotice('Current works imported. You can now edit or add work.', 'success');
+          return refresh();
+        }).catch(function (error) { showNotice(error.message, 'error'); })
+          .then(function () { event.currentTarget.disabled = false; });
+      });
       document.getElementById('bulk-edit-open').addEventListener('click', openBulkEditor);
       document.getElementById('context-edit-selected').addEventListener('click', openBulkEditor);
       document.getElementById('bulk-edit-cancel').addEventListener('click', closeBulkEditor);
