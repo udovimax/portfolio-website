@@ -7,9 +7,8 @@ const sitemap = readFileSync(new URL('../../public/sitemap.xml', import.meta.url
 const robots = readFileSync(new URL('../../public/robots.txt', import.meta.url), 'utf8')
 const packageJson = JSON.parse(readFileSync(new URL('../../package.json', import.meta.url), 'utf8'))
 const siteUrl = 'https://maxudovichenko.art/'
-const positioning = 'Original music and sound for film, games and creative projects.'
 const siteTitle = 'Max Udovichenko | Music and Sound for Film, Games and Creative Projects'
-const siteDescription = `${positioning} Max composes and produces music and designs sound while studying Music Technology at Kingston University London.`
+const siteDescription = 'Original music, production, and sound design for film, games, and creative projects by Max Udovichenko.'
 
 function metaValue(attribute, value) {
   const escapedValue = value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
