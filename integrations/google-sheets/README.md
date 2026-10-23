@@ -23,6 +23,40 @@ slots, and deployments.
 6. Paste that URL into `app/public/content/socials.json` as
    `googleSheetsEndpoint`, commit it, and push `main`.
 
+## Works publisher
+
+The private dashboard can maintain the public Projects and Videos catalogue
+without Max editing the website code. It stores the editorial records in a
+`Works` tab, uploads selected images/captions to the repository, and commits
+the generated `app/public/content/projects.json` and `videos.json` files to
+GitHub. The existing GitHub Pages workflow then builds and publishes the
+updated site.
+
+Max must configure the publisher once in **Apps Script → Project Settings →
+Script properties**:
+
+1. Create a fine-grained GitHub token for `udovimax/portfolio-website` with
+   repository **Contents: Read and write** permission. Keep the token private.
+2. Add a script property named `GITHUB_TOKEN` with that token as its value.
+3. Optionally add `GITHUB_OWNER`, `GITHUB_REPO`, and `GITHUB_BRANCH`; their
+   defaults are `udovimax`, `portfolio-website`, and `main`.
+4. Open the private dashboard, click **Import current works**, and refresh.
+   This one-time migration protects the existing Projects and Videos catalogue
+   before the first edit is published.
+
+After that, Max can create or edit a work, choose **Published** or
+**Unpublished**, select a thumbnail and optional gallery/poster/WebVTT caption
+files, and click **Save work**. Videos use a direct HTTPS MP4 or WebM
+URL; the dashboard does not proxy or store large video files. Each image or
+caption is limited to 8 MB and the combined upload is limited to 20 MB.
+Unpublishing removes the work from the public JSON while keeping the record in
+the `Works` tab so it can be edited and republished later.
+
+The GitHub commit is made as one tree update, so the generated Projects and
+Videos files change together. The publisher refuses to save or publish until
+the one-time import has completed, preventing an uninitialised `Works` tab
+from replacing the current public catalogue.
+
 ## Booking availability
 
 The site shows booking date/time fields only when a visitor chooses `Booking /
