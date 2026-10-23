@@ -5,14 +5,19 @@ import test from 'node:test'
 const readContent = (fileName) => JSON.parse(readFileSync(new URL(`../../public/content/${fileName}`, import.meta.url), 'utf8'))
 const readSource = (fileName) => readFileSync(new URL(`../${fileName}`, import.meta.url), 'utf8')
 
-test('about copy leads with verified composition, production, and sound-design work', () => {
+test('the homepage intro sells services and guides visitors to work or contact', () => {
   const about = readContent('about.json')
 
   assert.equal(about.headline, 'Original music and sound for film, games and creative projects.')
   assert.match(about.intro, /compose original music/i)
   assert.match(about.intro, /produce recordings/i)
   assert.match(about.intro, /design sound for film, games, and creative projects/i)
-  assert.match(about.intro, /third-year Music Technology student at Kingston University London/i)
+  assert.match(about.intro, /explore selected work or get in touch to discuss a session or brief/i)
+  assert.doesNotMatch(about.intro, /student|Kingston University London/i)
+
+  const education = about.timeline.find(({ title }) => title === 'Kingston University London')
+  assert.ok(education, 'education remains available in the About timeline')
+  assert.match(education.description, /BA \(Hons\) Music Technology/i)
 })
 
 test('the featured 5.1 work retains its checked-in identity and production credit', () => {
@@ -58,9 +63,10 @@ test('every project video association resolves to a named project video', () => 
 
 test('about preserves current study and labels graduation as an expected target', () => {
   const about = readContent('about.json')
+  const education = about.timeline.find(({ title }) => title === 'Kingston University London')
   const graduation = about.timeline.find(({ year }) => year === '2027')
 
-  assert.match(about.intro, /third-year Music Technology student at Kingston University London/i)
+  assert.ok(education, 'the education milestone remains in the timeline')
   assert.ok(graduation, 'the future graduation milestone remains in the timeline')
   assert.equal(graduation.title, 'Graduation Target')
   assert.match(graduation.description, /Expected completion/i)
