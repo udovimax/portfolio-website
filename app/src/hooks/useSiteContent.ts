@@ -75,6 +75,7 @@ function resolveContentAssets(
 
 function resolveArchiveAssets(archive: ArchiveContent): ArchiveContent {
   return {
+    videoIntro: archive.videoIntro,
     photos: archive.photos.map((photo) => ({
       ...photo,
       src: assetUrl(photo.src),

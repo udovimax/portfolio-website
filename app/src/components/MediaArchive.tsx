@@ -18,6 +18,7 @@ interface MediaArchiveProps {
 export function MediaArchive({ archive, onOpenVideo }: MediaArchiveProps) {
   return (
     <div className="media-archive-list" aria-label="Video archive">
+      <p className="mb-6 max-w-3xl text-sm text-white/65">{archive.videoIntro}</p>
       {archive.videos.map((video, index) => (
         <article
           className="archive-video-list-item"
@@ -38,8 +39,6 @@ export function MediaArchive({ archive, onOpenVideo }: MediaArchiveProps) {
           <div className="archive-video-copy">
             <p className="section-heading">Archive clip / {String(index + 1).padStart(2, '0')}</p>
             <h2>{video.title}</h2>
-            <p>{video.description}</p>
-            <p className="archive-video-format">Short moving fragment · {video.duration}</p>
             <button
               type="button"
               className="magnetic-btn archive-open-button"
