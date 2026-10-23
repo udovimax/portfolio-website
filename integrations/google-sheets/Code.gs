@@ -1106,7 +1106,7 @@ function readWorks_() {
   if (lastRow < 2) return [];
   var values = sheet.getRange(2, 1, lastRow - 1, WORK_HEADERS.length).getValues();
   return values.map(function (row, index) {
-    return {
+    return workForClient_({
       row: index + 2,
       id: String(row[0] || ''), status: String(row[1] || 'unpublished'), title: String(row[2] || ''),
       type: String(row[3] || ''), year: Number(row[4] || 0), description: String(row[5] || ''),
@@ -1114,8 +1114,16 @@ function readWorks_() {
       galleryPaths: parseJsonArray_(row[8]), videoUrl: String(row[9] || ''),
       videoPoster: String(row[10] || ''), videoCaptions: String(row[11] || ''),
       links: parseJson_(row[12], []), createdAt: row[13] || '', updatedAt: row[14] || '',
-    };
+    });
   }).filter(function (work) { return Boolean(work.id); });
+}
+
+/** google.script.run cannot return Date objects; expose timestamps as strings. */
+function workForClient_(work) {
+  var result = Object.assign({}, work || {});
+  result.createdAt = formatDateOrText_(result.createdAt);
+  result.updatedAt = formatDateOrText_(result.updatedAt);
+  return result;
 }
 
 function saveWork(payload) {
@@ -1131,8 +1139,9 @@ function saveWork(payload) {
   var row = existing ? existing.row : sheet.getLastRow() + 1;
   sheet.getRange(row, 1, 1, WORK_HEADERS.length).setValues([workToRow_(work)]);
   var works = readWorks_();
-  if (work.status === 'published') publishWorksToGitHub_(works, prepared.files, work.id);
-  return { ok: true, work: work, works: readWorks_(), commit: work.status === 'published' ? 'published' : '' };
+  publishWorksToGitHub_(works, prepared.files, work.id);
+  var savedWork = works.filter(function (item) { return item.id === work.id; })[0] || null;
+  return { ok: true, work: savedWork, works: works, commit: work.status === 'published' ? 'published' : '' };
 }
 
 function unpublishWork(id) {

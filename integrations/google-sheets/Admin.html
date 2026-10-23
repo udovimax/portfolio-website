@@ -928,11 +928,18 @@
       function refresh() {
         showNotice('Refreshing…', 'muted');
         return serverCall('getDashboardData').then(function (data) {
+          if (!data || !Array.isArray(data.leads) || !data.stats || !Array.isArray(data.availability)) {
+            throw new Error('Dashboard response was invalid. Check that Code.gs and Admin.html are saved and deployed together.');
+          }
           state.data = data;
           if (!state.selectedRow && data.leads.length) state.selectedRow = data.leads[0].row;
           render();
           showNotice('Updated just now.', 'muted');
-        }).catch(function (error) { showNotice(error.message, 'error'); });
+        }).catch(function (error) {
+          document.getElementById('account').textContent = 'Dashboard unavailable';
+          document.getElementById('availability-month').textContent = 'Calendar unavailable';
+          showNotice('Could not load dashboard: ' + (error && error.message ? error.message : String(error || 'Unknown error')), 'error');
+        });
       }
 
       document.getElementById('refresh').addEventListener('click', refresh);

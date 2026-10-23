@@ -34,3 +34,9 @@ test('dashboard exposes the private work publisher lifecycle', () => {
   assert.match(html, /Direct video URL/)
   assert.match(html, /GITHUB_TOKEN/)
 })
+
+test('dashboard reports an invalid server response without dereferencing null', () => {
+  assert.match(html, /Array\.isArray\(data\.leads\)/)
+  assert.match(html, /Dashboard response was invalid/)
+  assert.match(html, /Dashboard unavailable/)
+})

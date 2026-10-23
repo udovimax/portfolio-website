@@ -322,6 +322,62 @@ test('work migration preserves existing local media video paths', () => {
   assert.equal(result.videoUrl, '/media/video/legacy-work.mp4')
 })
 
+test('work records convert spreadsheet Date values before returning to the dashboard', () => {
+  const result = plain(vm.runInNewContext(
+    'workForClient_({createdAt: new Date("2026-09-23T12:00:00Z"), updatedAt: new Date("2026-09-24T12:00:00Z")})',
+    context,
+  ))
+
+  assert.equal(result.createdAt, '2026-09-21')
+  assert.equal(result.updatedAt, '2026-09-21')
+  assert.equal(typeof result.createdAt, 'string')
+})
+
+test('saving an unpublished work removes it from the public catalogue', () => {
+  const original = {}
+  const names = ['requireAdmin_', 'worksCatalogBootstrapped_', 'getOrCreateSheet_', 'readWorks_', 'publishWorksToGitHub_']
+  names.forEach((name) => { original[name] = context[name] })
+
+  let stored = {
+    row: 2, id: 'work-one', status: 'published', title: 'Work One', type: 'Film Score', year: 2026,
+    description: 'An original score.', technologies: ['Composition'],
+    thumbnailPath: '/media/works/work-one/thumbnail.jpg', galleryPaths: [], videoUrl: '',
+    videoPoster: '', videoCaptions: '', links: [], createdAt: '2026-09-20', updatedAt: '2026-09-20',
+  }
+  let publishCallCount = 0
+  let publishedWorks = []
+  context.requireAdmin_ = () => {}
+  context.worksCatalogBootstrapped_ = () => true
+  context.getOrCreateSheet_ = () => ({
+    getRange: () => ({ setValues: ([row]) => {
+      stored = { ...stored, row: 2, id: row[0], status: row[1], title: row[2], createdAt: row[13], updatedAt: row[14] }
+    } }),
+  })
+  context.readWorks_ = () => [stored]
+  context.publishWorksToGitHub_ = (works) => {
+    publishCallCount += 1
+    publishedWorks = plain(works)
+    return { sha: 'commit-sha' }
+  }
+
+  try {
+    context.saveWork({
+      work: {
+        id: 'work-one', status: 'unpublished', title: 'Work One', type: 'Film Score', year: '2026',
+        description: 'An original score.', technologies: ['Composition'],
+        thumbnailPath: '/media/works/work-one/thumbnail.jpg', galleryPaths: [], videoUrl: '',
+      },
+      files: [],
+    })
+
+    assert.equal(publishCallCount, 1)
+    assert.equal(publishedWorks[0].status, 'unpublished')
+    assert.deepEqual(plain(context.publicProjectsFromWorks_(publishedWorks)), [])
+  } finally {
+    names.forEach((name) => { context[name] = original[name] })
+  }
+})
+
 test('unpublished works are excluded from public projections', () => {
   const works = [
     { id: 'live', status: 'published', title: 'Live', type: 'Project', year: 2026, description: 'Live', technologies: [], thumbnailPath: '/live.jpg', galleryPaths: [], videoUrl: '', videoPoster: '', videoCaptions: '', links: [] },
