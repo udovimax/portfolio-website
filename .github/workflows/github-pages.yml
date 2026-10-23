@@ -133,7 +133,7 @@ jobs:
         uses: actions/upload-pages-artifact@v3
         with:
           path: app/dist
-          retention-days: 30
+          retention-days: 90
 
   deploy:
     environment:
