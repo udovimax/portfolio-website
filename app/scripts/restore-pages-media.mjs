@@ -21,12 +21,12 @@ if (!sourceRoot || !destinationRoot) {
   throw new Error('Usage: node scripts/restore-pages-media.mjs <source-root> <destination-root>')
 }
 
-await rm(destinationRoot, { recursive: true, force: true })
 await mkdir(destinationRoot, { recursive: true })
 
 const sourceFiles = await collectFiles(sourceRoot)
 let copied = 0
 let skippedPointers = 0
+let removedDestinationPointers = 0
 
 for (const sourcePath of sourceFiles) {
   const payload = await readFile(sourcePath)
@@ -46,9 +46,16 @@ for (const sourcePath of sourceFiles) {
   copied += 1
 }
 
+for (const destinationPath of await collectFiles(destinationRoot)) {
+  if (isGitLfsPointer(await readFile(destinationPath))) {
+    await rm(destinationPath)
+    removedDestinationPointers += 1
+  }
+}
+
 if (copied === 0) {
   throw new Error(`No real media payloads were restored from ${sourceRoot}; skipped ${skippedPointers} Git LFS pointers.`)
 }
 
 const destinationStats = await stat(destinationRoot)
-console.log(`Restored ${copied} media payloads from nested Pages artifact data (${destinationStats.isDirectory() ? 'directory ready' : 'invalid destination'}); skipped ${skippedPointers} Git LFS pointers.`)
+console.log(`Restored ${copied} media payloads from ${sourceRoot} (${destinationStats.isDirectory() ? 'directory ready' : 'invalid destination'}); skipped ${skippedPointers} source pointers and removed ${removedDestinationPointers} destination pointers.`)
