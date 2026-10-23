@@ -50,6 +50,7 @@
     { "id": "archive-47", "src": "/media/images/instagram/film-47.webp", "alt": "Max Instagram archive image 47" },
     { "id": "archive-48", "src": "/media/images/instagram/film-48.jpg", "alt": "Max Instagram archive image 48" }
   ],
+  "videoIntro": "Short moving fragments from Max’s music archive.",
   "videos": [
     { "id": "highlight-video-01", "title": "Highlight study 01", "description": "A short moving fragment from Max's music archive.", "duration": "00:45", "poster": "/media/max-instagram/stills/clip-01.jpg", "preview": "/media/max-instagram/stills/clip-01.jpg", "loop": "/media/max-instagram/loops/clip-01.mp4", "src": "/media/max-instagram/full-videos/clip-01.mp4" },
     { "id": "highlight-video-02", "title": "Highlight study 02", "description": "A short moving fragment from Max's music archive.", "duration": "00:20", "poster": "/media/max-instagram/stills/clip-02.jpg", "preview": "/media/max-instagram/stills/clip-02.jpg", "loop": "/media/max-instagram/loops/clip-02.mp4", "src": "/media/max-instagram/full-videos/clip-02.mp4" },

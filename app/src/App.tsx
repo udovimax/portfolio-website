@@ -307,6 +307,8 @@ function App() {
   const isPlayingRef = useRef(isPlaying)
 
   const tracks = content?.music.tracks ?? []
+  const featuredTrackIndex = tracks.findIndex((track) => track.id === 'track-51')
+  const featuredTrack = featuredTrackIndex >= 0 ? tracks[featuredTrackIndex] : null
   const activeTrack: Track | null = tracks[trackIndex] ?? null
   const closeContact = useCallback(() => setContactOpen(false), [])
   const openContact = useCallback((interest = '') => {
@@ -705,36 +707,63 @@ function App() {
           ) : null}
           <div className="hero-intro-grid mt-14">
             <div className="hero-copy">
-              <div className="hero-role-stack space-y-3 text-2xl text-white/75 sm:text-4xl">
-                {content?.about.roles.map((role, index) => (
-                  <motion.p
+              <div className="hero-role-stack space-y-3">
+                <h2 className="max-w-3xl text-3xl font-semibold leading-tight text-white sm:text-4xl lg:text-5xl">
+                  {content?.about.headline}
+                </h2>
+                <div className="flex flex-wrap gap-x-5 gap-y-1 text-sm uppercase tracking-[0.18em] text-white/60">
+                  {content?.about.roles.map((role, index) => (
+                    <motion.span
                     key={role}
                     initial={{ opacity: 0, x: -20 }}
                     whileInView={{ opacity: 1, x: 0 }}
                     viewport={{ once: true, amount: 0.6 }}
                     transition={{ delay: index * 0.14, duration: 0.5 }}
                   >
-                    {role}.
-                  </motion.p>
-                ))}
+                      {role}
+                    </motion.span>
+                  ))}
+                </div>
               </div>
               <motion.p
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ duration: 0.7, delay: 0.62 }}
-                className="mt-10 max-w-3xl text-lg text-white/70"
+                className="mt-6 max-w-3xl text-lg text-white/70"
               >
                 {content?.about.intro}
               </motion.p>
-              <motion.a
-                href="#about"
-                className="hero-more-link magnetic-btn"
-                initial={shouldReduceMotion ? false : { opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.55, delay: 0.78, ease: [0.22, 1, 0.36, 1] }}
-              >
-                More
-              </motion.a>
+              {featuredTrack ? (
+                <article className="mt-7 max-w-3xl rounded-2xl border border-white/15 bg-black/25 p-5">
+                  <p className="section-heading">Featured work / {featuredTrack.year}</p>
+                  <div className="mt-3 flex flex-wrap items-start justify-between gap-4">
+                    <div className="min-w-0 flex-1">
+                      <h3 className="text-xl font-semibold text-white">{featuredTrack.title}</h3>
+                      <p className="mt-2 text-sm text-white/70">{featuredTrack.description}</p>
+                      <p className="mt-2 text-xs text-white/55">{featuredTrack.credits}</p>
+                    </div>
+                    <button
+                      type="button"
+                      className="magnetic-btn inline-flex min-h-11 items-center rounded-full border border-white/30 px-4 py-2 text-xs uppercase tracking-[0.18em] text-white transition-colors hover:border-[#9ec9ff] hover:text-[#9ec9ff] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#9ec9ff]"
+                      onClick={() => playSpecificTrack(featuredTrackIndex)}
+                    >
+                      Play featured work
+                    </button>
+                  </div>
+                </article>
+              ) : null}
+              <div className="mt-2 flex flex-wrap gap-3">
+                <a href="#music" className="hero-more-link magnetic-btn">
+                  Hear selected work
+                </a>
+                <button
+                  type="button"
+                  className="hero-more-link magnetic-btn"
+                  onClick={() => openContact(PRODUCER_INTEREST)}
+                >
+                  Discuss a project
+                </button>
+              </div>
             </div>
             <Reveal className="hero-image-band-wrap" delay={0.12}>
               <HeroImageBand />
@@ -934,8 +963,9 @@ function App() {
                             type="button"
                             className="magnetic-btn work-full-bleed-action"
                             onClick={() => setActiveVideo(linkedVideo)}
+                            aria-label={`Watch ${linkedVideo.title} project video`}
                           >
-                            Watch cinematic video
+                            Watch {linkedVideo.title}
                           </button>
                         ) : null}
                       </div>
@@ -973,25 +1003,30 @@ function App() {
             <div className="max-w-4xl">
               <div>
                 <PageTitle className="text-4xl font-semibold sm:text-6xl" delay={0.14}>
-                  Artistic Philosophy
+                  About Max
                 </PageTitle>
-                <p className="mt-4 max-w-3xl text-lg text-white/75">{content?.about.philosophy}</p>
+                <p className="mt-4 max-w-3xl text-lg text-white/75">{content?.about.intro}</p>
+                <p className="section-heading mt-8">Creative approach</p>
+                <p className="mt-3 max-w-3xl text-lg text-white/75">{content?.about.philosophy}</p>
                 {content?.about.skills.length ? (
-                  <div className="skills-list mt-8" aria-label="Skills">
-                    {content.about.skills.map((skill, index) => (
-                      <Reveal key={skill} delay={0.05 + index * 0.03}>
-                        <article
-                          className="skills-list-item"
-                          style={{ '--skill-art': `url("${assetUrl(filmPhotoBackgrounds[index % filmPhotoBackgrounds.length])}")` } as CSSProperties}
-                        >
-                          <span className="skills-carousel-index" aria-hidden="true">
-                            {String(index + 1).padStart(2, '0')}
-                          </span>
-                          <h2>{skill}</h2>
-                        </article>
-                      </Reveal>
-                    ))}
-                  </div>
+                  <>
+                    <p className="section-heading mt-8">Selected skills</p>
+                    <div className="skills-list mt-4" aria-label="Selected skills">
+                      {content.about.skills.map((skill, index) => (
+                        <Reveal key={skill} delay={0.05 + index * 0.03}>
+                          <article
+                            className="skills-list-item"
+                            style={{ '--skill-art': `url("${assetUrl(filmPhotoBackgrounds[index % filmPhotoBackgrounds.length])}")` } as CSSProperties}
+                          >
+                            <span className="skills-carousel-index" aria-hidden="true">
+                              {String(index + 1).padStart(2, '0')}
+                            </span>
+                            <h2>{skill}</h2>
+                          </article>
+                        </Reveal>
+                      ))}
+                    </div>
+                  </>
                 ) : null}
               </div>
             </div>

@@ -17,6 +17,7 @@ export interface AboutContent {
     professional: string
   }
   roles: string[]
+  headline: string
   intro: string
   philosophy: string
   timeline: AboutTimelineItem[]
@@ -110,6 +111,7 @@ export interface ArchiveVideo {
 
 export interface ArchiveContent {
   photos: ArchivePhoto[]
+  videoIntro: string
   videos: ArchiveVideo[]
 }
 
